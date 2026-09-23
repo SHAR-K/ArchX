@@ -5,6 +5,7 @@
 [![CI](https://github.com/SHAR-K/archx/actions/workflows/ci.yml/badge.svg)](https://github.com/SHAR-K/archx/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](engine/pyproject.toml)
+[![Discord](https://img.shields.io/badge/chat-Discord-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/sCtshjP6N9)
 
 Two halves that share one snapshot of facts:
 
@@ -111,6 +112,9 @@ tools/       build and smoke scripts
 Profiles need no Python. Toolchain adapters need no engine knowledge. Both paths, plus the
 engine itself, are described in [CONTRIBUTING.md](CONTRIBUTING.md)
 ([English](CONTRIBUTING.en.md)).
+
+Questions, scan results from your own firmware, or a profile you want to write:
+[join the Discord](https://discord.gg/sCtshjP6N9). Bugs go to issues.
 
 ```bash
 npm ci && npm run check && npm test   # engine unit tests, tools and extension
