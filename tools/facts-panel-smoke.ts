@@ -14,7 +14,7 @@ import { buildIndex } from "../packages/facts-view/src/graph.mjs";
 import { buildStateTransitions, statePanel } from "../packages/facts-view/src/fsm/model.mjs";
 import { buildMemory } from "../packages/facts-view/src/memory/model.mjs";
 import { buildDependencies } from "../packages/facts-view/src/deps/model.mjs";
-import { buildExecution } from "../packages/facts-view/src/execution/model.mjs";
+import { buildExecution, treeChildren, rootProfile } from "../packages/facts-view/src/execution/model.mjs";
 import { buildConcurrency } from "../packages/facts-view/src/concurrency/model.mjs";
 import { buildTiming } from "../packages/facts-view/src/timing/model.mjs";
 import { buildRound } from "../packages/facts-view/src/timing/sequence.mjs";
@@ -64,6 +64,9 @@ const payload = {
 // 一轮按需算：桩要像宿主一样答话，所以先把每个入口的一轮备好
 const roundRoots = [view.entries.main, ...(view.entries.units ?? []).map((u) => u.entry ?? u.entrySymbolId)].filter(Boolean);
 const rounds = Object.fromEntries(roundRoots.map((root) => [root, buildRound(view, root, { index })]));
+// 执行树画布要孩子和概览：桩把入口那一层备好
+const kids = Object.fromEntries(roundRoots.map((root) => [root, treeChildren(index, root)]));
+const profiles = Object.fromEntries(roundRoots.map((root) => [root, rootProfile(index, root)]));
 
 const work = fs.mkdtempSync(path.join(os.tmpdir(), "archx-facts-"));
 const page = path.join(work, "page.html");
@@ -73,9 +76,17 @@ fs.writeFileSync(page, `<!doctype html><meta charset="utf-8">
 <script>
   window.__sent = [];
   window.__rounds = ${JSON.stringify(rounds)};
+  window.__kids = ${JSON.stringify(kids)};
+  window.__profiles = ${JSON.stringify(profiles)};
   // 桩按宿主的行为答话：收到 round 请求就把算好的那一份投回去
   window.acquireVsCodeApi = () => ({ postMessage: (m) => {
     window.__sent.push(m);
+    if (m && m.type === "treeChildren" && window.__kids[m.symbol]) {
+      setTimeout(() => window.postMessage({ type: "treeChildren", symbol: m.symbol, children: window.__kids[m.symbol] }, "*"), 10);
+    }
+    if (m && m.type === "rootProfile" && window.__profiles[m.id]) {
+      setTimeout(() => window.postMessage({ type: "rootProfile", id: m.id, profile: window.__profiles[m.id] }, "*"), 10);
+    }
     if (m && m.type === "round") {
       setTimeout(() => window.postMessage({ type: "round", root: m.root, round: window.__rounds[m.root] }, "*"), 10);
     }
@@ -92,7 +103,7 @@ fs.writeFileSync(page, `<!doctype html><meta charset="utf-8">
   };
   setTimeout(() => {
     // 执行关系是默认主题：记下入口和树根，再依次看依赖和状态转换
-    window.__exec = { roots: document.querySelectorAll(".machine").length, treeRows: document.querySelectorAll(".trow").length, cmpCells: document.querySelectorAll(".cmp td.cnt").length, search: document.querySelectorAll(".fnsearch input").length };
+    window.__exec = { roots: document.querySelectorAll(".machine").length, treeRows: document.querySelectorAll(".trow").length, canvasNodes: document.querySelectorAll(".xc-node").length, moduleOrder: document.querySelectorAll(".xc-mod").length, cmpCells: document.querySelectorAll(".cmp td.cnt").length, search: document.querySelectorAll(".fnsearch input").length };
     clickTheme("Dependencies");
   }, 250);
   setTimeout(() => {
@@ -193,7 +204,8 @@ assert.equal(probe.cmpCells, 2, "双根对比矩阵要有两个格子");
 assert.equal(probe.search, 1, "入口栏顶上要有函数搜索框");
 // 执行关系：main 和 led_task 两个入口，树根一行
 assert.equal(probe.roots, 5, `入口应有 5 个（main、两个中断、两个任务），实际 ${probe.roots}`);
-assert.ok(probe.treeRows >= 1, "调用树至少画出根节点");
+assert.ok(probe.canvasNodes >= 2, `执行树画布至少画出根和它的子节点，实得 ${probe.canvasNodes}`);
+assert.ok(probe.moduleOrder >= 1, "画布上方要有模块首次触及顺序");
 // 共享与并发：两个标志各一行，两个中断各一级
 assert.ok(html.includes("Sharing &amp; concurrency"), "主题导航里没有共享与并发");
 assert.ok(probe.rows >= 2, `并发矩阵应至少 2 行，实际 ${probe.rows}`);

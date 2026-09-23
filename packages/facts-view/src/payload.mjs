@@ -5,7 +5,7 @@
 import { buildIndex } from "./graph.mjs";
 import { buildStateTransitions, statePanel } from "./fsm/model.mjs";
 import { buildDependencies, edgeDetail } from "./deps/model.mjs";
-import { buildExecution, callEdgeEvidence, compareRoots, functionEntry, treeChildren } from "./execution/model.mjs";
+import { buildExecution, callEdgeEvidence, compareRoots, functionEntry, rootProfile, treeChildren } from "./execution/model.mjs";
 import { buildConcurrency, resourceSides } from "./concurrency/model.mjs";
 import { buildMemory } from "./memory/model.mjs";
 import { buildTiming } from "./timing/model.mjs";
@@ -55,6 +55,9 @@ export function answer(view, index, irqPairs, message) {
       return { type: "edgeDetail", edgeId: message.edgeId, data: edgeDetail(view, message.sourceFiles, message.targetFiles) };
     case "treeChildren":
       return { type: "treeChildren", symbol: message.symbol, children: treeChildren(index, message.symbol, { irqPairs }) };
+    case "rootProfile":
+      // 执行树画布：从一个函数出发，模块首次触及顺序和按模块统计的可达函数
+      return { type: "rootProfile", id: message.id, profile: rootProfile(index, message.id) };
     case "callEvidence":
       return { type: "callEvidence", evidence: callEdgeEvidence(view, message.from, message.to, { index }) };
     case "functionEntry":

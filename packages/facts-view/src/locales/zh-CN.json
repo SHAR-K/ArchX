@@ -606,5 +606,16 @@
   "Main loop": "主循环",
   "Callbacks": "回调",
   "Pick an interrupt, task or the main loop on the left to see what one round of it does, in order.": "在左侧选一个中断、任务或主循环，看它一轮里依次做什么。",
-  "period unknown · click the row for the order of one round": "周期未知 · 点这一行看一轮的顺序"
+  "period unknown · click the row for the order of one round": "周期未知 · 点这一行看一轮的顺序",
+  "Breadth-first from the entry, calls in line order: the first function that enters each module": "从入口广度优先，同层按调用行号：每个模块第一次被走进的那个函数",
+  "Modules in the order first reached": "模块首次触及顺序",
+  "first reached at depth {d} through {fn}": "在深度 {d} 经 {fn} 首次到达",
+  "Right = one call deeper · down = source line order · click a card to unfold or fold it": "向右 = 调用更深一层 · 向下 = 源码行号顺序 · 点卡片展开 / 收起",
+  "Root only": "只留根",
+  "registered here, runs elsewhere": "在这里注册，在别处运行",
+  "scheduler hop inferred from a framework rule": "调度这一跳由框架规则推出",
+  "double-click to open the source": "双击打开源码",
+  "Canvas": "画布",
+  "List": "列表",
+  "{n} functions run below it": "它下面跑着 {n} 个函数"
 }

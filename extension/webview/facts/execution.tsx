@@ -14,7 +14,8 @@
 
 import { t } from "../../../packages/facts-view/src/i18n.mjs";
 import { useContext, useEffect, useMemo, useState } from "react";
-import type { ExecutionTheme, FunctionEntry, RootComparison, TreeChild } from "../../../packages/facts-view/src/execution/model.d.mts";
+import type { ExecutionTheme, FunctionEntry, RootComparison, RootProfile, TreeChild } from "../../../packages/facts-view/src/execution/model.d.mts";
+import { ExecCanvas, moduleHue } from "./exec-canvas.tsx";
 import { Inspector, Rail, UiContext } from "./slots.tsx";
 
 export interface ExecutionProps {
@@ -31,6 +32,8 @@ export interface ExecutionProps {
   evidence: EdgeEvidence | null;
   compare: { a: string; b: string; data: RootComparison | null } | null;
   entry: { id: string; data: FunctionEntry | null } | null;
+  profiles: Record<string, RootProfile>;
+  onRequestProfile: (id: string) => void;
 }
 
 export interface EdgeEvidence {
@@ -48,6 +51,8 @@ function TreeNode({ symbol, edge, depth, ancestors, reveal, props }: { symbol: s
   const [open, setOpen] = useState(depth === 0 || reveal.has(symbol));
   // 「在执行树中展开到这里」：链上的节点被点名就打开，不管之前是不是收着的
   useEffect(() => { if (reveal.has(symbol)) setOpen(true); }, [reveal, symbol]);
+  // 一开始就是展开的（根、被点名的链）也要去要孩子，不然永远停在 Loading…
+  useEffect(() => { if (open && !ancestors.includes(symbol) && props.children[symbol] === undefined) props.onRequestChildren(symbol); }, [open, symbol]);
   const fn = props.functions[symbol];
   const kids = props.children[symbol];
   const cycle = ancestors.includes(symbol);
@@ -274,6 +279,41 @@ function Compare({ props }: { props: ExecutionProps }) {
   );
 }
 
+/** 选中的函数：它下面跑着多少函数、按模块怎么分，以及它的直接调用。原型执行树右栏那一块 */
+function ProfileCard({ profile, onOpenFile, onPick }: { profile: RootProfile; onOpenFile: ExecutionProps["onOpenFile"]; onPick: (id: string) => void }) {
+  const max = Math.max(1, ...profile.byModule.map((m) => m.count));
+  return (
+    <div className="detail">
+      <div className="detail-head">
+        <button className="link strong" onClick={() => onOpenFile(profile.file, profile.line)}><code>{profile.name}</code></button>
+        <span className="sub">{profile.file}{profile.line ? `:${profile.line}` : ""}{profile.module ? ` · ${profile.module}` : ""}</span>
+      </div>
+      <p className="sub">{t("{n} functions run below it", { n: profile.reaches })}</p>
+      <div className="xp-mods">
+        {profile.byModule.map((m) => (
+          <div key={m.module} className="xp-mod">
+            <span className="xp-bar" style={{ width: `${(m.count / max) * 100}%`, ["--h" as string]: String(moduleHue(m.module)) }} />
+            <span className="xp-name">{m.module}</span>
+            <span className="xp-n">{m.count}</span>
+          </div>
+        ))}
+      </div>
+      {profile.direct.length > 0 && (
+        <>
+          <p className="sub">{t("Direct calls (in region)")} {profile.direct.length}</p>
+          {profile.direct.map((d) => (
+            <div key={d.id} className="line">
+              <button className="link" onClick={() => onPick(d.id)}><code>{d.name}</code></button>
+              {d.kind === "register" && <span className="pill register">{t("registers")}</span>}
+              <button className="link sub" onClick={() => onOpenFile(d.file, null)}>{String(d.file ?? "").split("/").pop()}</button>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Execution(props: ExecutionProps) {
   const { theme } = props;
   // 选了哪个入口、沿哪条链展开是跨栏的：入口列表和链在侧栏，树在舞台
@@ -281,6 +321,13 @@ export function Execution(props: ExecutionProps) {
   const rootId = ui.exec.rootId ?? theme.roots[0]?.symbol ?? null;
   const reveal = useMemo(() => new Set(ui.exec.reveal), [ui.exec.reveal]);
   const setRootId = (id: string | null) => patch({ exec: { rootId: id, reveal: [] } });
+  // 画布 / 列表：原型默认画布；「在执行树中展开到这里」要的是那条链，切回列表
+  const [shape, setShape] = useState<"canvas" | "list">("canvas");
+  const [picked, setPicked] = useState<string | null>(null);
+  useEffect(() => { if (ui.exec.reveal.length) setShape("list"); }, [ui.exec.reveal]);
+  useEffect(() => { setPicked(null); }, [rootId]);
+  const focusId = picked ?? rootId;
+  useEffect(() => { if (focusId) props.onRequestProfile(focusId); }, [focusId]);
   if (!theme.available) return <p className="empty">{theme.hint ?? t("This scan has no execution-unit facts.")}</p>;
   const root = theme.roots.find((r) => r.symbol === rootId) ?? theme.roots[0];
   const evidence = props.evidence;
@@ -325,9 +372,22 @@ export function Execution(props: ExecutionProps) {
               <button className="ghost" onClick={() => props.onCopyId(root.id)}>{t("Copy reference")}</button>
             </header>
             <p className="sub">{theme.basis}</p>
-            <div className="tree">
-              <TreeNode key={root.symbol} symbol={root.symbol} edge={null} depth={0} ancestors={[]} reveal={reveal} props={props} />
+            <div className="seg">
+              <button className={shape === "canvas" ? "on" : ""} onClick={() => setShape("canvas")}>{t("Canvas")}</button>
+              <button className={shape === "list" ? "on" : ""} onClick={() => setShape("list")}>{t("List")}</button>
             </div>
+            {shape === "canvas"
+              ? <ExecCanvas rootId={root.symbol} rootName={root.name} rootModule={props.profiles[root.symbol]?.module ?? null} children={props.children}
+                  onRequestChildren={props.onRequestChildren} selected={focusId} onSelect={setPicked} onOpenFile={props.onOpenFile}
+                  functions={props.functions} profile={props.profiles[root.symbol] ?? null} />
+              : (
+                <div className="tree">
+                  <TreeNode key={root.symbol} symbol={root.symbol} edge={null} depth={0} ancestors={[]} reveal={reveal} props={props} />
+                </div>
+              )}
+            {shape === "canvas" && focusId && props.profiles[focusId] && !props.entry && !evidence && (
+              <Inspector><ProfileCard profile={props.profiles[focusId]} onOpenFile={props.onOpenFile} onPick={setPicked} /></Inspector>
+            )}
           </>
         )}
         {evidence && (

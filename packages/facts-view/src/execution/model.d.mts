@@ -5,7 +5,21 @@ export interface TreeChild {
   target: string;
   line: number | null;
   derived?: boolean;
+  name?: string;
+  file?: string | null;
+  module?: string | null;
+  count?: number;
+  external?: boolean;
 }
+
+export interface RootProfile {
+  id: string; name: string; file: string | null; line: number | null; module: string | null;
+  moduleOrder: Array<{ module: string; depth: number; via: string; fn: string }>;
+  reaches: number;
+  byModule: Array<{ module: string; count: number }>;
+  direct: Array<{ id: string; name: string; file: string | null; line: number | null; kind: string }>;
+}
+export declare function rootProfile(index: unknown, rootId: string): RootProfile;
 
 export interface ExecutionRoot {
   id: string; symbol: string; kind: string; name: string; file: string | null;

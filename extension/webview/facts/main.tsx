@@ -15,7 +15,7 @@ import { layoutMachine } from "../../../packages/facts-view/src/fsm/layout.mjs";
 import { Timing } from "./timing.tsx";
 import type { TimingTheme } from "../../../packages/facts-view/src/timing/model.d.mts";
 import type { Round } from "../../../packages/facts-view/src/timing/sequence.d.mts";
-import type { ExecutionTheme, FunctionEntry, RootComparison, TreeChild } from "../../../packages/facts-view/src/execution/model.d.mts";
+import type { ExecutionTheme, FunctionEntry, RootComparison, RootProfile, TreeChild } from "../../../packages/facts-view/src/execution/model.d.mts";
 import type { Declarations, DepEdge, DependenciesTheme, EdgeDetail } from "../../../packages/facts-view/src/deps/model.d.mts";
 import type { MemoryTheme } from "../../../packages/facts-view/src/memory/model.d.mts";
 import type { AtomRow, FsmMachine, StatePanel, StateTransitionsTheme } from "../../../packages/facts-view/src/types.d.mts";
@@ -421,6 +421,7 @@ function App() {
   const [evidence, setEvidence] = useState<EdgeEvidence | null>(null);
   const [compare, setCompare] = useState<{ a: string; b: string; data: RootComparison | null } | null>(null);
   const [entry, setEntry] = useState<{ id: string; data: FunctionEntry | null } | null>(null);
+  const [profiles, setProfiles] = useState<Record<string, RootProfile>>({});
   // 左栏两个槽位的 DOM 落点，各主题用 portal 往里投
   const [rail, setRail] = useState<HTMLElement | null>(null);
   const [inspector, setInspector] = useState<HTMLElement | null>(null);
@@ -431,11 +432,15 @@ function App() {
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       const message = event.data as { type: string; payload?: Payload; text?: string; id?: string; edgeId?: string; data?: EdgeDetail; symbol?: string; children?: TreeChild[]; evidence?: EdgeEvidence | null; sides?: ResourceSides | null; root?: string; round?: Round; a?: string; b?: string; comparison?: RootComparison; entry?: FunctionEntry | null; ui?: Ui; side?: boolean };
-      if (message.type === "facts" && message.payload) { setPayload(message.payload); setDeclarations(message.payload.declarations); setDetail(null); setTreeKids({}); setEvidence(null); setCompare(null); setEntry(null); setSides(null); setRound(null); setStatus(""); }
+      if (message.type === "facts" && message.payload) { setPayload(message.payload); setDeclarations(message.payload.declarations); setDetail(null); setTreeKids({}); setProfiles({}); setEvidence(null); setCompare(null); setEntry(null); setSides(null); setRound(null); setStatus(""); }
       if (message.type === "edgeDetail" && message.edgeId && message.data) setDetail({ edgeId: message.edgeId, data: message.data });
       if (message.type === "treeChildren" && message.symbol) setTreeKids((prev) => ({ ...prev, [message.symbol!]: message.children ?? [] }));
       if (message.type === "callEvidence") setEvidence(message.evidence ?? null);
       if (message.type === "functionEntry" && message.id) setEntry({ id: message.id, data: message.entry ?? null });
+      if (message.type === "rootProfile" && message.id && (message as unknown as { profile?: RootProfile }).profile) {
+        const profile = (message as unknown as { profile: RootProfile }).profile;
+        setProfiles((prev) => ({ ...prev, [message.id!]: profile }));
+      }
       // 只认自己刚要的那一对
       if (message.type === "compareRoots" && message.a && message.b) setCompare({ a: message.a, b: message.b, data: message.comparison ?? null });
       if (message.type === "resourceSides") setSides(message.sides ?? null);
@@ -527,6 +532,8 @@ function App() {
           entry={entry}
           onRequestEntry={(id: string) => { setEntry({ id, data: null }); vscode.postMessage({ type: "functionEntry", id }); }}
           onClearEntry={() => setEntry(null)}
+          profiles={profiles}
+          onRequestProfile={(id: string) => { if (!profiles[id]) vscode.postMessage({ type: "rootProfile", id }); }}
         />
       )}
       {theme === "timing" && (

@@ -111,7 +111,10 @@ export function treeChildren(index, id, options = {}) {
 
   const deduped = new Map();
   for (const k of kids) { const key = `${k.kind}:${k.target}`; if (!deduped.has(key)) deduped.set(key, k); }
-  const list = [...deduped.values()];
+  // 画布上每张卡片要写：名字、所在模块、下面还有几个（区域内的直接被调）
+  const moduleOfFn = (fnId) => index.fileById?.get(index.fileOf(fnId))?.module ?? null;
+  const countOf = (fnId) => new Set((index.calleesOf.get(fnId) ?? []).filter((c) => index.inRegion(index.fnById.get(c.t)?.file ?? "")).map((c) => c.t)).size;
+  const list = [...deduped.values()].map((k) => ({ ...k, name: index.nameOf(k.target), file: index.fileOf(k.target), module: moduleOfFn(k.target), count: countOf(k.target), external: Boolean(index.fnById.get(k.target)?.external) }));
 
   // 调度那一跳：代码里没有这条边，是框架规则推出来的，标 derived
   if (showScheduling && schedulerNames.has(index.nameOf(id))) {
@@ -122,6 +125,53 @@ export function treeChildren(index, id, options = {}) {
     }
   }
   return list;
+}
+
+/**
+ * 从一个函数出发的概览：模块首次触及顺序（广度优先，同一层按调用行号），和它下面可达的函数按模块统计。
+ * 原型执行树顶上那条「(root) → drivers → communication → app」就是 moduleOrder：启动路径依次穿过哪些层。
+ */
+export function rootProfile(index, rootId) {
+  const moduleOfFn = (fnId) => index.fileById?.get(index.fileOf(fnId))?.module ?? null;
+  const inRegion = (fnId) => index.inRegion(index.fnById.get(fnId)?.file ?? "");
+  const order = [];
+  const seenModule = new Set();
+  const seen = new Set([rootId]);
+  let frontier = [rootId];
+  let depth = 0;
+  const firstModule = moduleOfFn(rootId);
+  if (firstModule != null) { seenModule.add(firstModule); order.push({ module: firstModule, depth: 0, via: index.nameOf(rootId), fn: rootId }); }
+  while (frontier.length && depth < 64) {
+    depth += 1;
+    const next = [];
+    for (const id of frontier) {
+      const callees = (index.calleesOf.get(id) ?? []).slice().sort((a, b) => (a.line ?? 0) - (b.line ?? 0));
+      for (const c of callees) {
+        if (seen.has(c.t) || !inRegion(c.t)) continue;
+        seen.add(c.t);
+        next.push(c.t);
+        const m = moduleOfFn(c.t);
+        if (m != null && !seenModule.has(m)) { seenModule.add(m); order.push({ module: m, depth, via: index.nameOf(c.t), fn: c.t }); }
+      }
+    }
+    frontier = next;
+  }
+  const byModule = new Map();
+  for (const id of index.reachOf(rootId)) {
+    if (id === rootId || !inRegion(id)) continue;
+    const m = moduleOfFn(id) ?? "(none)";
+    byModule.set(m, (byModule.get(m) ?? 0) + 1);
+  }
+  const direct = [...new Map((index.calleesOf.get(rootId) ?? []).filter((c) => inRegion(c.t)).map((c) => [c.t, c])).values()]
+    .sort((a, b) => (a.line ?? 0) - (b.line ?? 0))
+    .map((c) => ({ id: c.t, name: index.nameOf(c.t), file: index.fileOf(c.t), line: c.line ?? null, kind: c.kind === "register" ? "register" : "call" }));
+  return {
+    id: rootId, name: index.nameOf(rootId), file: index.fileOf(rootId), line: index.fnById.get(rootId)?.line ?? null, module: moduleOfFn(rootId),
+    moduleOrder: order,
+    reaches: [...byModule.values()].reduce((n, v) => n + v, 0),
+    byModule: [...byModule].map(([module, count]) => ({ module, count })).sort((a, b) => b.count - a.count || a.module.localeCompare(b.module)),
+    direct,
+  };
 }
 
 /** include 可达：沿 include 边走几跳能不能看见目标文件所在的模块。 */

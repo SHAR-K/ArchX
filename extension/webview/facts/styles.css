@@ -559,3 +559,39 @@ table.grid tr.pick { cursor: pointer; }
 .ol-group { margin-bottom: 6px; }
 .ol-group-h, .ol-group summary { margin: 4px 0 2px; }
 .ol-marks { display: flex; gap: 8px; font-size: 10.5px; color: var(--dim); margin-top: 1px; }
+
+/* 执行树画布（原型执行树的画布形态） */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 2px 0 6px; }
+.seg button { font: inherit; font-size: 11.5px; padding: 2px 10px; border: 0; background: none; color: inherit; cursor: pointer; }
+.seg button.on { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+.xc-order { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 2px 0 6px; font-size: 11px; }
+.xc-mod { padding: 1px 7px; border-radius: 10px; border: 1px solid hsl(var(--h) 55% 50% / .6); background: hsl(var(--h) 60% 50% / .12); }
+.xc-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.xc-vp { position: relative; height: 520px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--vscode-editor-background); cursor: grab; }
+.xc-vp:active { cursor: grabbing; }
+.xc-vp svg { display: block; user-select: none; }
+.xc-edge { fill: none; stroke: var(--dim); stroke-width: 1.1; opacity: .7; }
+.xc-edge.register { stroke-dasharray: 5 3; stroke: var(--guard); }
+.xc-edge.schedule { stroke-dasharray: 2 3; stroke: var(--guard); }
+.xc-edge.irq { stroke: var(--neg); }
+.xc-node rect:first-of-type { fill: var(--vscode-editorWidget-background, var(--vscode-editor-background)); stroke: var(--line); stroke-width: 1.2; }
+.xc-node:hover rect:first-of-type { stroke: var(--vscode-focusBorder); }
+.xc-node.sel rect:first-of-type { stroke: var(--vscode-focusBorder); stroke-width: 2.2; }
+.xc-node.root rect:first-of-type { fill: var(--vscode-foreground); }
+.xc-node.root .xc-name { fill: var(--vscode-editor-background); }
+.xc-node.cycle rect:first-of-type, .xc-node.ext rect:first-of-type { stroke-dasharray: 4 3; }
+.xc-name { font-size: 11.5px; font-weight: 700; fill: var(--vscode-foreground); font-family: var(--vscode-editor-font-family, monospace); }
+.xc-tag { fill: hsl(var(--h) 65% 55% / .28); stroke: none; }
+.xc-tagt { font-size: 8.5px; fill: var(--vscode-foreground); }
+.xc-badge { fill: var(--vscode-badge-background, #616161); }
+.xc-badge.open { fill: var(--vscode-focusBorder); opacity: 1; }
+.xc-count { font-size: 9.5px; font-weight: 700; fill: var(--vscode-badge-foreground, #fff); }
+.xc-badge.open + .xc-count { fill: #fff; }
+.xc-node.root .xc-tagt { fill: var(--vscode-editor-background); }
+.xc-node.root .xc-tag { fill: hsl(var(--h) 65% 55% / .55); }
+.xc-node.cycle .xc-count { fill: var(--dim); }
+.xp-mods { display: flex; flex-direction: column; gap: 2px; margin: 4px 0 8px; }
+.xp-mod { position: relative; display: flex; justify-content: space-between; font-size: 11.5px; padding: 1px 4px; }
+.xp-bar { position: absolute; left: 0; top: 0; bottom: 0; background: hsl(var(--h) 60% 50% / .16); border-radius: 2px; }
+.xp-name, .xp-n { position: relative; }
+.xp-n { font-variant-numeric: tabular-nums; color: var(--dim); }
