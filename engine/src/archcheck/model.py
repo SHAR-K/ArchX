@@ -386,9 +386,18 @@ class Coverage:
 class EntryPoint:
     kind: str
     symbol_id: str
+    # Called by the framework (``entry_functions`` rule), not found by name; ``superloop``:
+    # the whole body is one pass of the main loop (Arduino ``loop()``).
+    rule: str | None = None
+    superloop: bool = False
 
-    def to_dict(self) -> dict[str, str]:
-        return {"kind": self.kind, "symbolId": self.symbol_id}
+    def to_dict(self) -> dict[str, Any]:
+        out: dict[str, Any] = {"kind": self.kind, "symbolId": self.symbol_id}
+        if self.rule is not None:
+            out["rule"] = self.rule
+        if self.superloop:
+            out["superloop"] = True
+        return out
 
 
 @dataclass(frozen=True)

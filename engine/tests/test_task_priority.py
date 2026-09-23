@@ -119,3 +119,23 @@ class RegisteredInterruptTest(unittest.TestCase):
         self.assertIsNone(payload["vector"])
         self.assertEqual(40, payload["registeredAt"]["line"])
         self.assertEqual("esp_idf.gpio_isr_handler_add", payload["rule"])
+
+
+class EntryRuleTest(unittest.TestCase):
+    def test_entry_functions_apply_only_without_a_main(self) -> None:
+        from archcheck.model import FunctionSymbol, SourceLocation
+        from archcheck.runtime_units import build_entries, VectorTable
+        rules = parse_framework_rules({"entry_functions": [
+            {"rule": "a.loop", "function": "loop", "superloop": True},
+            {"rule": "a.setup", "function": "setup"},
+        ]})
+        fn = lambda name: FunctionSymbol(symbol_id=f"function:app.cpp:{name}", name=name, detail="", location=SourceLocation("app.cpp", 1, 1), end_line=2)
+        table = VectorTable(entries=(), routines=())
+        entries = build_entries((fn("setup"), fn("loop")), table, rules)
+        self.assertEqual([("main", "function:app.cpp:loop", True), ("main", "function:app.cpp:setup", False)], [(e.kind, e.symbol_id, e.superloop) for e in entries])
+        self.assertEqual({"kind": "main", "symbolId": "function:app.cpp:loop", "rule": "a.loop", "superloop": True}, entries[0].to_dict())
+        # 工程自己有 main：loop 只是个普通函数
+        entries = build_entries((fn("main"), fn("loop")), table, rules)
+        self.assertEqual(["function:app.cpp:main"], [e.symbol_id for e in entries])
+        with self.assertRaises(FrameworkRulesError):
+            parse_framework_rules({"entry_functions": [{"function": "f", "kind": "isr"}]})

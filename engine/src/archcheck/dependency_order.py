@@ -27,7 +27,7 @@ from typing import Any, Iterable, Sequence
 from archcheck.dsm_cluster import ClusterParams, cluster
 
 _SYMBOL = re.compile(r"^(?:function|variable):(.+):([^:]+)$")
-_SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx"}
+_SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".ino"}
 _HEADER_SUFFIXES = {".h", ".hpp", ".hh", ".hxx", ".inc"}
 
 

@@ -102,6 +102,23 @@ class RegistrationRule:
 
 
 @dataclass(frozen=True)
+class EntryRule:
+    """A function the framework calls on the project's behalf (``entry_functions:``).
+
+    Arduino hides ``main()`` in its core: ``setup()`` runs once, then ``loop()`` is called
+    forever.  ``superloop: true`` says the function's whole body is one pass of the main
+    loop, the same thing a ``while (1)`` inside ``main`` is in a bare-metal project.  These
+    names are generic (``loop``), so they only apply when the project defines no ``main`` /
+    ``app_main`` of its own.
+    """
+
+    rule_id: str
+    function: str
+    kind: str = "main"
+    superloop: bool = False
+
+
+@dataclass(frozen=True)
 class IsrEnableRule:
     rule_id: str
     function: str
@@ -206,6 +223,7 @@ class FrameworkRules:
     critical_sections: tuple[CriticalSectionRule, ...] = ()
     systicks: tuple[SysTickRule, ...] = ()
     task_controls: tuple[TaskControlRule, ...] = ()
+    entry_functions: tuple[EntryRule, ...] = ()
     # Scheduler tick in milliseconds, used to convert ``tick`` durations; a declared
     # assumption (default 1 ms), overridable per project with ``tick_ms:`` in the rules file.
     tick_ms: float = 1.0
@@ -364,6 +382,7 @@ def _merge(parts: list[FrameworkRules], sources: list[str]) -> FrameworkRules:
         critical_sections=tuple(rule for part in parts for rule in part.critical_sections),
         systicks=tuple(rule for part in parts for rule in part.systicks),
         task_controls=tuple(rule for part in parts for rule in part.task_controls),
+        entry_functions=tuple(rule for part in parts for rule in part.entry_functions),
         tick_ms=tick_ms,
         atomic_width_bytes=atomic_width_bytes,
         scheduling=scheduling,
@@ -601,7 +620,15 @@ def parse_framework_rules(
     scheduling = section.get("scheduling", "unknown")
     if scheduling not in SCHEDULING_KINDS:
         raise FrameworkRulesError(f"{origin}.scheduling 必须是 cooperative/preemptive，收到 {scheduling!r}")
+    entry_functions: list[EntryRule] = []
+    for index, item in enumerate(_list(section.get("entry_functions"), f"{origin}.entry_functions")):
+        function = _string(item.get("function"), f"{origin}.entry_functions[{index}].function")
+        kind = str(item.get("kind") or "main")
+        if kind != "main":
+            raise FrameworkRulesError(f"{origin}.entry_functions[{index}].kind 目前只能是 main，收到 {kind!r}")
+        entry_functions.append(EntryRule(rule_id=str(item.get("rule") or f"project.entry.{function}"), function=function, kind=kind, superloop=bool(item.get("superloop", False))))
     return FrameworkRules(
+        entry_functions=tuple(entry_functions),
         registrations=tuple(registrations),
         isr_enables=tuple(isr_enables),
         sources=(origin,),

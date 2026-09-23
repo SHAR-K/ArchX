@@ -56,8 +56,8 @@ export function buildBeat(view, options = {}) {
   // main 也是一行：裸机的超级循环就是那一轮，RTOS 下它是启动后的前台循环。没有它，
   // 没注册任何任务的工程这页就只剩中断条——而裸机主循环正是这个工具的核心受众
   // 只在 main 自己的函数体里有无限循环时才成行：把循环交给 scheduler_run 之类的工程，行是那些任务
-  const mainHasLoop = Boolean(entries.main) && loopsIn(entries.main).some((l) => l.infinite && !l.depth);
-  const mainRow = mainHasLoop && !tasks.some((r) => r.id === entries.main) ? { unitId: "main:main", id: entries.main, kind: "main" } : null;
+  const mainHasLoop = Boolean(entries.main) && (entries.mainSuperloop || loopsIn(entries.main).some((l) => l.infinite && !l.depth));
+  const mainRow = mainHasLoop && !tasks.some((r) => r.id === entries.main) ? { unitId: entries.mainUnit ?? "main:main", id: entries.main, kind: "main" } : null;
   const rowFor = (reg) => {
     const fn = index.fnById.get(reg.id);
     const rm = ast.runModes?.[reg.unitId] ?? null;
@@ -153,7 +153,7 @@ export function buildBeat(view, options = {}) {
   if (busy) chip(t("runs every round · unbounded busy-wait"), String(busy), null, true);
 
   // 执行单元之间的数据依赖：写方 → 读方 · 变量 · 顺序。顺序码的固定对应见 ORDER_LABEL
-  const regionUnits = new Set([...(entries.units ?? []).map((u) => u.id), "main:main"]);
+  const regionUnits = new Set([...(entries.units ?? []).map((u) => u.id), entries.mainUnit ?? "main:main"]);
   const dd = (view.dataDependencies ?? []).filter((d) => regionUnits.has(d.from) || regionUnits.has(d.to));
   const counts = {};
   for (const d of dd) counts[d.order] = (counts[d.order] ?? 0) + 1;

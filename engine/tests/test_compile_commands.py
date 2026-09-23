@@ -69,6 +69,23 @@ class LoadCompileCommandsTests(unittest.TestCase):
             self.assertEqual(mapping.source, "/root/workspace")
             self.assertEqual(mapping.target, project.resolve())
 
+    def test_no_mapping_when_the_listed_files_exist_on_this_machine(self) -> None:
+        # PlatformIO 列出 ~/.platformio 里的框架源码，那边也有 libraries/ 这种和工程同名的目录；
+        # 文件在本机原样就在，就不许把框架根当成「旧工程根」映射过来
+        with isolated_work_directory() as root:
+            project = root / "project"
+            (project / "libraries").mkdir(parents=True)
+            framework = root / "framework" / "libraries" / "SPI"
+            framework.mkdir(parents=True)
+            (framework / "SPI.cpp").write_text("void f(void) {}", encoding="utf-8")
+            (project / "main.cpp").write_text("int main() { return 0; }", encoding="utf-8")
+            database = project / "compile_commands.json"
+            database.write_text(json.dumps([
+                {"directory": str(project), "file": str(framework / "SPI.cpp"), "arguments": ["g++", "-c", str(framework / "SPI.cpp")]},
+                {"directory": str(project), "file": str(project / "main.cpp"), "arguments": ["g++", "-c", str(project / "main.cpp")]},
+            ]), encoding="utf-8")
+            self.assertIsNone(infer_path_mapping(database, project))
+
     def test_writes_clangd_database_with_local_paths_and_inferred_target(self) -> None:
         with isolated_work_directory() as project:
             (project / "src").mkdir()

@@ -27,7 +27,7 @@ from archcheck.model import (
 
 
 HEADER_SUFFIXES = {".h", ".hpp", ".hh", ".hxx", ".inc"}
-SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx"}
+SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".ino"}
 CALL_LIKE_RELATIONS = {"calls", "address_of", "registers_task", "registers_callback"}
 MAX_INCLUDE_DEPTH = 3
 

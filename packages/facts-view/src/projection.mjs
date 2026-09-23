@@ -239,6 +239,10 @@ export function buildFactsView(facts, region, options = {}) {
 
   const entries = {
     main: mainFn?.id ?? null,
+    // main 单元的 ID 跟引擎一致：<kind>:<函数名>。main() 是 main:main，ESP-IDF 是 main:app_main，Arduino 是 main:loop
+    mainUnit: mainFn ? `main:${mainFn.name}` : null,
+    // 框架代为无限调用的入口（Arduino loop）：整个函数体就是大循环的一轮
+    mainSuperloop: Boolean(mainEntry?.superloop),
     enableSites,
     inactive,
     externalSymbols: [...functions.values()].filter((fn) => fn.external).map((fn) => ({ id: fn.id, name: fn.name, library: fn.library, declaredIn: fn.declaredIn, callers: (callersOf.get(fn.id) ?? []).map((pair) => pair.s) })),

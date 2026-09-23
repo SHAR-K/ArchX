@@ -108,13 +108,13 @@ export function buildTiming(view, options = {}) {
     if (reg?.unitId) return reg.unitId;
     const isr = (entries.isrs ?? []).find((i) => i.id === fnId);
     if (isr?.unitId) return isr.unitId;
-    return fnId === entries.main ? "main:main" : null;
+    return fnId === entries.main ? entries.mainUnit : null;
   };
   // main 也是一个执行单元：引擎的 units 里没有它，但程序从那儿开始，启动路径也有节奏，
   // 而且启动阶段的忙等最容易被忽略。补进来，排在最后
   const unitList = [...(entries.units ?? [])];
   if (entries.main && !unitList.some((u) => (u.entry ?? u.entrySymbolId) === entries.main)) {
-    unitList.push({ id: "main:main", kind: "main", entry: entries.main });
+    unitList.push({ id: entries.mainUnit ?? "main:main", kind: "main", entry: entries.main });
   }
   const units = unitList.map((u) => {
     const mode = ast.runModes?.[u.id] ?? null;

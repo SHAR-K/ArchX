@@ -27,7 +27,7 @@ from archcheck.model import (
 
 
 INCLUDE_FLAGS = {"-I", "/I", "-isystem", "-iquote", "-idirafter"}
-SOURCE_EXTENSIONS = {".c", ".cc", ".cpp", ".cxx", ".s", ".asm"}
+SOURCE_EXTENSIONS = {".c", ".cc", ".cpp", ".cxx", ".ino", ".s", ".asm"}
 IGNORED_DIRECTORIES = {".git", ".arch-report", ".venv", "build", "dist"}
 
 

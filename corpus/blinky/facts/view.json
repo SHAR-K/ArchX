@@ -1,6 +1,8 @@
 {
   "entries": {
     "main": "function:src/main.c:main",
+    "mainUnit": "main:main",
+    "mainSuperloop": false,
     "enableSites": [],
     "inactive": {
       "functions": [],

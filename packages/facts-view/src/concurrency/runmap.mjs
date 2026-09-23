@@ -54,18 +54,24 @@ export function buildRunMap(view, options = {}) {
   // main 没有循环（RTOS 启动调度器后返回、或把循环交给 scheduler_run 之类）时维持原样：全算初始化。
   // 冲突表早就把 main 当一列，这张图不画它，同一页就自相矛盾
   const mainFn = entries.main ?? null;
-  const mainLoop = mainFn ? (index.loopsByFn.get(mainFn) ?? []).filter((l) => l.infinite && !l.depth).sort((a, b) => a.location.line - b.location.line)[0] ?? null : null;
+  const mainUnit = entries.mainUnit ?? "main:main";
+  const mainFnFact = mainFn ? index.fnById.get(mainFn) : null;
+  // 大循环入口（Arduino loop）：整个函数体就是循环体，拿函数范围和它的直接被调当「循环」
+  const mainLoop = !mainFn ? null
+    : entries.mainSuperloop && mainFnFact
+      ? { location: { line: mainFnFact.line }, endLine: mainFnFact.endLine ?? Infinity, callsInBody: (index.calleesOf.get(mainFn) ?? []).map((c) => c.t) }
+      : (index.loopsByFn.get(mainFn) ?? []).filter((l) => l.infinite && !l.depth).sort((a, b) => a.location.line - b.location.line)[0] ?? null;
   const loopReach = mainLoop ? new Set((mainLoop.callsInBody ?? []).flatMap((c) => [...index.reachOf(c)])) : new Set();
   const inMainLoop = (acc) => Boolean(mainLoop) && (acc.function === mainFn
     ? (acc.location?.line ?? 0) >= mainLoop.location.line && (acc.location?.line ?? 0) <= mainLoop.endLine
     : loopReach.has(acc.function));
   if (mainLoop) {
-    const rm = ast.runModes?.["main:main"] ?? null;
-    byUnit.set("main:main", { id: "main:main", fn: mainFn, kind: "main", name: index.nameOf(mainFn), hosts: [], host: null, mode: rm?.mode ?? null, periodMs: rm?.periodMs ?? null, loop: { line: mainLoop.location.line, endLine: mainLoop.endLine } });
+    const rm = ast.runModes?.[mainUnit] ?? null;
+    byUnit.set(mainUnit, { id: mainUnit, fn: mainFn, kind: "main", name: index.nameOf(mainFn), hosts: [], host: null, mode: rm?.mode ?? null, periodMs: rm?.periodMs ?? null, loop: { line: mainLoop.location.line, endLine: mainLoop.endLine } });
   }
   // 把 main 的一次访问记录切成「循环里的」那一份；循环里没碰过就返回 null
   const loopPart = (u) => {
-    if (u.unitKind !== "main" || !mainLoop) return null;
+    if (u.unitKind !== "main" || !mainLoop || u.unit !== mainUnit) return null;
     const inside = (u.accesses ?? []).filter(inMainLoop);
     if (!inside.length) return null;
     const kinds = [...new Set(inside.map((a) => a.kind))];
@@ -96,7 +102,7 @@ export function buildRunMap(view, options = {}) {
     const conflict = conflictByName.get(r.name) ?? null;
     const wake = wakeByName.get(r.name) ?? null;
     const multiWriter = writerGroups.length > 1;
-    const owner = writerGroups.length === 1 ? writerGroups[0] : writerGroups.length === 0 ? (mainW ? "main:main" : "none") : null;
+    const owner = writerGroups.length === 1 ? writerGroups[0] : writerGroups.length === 0 ? (mainW ? mainUnit : "none") : null;
     const flow = isrW && thW ? "mixed" : isrW ? (thR ? "isr→thread" : "isr↔isr") : (isrR ? "thread→isr" : "thread↔thread");
     // 保护是否对齐：只在跨上下文时有意义。一侧全在临界区、另一侧裸访问 = 单边保护
     const wProt = writers.length > 0 && writers.every((u) => !bareWrite(u));
@@ -134,7 +140,7 @@ export function buildRunMap(view, options = {}) {
   const threads = [];
   for (const t of tasks) { threads.push(t); for (const c of cbs.filter((c) => c.host === t.id)) threads.push(c); }
   for (const c of cbs.filter((c) => !c.host || !tasks.some((t) => t.id === c.host))) threads.push(c);
-  if (byUnit.has("main:main")) threads.push(byUnit.get("main:main"));
+  if (byUnit.has(mainUnit)) threads.push(byUnit.get(mainUnit));
 
   const used = new Set(vars.flatMap((v) => v.units.map((u) => u.unit)));
   // 每个单元最严重的问题，给页索引和节点配色

@@ -68,6 +68,20 @@ def infer_path_mapping(path: Path, project: Path) -> PathMapping | None:
     for entry in raw:
         if not isinstance(entry, dict):
             continue
+        # 映射只为「数据库是在别的机器 / 别的目录生成的」那种情况存在：条目里的文件在本机原样就在，
+        # 就不该改写它。PlatformIO 的数据库会列出 ~/.platformio 里的框架源码，那个目录下恰好也有
+        # libraries/ 之类和工程同名的子目录；不加这一条，框架根会被当成「旧工程根」映射到本工程，
+        # 所有 -I 都指向不存在的位置，IRAM_ATTR 这类宏找不到定义，带它的函数整个解析失败。
+        raw_file = entry.get("file")
+        if isinstance(raw_file, str):
+            file_path = Path(raw_file)
+            if not file_path.is_absolute() and isinstance(entry.get("directory"), str):
+                file_path = Path(entry["directory"]) / file_path
+            try:
+                if file_path.is_file():
+                    continue
+            except OSError:
+                pass
         for key in ("file", "directory"):
             value = entry.get(key)
             if not isinstance(value, str):
@@ -77,7 +91,11 @@ def infer_path_mapping(path: Path, project: Path) -> PathMapping | None:
                 marker = f"/{directory_name}/"
                 marker_index = normalized.find(marker)
                 if marker_index > 0:
-                    candidates[normalized[:marker_index]] += 1
+                    prefix = normalized[:marker_index]
+                    # 候选前缀本身在本机存在，它就不是「别处的旧根」
+                    if Path(prefix).is_dir():
+                        continue
+                    candidates[prefix] += 1
 
     if not candidates:
         return None
@@ -236,7 +254,7 @@ def _map_command_arguments(
 
 
 def _looks_like_source_path(value: str) -> bool:
-    return Path(value).suffix.lower() in {".c", ".cc", ".cpp", ".cxx", ".s", ".asm"}
+    return Path(value).suffix.lower() in {".c", ".cc", ".cpp", ".cxx", ".ino", ".s", ".asm"}
 
 
 def _parse_entry(
@@ -263,6 +281,22 @@ def _parse_entry(
         arguments = tuple(shlex.split(command_value, posix=os.name != "nt"))
     else:
         raise CompileCommandsError(f"entry {index} requires arguments or command")
+
+    # Arduino：PlatformIO 把 sketch.ino 转成临时的 sketch.ino.cpp 编译，生成数据库后临时文件就删了。
+    # 那份 .ino.cpp 就是 .ino 前面补了 #include <Arduino.h> 和原型；还原回 .ino、按 C++ 解析，
+    # 不然 setup() / loop() 所在的文件「不在磁盘上」，Arduino 工程就没有入口
+    if source_file.name.lower().endswith(".ino.cpp") and not source_file.exists():
+        sketch = source_file.with_name(source_file.name[: -len(".cpp")])
+        if sketch.is_file():
+            original = str(source_file)
+            source_file = sketch
+            rewritten: list[str] = []
+            for item in arguments:
+                if item == original or item.replace("\\", "/") == file_value.replace("\\", "/") or item.endswith(".ino.cpp"):
+                    rewritten.extend(["-x", "c++", "-include", "Arduino.h", str(sketch)])
+                else:
+                    rewritten.append(item)
+            arguments = tuple(rewritten)
 
     output = entry.get("output")
     return CompileCommand(

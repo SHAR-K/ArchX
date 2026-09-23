@@ -268,7 +268,10 @@ export function buildRound(view, rootId, options = {}) {
   // 一轮的范围。有无限循环就是它的循环体，一轮 = 转一圈；没有就是整个函数体，跑一遍返回
   const mainLoop = (index.loopsByFn.get(rootId) ?? []).filter((l) => l.infinite).sort((a, b) => a.depth - b.depth || a.location.line - b.location.line)[0] ?? null;
   const explicit = options.range ?? null;
+  // 框架代为无限调用的入口（Arduino loop）：整个函数体就是一轮
+  const superloop = rootId === index.entries?.main && index.entries?.mainSuperloop;
   const range = explicit
+    ?? (superloop ? { from: fn.line, to: fn.endLine ?? Infinity, kind: "loop", label: t("called forever by the framework; one round = one pass of the body {from}–{to}", { from: fn.line, to: fn.endLine ?? "?" }) } : null)
     ?? (mainLoop
       ? { from: mainLoop.location.line, to: mainLoop.endLine, kind: "loop", label: t("{kind} infinite loop {from}–{to}; one round = one turn", { kind: mainLoop.kind, from: mainLoop.location.line, to: mainLoop.endLine }) }
       : { from: fn.line, to: fn.endLine ?? Infinity, kind: "body", label: t("function body {from}–{to}; no loop, runs once and returns", { from: fn.line, to: fn.endLine ?? "?" }) });

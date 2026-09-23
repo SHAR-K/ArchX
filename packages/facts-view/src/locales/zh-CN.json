@@ -573,5 +573,6 @@
   "touches": "碰到的",
   "Show everything again": "恢复全景",
   "Show only it and what it touches; click again for everything": "只留它和它碰到的变量；再点一次恢复全景",
-  "click to show only what it touches, double-click for its page": "单击只看它碰到的，双击进它的页"
+  "click to show only what it touches, double-click for its page": "单击只看它碰到的，双击进它的页",
+  "called forever by the framework; one round = one pass of the body {from}–{to}": "框架无限调用；一轮 = 函数体跑一遍 {from}–{to}"
 }

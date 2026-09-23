@@ -1,0 +1,40 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: arduino-esp32
+kind: platform
+description: Arduino 核心（ESP32 为主）：setup/loop 入口、attachInterrupt / timerAttachInterrupt 中断、delay。Arduino core (ESP32 first) — setup/loop entries, attachInterrupt / timerAttachInterrupt interrupts, delay.
+# Arduino 把 main() 藏在核心里：setup() 跑一次，然后 loop() 被无限调用。工程自己没有 main 时才认
+entry_functions:
+- rule: arduino.loop
+  function: loop
+  kind: main
+  superloop: true
+- rule: arduino.setup
+  function: setup
+  kind: main
+# attachInterrupt(pin, fn, mode) / attachInterruptArg(pin, fn, arg, mode) / timerAttachInterrupt(timer, fn, edge)
+callback_register:
+- rule: arduino.attachInterrupt
+  function: attachInterrupt
+  entry_argument: 1
+  context: isr
+- rule: arduino.attachInterruptArg
+  function: attachInterruptArg
+  entry_argument: 1
+  context: isr
+- rule: arduino.timerAttachInterrupt
+  function: timerAttachInterrupt
+  entry_argument: 1
+  context: isr
+blocking:
+- rule: arduino.delay
+  function: delay
+  kind: delay
+  duration_argument: 0
+  duration_unit: ms
+- rule: arduino.delayMicroseconds
+  function: delayMicroseconds
+  kind: delay
+  duration_argument: 0
+  duration_unit: us

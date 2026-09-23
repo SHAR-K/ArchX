@@ -216,6 +216,7 @@ def _handler_candidates(argument: str, vector_table: VectorTable) -> tuple[str, 
 def build_entries(
     definitions: tuple[FunctionSymbol, ...],
     vector_table: VectorTable,
+    rules: Any = None,
 ) -> tuple[EntryPoint, ...]:
     entries: list[EntryPoint] = []
     seen_reset = False
@@ -225,6 +226,16 @@ def build_entries(
             continue
         entries.append(EntryPoint(kind=kind, symbol_id=function.symbol_id))
         seen_reset = seen_reset or kind == "reset"
+    # 框架代为调用的入口（Arduino setup/loop）：名字太普通，只在工程自己没有 main 时才认。
+    # 大循环体（superloop）排在前面：下游取「第一个 main 入口」当运行上下文
+    if not any(entry.kind == "main" for entry in entries) and rules is not None:
+        found = []
+        for rule in getattr(rules, "entry_functions", ()):
+            matches = [function for function in definitions if function.name == rule.function]
+            if len(matches) == 1:
+                found.append(EntryPoint(kind=rule.kind, symbol_id=matches[0].symbol_id, rule=rule.rule_id, superloop=rule.superloop))
+        found.sort(key=lambda entry: not entry.superloop)
+        entries[:0] = found
     if not seen_reset:
         routine = vector_table.routine("Reset_Handler")
         vector_entry = vector_table.entry("Reset_Handler")

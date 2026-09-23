@@ -112,7 +112,7 @@ class _AggregateCandidate:
 
 
 LIBRARY_SUFFIXES = {".lib", ".a"}
-SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx"}
+SOURCE_SUFFIXES = {".c", ".cc", ".cpp", ".cxx", ".ino"}
 
 
 def _union_references(
@@ -457,7 +457,7 @@ def enrich_with_global_variables(
         result.project,
     )
     enable_edges = resolve_enable_sites(enable_sites, definitions_by_name, vector_table)
-    entries = build_entries(functions, vector_table)
+    entries = build_entries(functions, vector_table, rules)
     resolver = lambda name, from_path: _resolve_definition(name, from_path, definitions_by_name)  # noqa: E731
 
     # Schema 4: callbacks that travel through data (struct fields, initializer tables,
@@ -2267,7 +2267,8 @@ def _parse_doxygen_comment(content: str) -> DoxygenDocumentation | None:
 
 _CALL_PATTERN = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
 _FUNCTION_ARGUMENT_PATTERN = re.compile(
-    r"^\s*(?:\(\s*[\w\s\*]+\)\s*)*&?\s*([A-Za-z_]\w*)\s*$"
+    # ``fn`` / ``&fn`` / ``(cast) fn`` / ``Class::fn`` / ``&Class::fn``（C++ 静态成员当入口）
+    r"^\s*(?:\(\s*[\w\s\*]+\)\s*)*&?\s*((?:[A-Za-z_]\w*::)*[A-Za-z_]\w*)\s*$"
 )
 _IRQ_ARGUMENT_PATTERN = re.compile(
     r"^\s*(?:\(\s*[\w\s\*]+\)\s*)*([A-Za-z_]\w*|\d+)\s*$"
@@ -2360,7 +2361,14 @@ def _source_relationship_edges(
                 if argument_match is None:
                     continue
                 identifier = argument_match.group(1)
-                if identifier in shadowed or identifier not in by_name:
+                if identifier in shadowed:
+                    continue
+                if identifier not in by_name and "::" not in identifier and "::" in function.name:
+                    # 类的方法里写 ``xTaskCreate(updateTask, ...)``：名字按类作用域解析成 ``Servo::updateTask``
+                    scoped = f"{function.name.rsplit('::', 1)[0]}::{identifier}"
+                    if scoped in by_name:
+                        identifier = scoped
+                if identifier not in by_name:
                     continue
                 passed = _resolve_definition(identifier, function.location.path, by_name)
                 if passed is None:

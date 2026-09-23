@@ -59,15 +59,45 @@ def derive_run_modes(
             callees.setdefault(edge.source, []).append(edge.target)
 
     roots: list[tuple[str, str]] = []
+    superloops: set[str] = set()
     for entry in entries:
         match = _SYMBOL_ID.match(entry.symbol_id)
         roots.append((f"{entry.kind}:{match.group(2) if match else entry.symbol_id}", entry.symbol_id))
+        if getattr(entry, "superloop", False):
+            superloops.add(entry.symbol_id)
     roots.extend((unit.unit_id, unit.entry_symbol_id) for unit in units)
 
     results: list[RunMode] = []
     for unit_id, function_id in roots:
+        if function_id in superloops:
+            results.append(_superloop_mode(unit_id, function_id, analyzed_functions, blocking_by_function or {}, tick_ms))
+            continue
         results.append(_run_mode(unit_id, function_id, loops_by_function, callees, analyzed_functions, blocking_by_function or {}, tick_ms))
     return tuple(results)
+
+
+def _superloop_mode(
+    unit_id: str,
+    function_id: str,
+    analyzed: set[str],
+    blocking_by_function: dict[str, tuple[BlockingCall, ...]],
+    tick_ms: float,
+) -> RunMode:
+    """The framework calls this function forever (Arduino ``loop()``): its body is the loop body."""
+
+    if function_id not in analyzed:
+        return RunMode(unit_id, function_id, "unknown", "low", {"reason": "no AST for the entry function"})
+    blocking = list(blocking_by_function.get(function_id, ()))
+    kinds = {call.kind for call in blocking}
+    evidence: dict = {"superloop": True, "blockingCalls": [call.to_dict() for call in blocking],
+                      "note": "the framework calls this function in an endless loop; its body is one pass"}
+    mode = "event-driven" if "wait" in kinds else "periodic" if "delay" in kinds else "busy-poll"
+    period_ms = None
+    if mode == "periodic":
+        period_ms, period_evidence = _period_ms(blocking, tick_ms)
+        if period_evidence is not None:
+            evidence["period"] = period_evidence
+    return RunMode(unit_id, function_id, mode, "high" if blocking else "medium", evidence, period_ms)
 
 
 _UNIT_MS = {"ms": 1.0, "us": 0.001, "s": 1000.0}
