@@ -3971,9 +3971,9 @@ function scanProject({ folder, stateDir, outDir, sourceScanOnly = false }) {
 		status: "needs-engine",
 		message: "No ArchCheck engine found.",
 		fix: [
-			"Install the ArchX VS Code extension (it bundles the engine and registers it on activation)",
+			"pip install \"git+https://github.com/SHAR-K/ArchX#subdirectory=engine\"   (puts archcheck on PATH; needs Python 3.10+ and git)",
 			"or set ARCHX_ENGINE to an archcheck executable / engine source directory",
-			"or: pip install <path-to-repo>/engine"
+			"or install the ArchX VS Code extension (it bundles the engine and registers it on activation)"
 		]
 	};
 	const build = buildInformation(folder);
