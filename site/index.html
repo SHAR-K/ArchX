@@ -8,11 +8,11 @@
 </head>
 <body data-mode="stage">
   <script>
-    // 语言在模块执行前定：i18n 在 import 时就读 body[data-lang]。?lang=zh 或浏览器语言
+    // 语言在模块执行前定：i18n 在 import 时就读 body[data-lang]。?lang= 或按钮记住的选择，否则英文——不跟浏览器语言
     (function () {
       var q = new URLSearchParams(location.search).get("lang");
       var saved = null; try { saved = localStorage.getItem("archx.lang"); } catch (e) {}
-      var lang = q || saved || navigator.language || "en";
+      var lang = q || saved || "en";
       if (q) { try { localStorage.setItem("archx.lang", q); } catch (e) {} }
       document.body.dataset.lang = lang;
       document.documentElement.lang = lang.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
