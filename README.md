@@ -20,6 +20,11 @@ Two halves that share one snapshot of facts:
 Every finding carries a file, a line and a confidence level. Anything that cannot be derived
 from the source and a rule is reported as unknown, never guessed.
 
+**How it works:** compile database → **clangd** (the language server your editor already uses)
+parses every translation unit that actually builds → AST facts → **profiles** (YAML rules per RTOS
+and chip) turn calls like `xTaskCreate` or a vector table into tasks and interrupts → facts, each
+with a file, a line and a confidence.
+
 ## See it before installing anything
 
 **[shar-k.github.io/ArchX](https://shar-k.github.io/ArchX/)** shows the panel on four public
