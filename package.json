@@ -13,7 +13,7 @@
     "test": "npm run test:engine-unit && node tools/identifier-guard.mjs && node tools/i18n-guard.mjs && node --experimental-strip-types tools/core-smoke.ts && node --experimental-strip-types tools/facts-view-smoke.ts && npm run test:extension && node tools/mcp-smoke.mjs",
     "test:extension": "npm run build:extension && node tools/extension-smoke.mjs && node --experimental-strip-types tools/facts-panel-smoke.ts && npm run build:site && node --experimental-strip-types tools/site-smoke.ts",
     "site:data": "node --experimental-strip-types tools/build-site.mts",
-    "build:site": "vite build --config vite.config.site.ts --configLoader native",
+    "build:site": "vite build --config vite.config.site.ts --configLoader native && npm run build:viewer",
     "build:viewer": "vite build --config vite.config.viewer.ts --configLoader native && node tools/build-viewer.mjs",
     "check": "tsc --noEmit -p tsconfig.node.json --pretty false && tsc --noEmit -p extension/tsconfig.json --pretty false"
   },
