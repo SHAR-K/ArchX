@@ -36,6 +36,11 @@ different question, and answers it before you have a working build to trace:
 
 > **What does the code say it will do?**
 
+It started as a way into one such codebase. A coding agent was no help there: it analysed code
+the compiler never sees — `#if 0` blocks, the other board variant, files outside the build — and
+re-read the whole tree for every new question. ArchCheck starts from the compile database
+instead, and scans once.
+
 That matters most when you inherit firmware nobody can explain any more, when you want the
 interrupt/task sharing map before a refactor, or when you want an architecture check in CI
 that fails on a new cross-layer call.
