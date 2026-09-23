@@ -18,6 +18,10 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      # 插件从 GitHub 装（claude plugin marketplace add SHAR-K/ArchX），拿到的是仓库里提交的 MCP 服务与本地网页模板。
+      # npm test 会重新构建它们；构建结果和提交的不一致，就是改了源码忘了提交产物
+      - name: Committed plugin build is up to date
+        run: git diff --exit-code -- extension/claude-marketplace/plugins/archx/server extension/claude-marketplace/plugins/archx/viewer
 
   engine:
     name: 引擎与语料

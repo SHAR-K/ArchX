@@ -1,0 +1,15 @@
+{
+  "name": "archx",
+  "owner": {
+    "name": "SHAR-K"
+  },
+  "description": "ArchCheck: recover the runtime structure of C/C++ firmware — entries, tasks, interrupts, shared state, timing — and read it through an agent",
+  "plugins": [
+    {
+      "name": "archx",
+      "source": "./extension/claude-marketplace/plugins/archx",
+      "description": "Scan a C/C++ firmware project with ArchCheck and read the code facts by theme; a local page shows them as pictures",
+      "version": "0.25.1"
+    }
+  ]
+}

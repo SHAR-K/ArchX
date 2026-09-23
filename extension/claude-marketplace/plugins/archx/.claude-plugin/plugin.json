@@ -1,15 +1,17 @@
 {
   "name": "archx",
   "version": "0.25.1",
-  "description": "读代码事实：跑 ArchCheck 引擎，在 ArchX 面板里显示，按主题切片读回",
+  "description": "Read code facts: run the ArchCheck engine on a C/C++ firmware project, read them back by theme, see them on a local page or in the ArchX panel",
   "author": {
     "name": "ArchX"
   },
   "license": "MIT",
   "keywords": [
     "architecture",
+    "architecture-recovery",
     "code-facts",
     "embedded",
-    "static-analysis"
+    "firmware",
+    "mcp"
   ]
 }
