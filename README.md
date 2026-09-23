@@ -52,40 +52,49 @@ It matters a second time when an agent writes the code. An agent that has never 
 call graph will happily touch a variable an ISR also writes. The facts are what make a bound
 statable, and the panel is where a human checks the agent against them.
 
-## What it takes to run
+## Getting started
 
-- `compile_commands.json` (CMake, ESP-IDF, Zephyr, Makefile + bear), **or** a Keil `.uvprojx`
-  — ArchCheck generates a compatible database from the Keil project itself
-- `clangd` on `PATH` — the AST layer is built on its LSP
-- Python 3.10+
-
-No agent to install, no code to annotate, nothing uploaded anywhere.
-
-## Quickstart
-
-The repository ships a small sample project so you can see real output in under a minute.
+ArchCheck is a tool your coding agent calls. Install the engine and the Claude Code plugin:
 
 ```bash
-pip install ./engine
+pip install "git+https://github.com/SHAR-K/ArchX#subdirectory=engine"
+claude plugin marketplace add SHAR-K/ArchX && claude plugin install archx@archx
+```
+
+Then, in your firmware project, tell the agent:
+
+> scan this project
+
+The agent checks what the scan needs, tells you what is missing and the command for your build
+system, scans, and walks you through what it found. It also gives you a link to a local page:
+the same views as the [live demo](https://shar-k.github.io/ArchX/), for your project, opened
+straight from disk with no server. The facts stay on your machine.
+
+**You need**
+
+1. **Python 3.10+ and git** — pip installs the engine from the repository.
+2. **node on `PATH`** — the plugin's MCP server runs on it. Claude Code installed with the native
+   installer does not always bring node along.
+3. **clangd** — the interrupts, tasks, loops and state machines come from its AST. Without it the
+   scan still runs but stops at file dependencies; the agent tells you how to install it.
+4. **Build information** — a `compile_commands.json` (CMake, PlatformIO, ESP-IDF, Zephyr,
+   Makefile + bear) or a Keil `.uvprojx`, which ArchCheck reads directly. If there is none, the
+   agent tells you the one command that makes it; nothing is built behind your back.
+
+**In VS Code** (optional): the extension shows the same facts in a panel and jumps from every
+finding to its line.
+
+### Without an agent
+
+The engine is a plain CLI. The repository ships a small sample project:
+
+```bash
 node tools/corpus-prepare.mjs      # writes the sample's compile_commands.json at your clone path
 archcheck corpus/blinky --out out/
 ```
 
-```text
-分析模式：编译数据库
-编译单元：5
-本地 include 依赖：7
-循环依赖组：0
-函数：11，调用关系：8，变量：5
-覆盖率：5/5 个源文件进入分析
-入口：2，运行单元：isr 2，task 1
-AST 层：11/11 个函数，循环 2，状态机候选 1，变量访问 25，共享资源 5，冲突候选 2
-```
-
 `out/architecture.json` is the machine-readable form — see the
-[field contract](docs/SCHEMA.md). On real firmware the shape is the same and the scale is not:
-a 332-unit STM32H743 CMake project resolves 4 887 functions and 9 015 call edges in about
-four and a half minutes.
+[field contract](docs/SCHEMA.md).
 
 ## Where it stands
 
