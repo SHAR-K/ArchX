@@ -20,6 +20,7 @@
     "packages/claude/src",
     "vite.config.site.ts",
     "tools/build-site.mts",
-    "tools/site-smoke.ts"
+    "tools/site-smoke.ts",
+    "vite.config.viewer.ts"
   ]
 }

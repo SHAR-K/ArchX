@@ -31,6 +31,7 @@ reports/
 .DS_Store
 # MCP 服务器是打包产物（源码在 extension/mcp/，要和 facts-view 编在一起）
 extension/claude-marketplace/plugins/archx/server/archx-mcp.mjs
+extension/claude-marketplace/plugins/archx/viewer/
 
 # corpus 的编译数据库按 clone 位置生成：node tools/corpus-prepare.mjs
 corpus/*/compile_commands.json

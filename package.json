@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:extension": "vite build --config vite.config.extension-host.ts --configLoader native && vite build --config vite.config.extension-facts.ts --configLoader native && vite build --config vite.config.extension-mcp.ts --configLoader native",
+    "build:extension": "vite build --config vite.config.extension-host.ts --configLoader native && vite build --config vite.config.extension-facts.ts --configLoader native && vite build --config vite.config.extension-mcp.ts --configLoader native && npm run build:viewer",
     "build:archcheck-engine": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-archcheck-engine.ps1",
     "verify:archcheck-engine": "node tools/verify-archcheck-engine.mjs",
     "test:engine": "npm run verify:archcheck-engine && node tools/archcheck-engine-smoke.mjs && npm run test:engine-unit",
@@ -14,6 +14,7 @@
     "test:extension": "npm run build:extension && node tools/extension-smoke.mjs && node --experimental-strip-types tools/facts-panel-smoke.ts && npm run build:site && node --experimental-strip-types tools/site-smoke.ts",
     "site:data": "node --experimental-strip-types tools/build-site.mts",
     "build:site": "vite build --config vite.config.site.ts --configLoader native",
+    "build:viewer": "vite build --config vite.config.viewer.ts --configLoader native && node tools/build-viewer.mjs",
     "check": "tsc --noEmit -p tsconfig.node.json --pretty false && tsc --noEmit -p extension/tsconfig.json --pretty false"
   },
   "dependencies": {

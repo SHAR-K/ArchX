@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import zlib from "node:zlib";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 // 和面板同一份派生。不是「照着实现一遍」，是同一批文件被打进这个服务器——
 // 「人在图上看到的和 Agent 说的必然是同一件事」这句话只有这样才成立。
@@ -179,6 +180,29 @@ const tools = [
   },
 ];
 
+/**
+ * 本地网页：演示页的单文件模板 + 这次的事实。双击就能看，所有图和插件面板一样（同一份代码）。
+ * 页面里带着这个工程的全部事实——它只写在本机的 ArchX 状态目录里，转发这个文件就等于把事实发出去。
+ */
+function writeLocalViewer({ folder, outDir, scoped, snapshot, raw }) {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const template = path.resolve(here, "..", "viewer", "archx-viewer.html");
+  if (!fs.existsSync(template)) return { available: false, note: "viewer template not found next to the MCP server; rebuild the plugin (npm run build:viewer)" };
+  const view = buildFactsView(scoped, "", { source: folder, generatedAt: new Date().toISOString() });
+  const units = {};
+  for (const u of view.entries?.units ?? []) units[u.kind] = (units[u.kind] ?? 0) + 1;
+  const project = {
+    id: "local", title: path.basename(folder), repo: "", commit: "", license: "", kind: "local",
+    blurb: `Local scan of ${folder}`, build: "", focus: ["**"], region: "", snapshot, localRoot: folder,
+    counts: { files: view.files.length, functions: view.functions.length, units, sharedResources: view.ast?.sharedResources?.length ?? 0, conflictCandidates: view.ast?.conflictCandidates?.length ?? 0 },
+  };
+  const embed = { generatedAt: new Date().toISOString().slice(0, 10), engineCommit: "", project, data: zlib.gzipSync(JSON.stringify(view)).toString("base64") };
+  const html = fs.readFileSync(template, "utf8").replace("window.__ARCHX_EMBED__ = null;", () => `window.__ARCHX_EMBED__ = ${JSON.stringify(embed).replace(/</g, "\\u003c")};`);
+  const file = path.join(outDir, "archx-facts.html");
+  fs.writeFileSync(file, html, "utf8");
+  return { available: true, file, url: pathToFileURL(file).href, sizeKB: Math.round(html.length / 1024), note: "Contains this project's facts; it lives only on this machine. Forwarding the file shares the facts." };
+}
+
 function scanProjectTool(args) {
   const folder = path.resolve(String(args?.folder || root));
   const stateDir = archxStateDirectory();
@@ -194,12 +218,14 @@ function scanProjectTool(args) {
   const snapshot = crypto.createHash("sha256").update(JSON.stringify(scoped)).digest("hex").slice(0, 12);
   publishFactsPointer(root, { factsFile: partitionFile, region: "", projectRoot: folder, snapshot, label: path.basename(folder) });
   factsCache = null;
+  const viewer = writeLocalViewer({ folder, outDir, scoped, snapshot, raw });
   let firstLook = null;
   try { firstLook = listCodeFacts(); } catch (error) { firstLook = { note: error instanceof Error ? error.message : String(error) }; }
   return {
     ...result,
     snapshot,
-    next: "Read with list_code_facts / read_code_facts / read_fact_object. If the VS Code extension is installed, show_code_facts opens the same facts in its panel.",
+    viewer,
+    next: "Read with list_code_facts / read_code_facts / read_fact_object. Give the user the viewer link (viewer.url): it opens the same facts as pictures in a browser, no server needed. If the VS Code extension is installed, show_code_facts opens them in its panel as well.",
     overview: firstLook,
   };
 }

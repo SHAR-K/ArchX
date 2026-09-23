@@ -14,6 +14,8 @@ import { getLocale } from "../packages/facts-view/src/i18n.mjs";
 interface ManifestProject {
   id: string; title: string; repo: string; commit: string; license: string; kind: string; blurb: string; build: string;
   focus: string[]; region: string; snapshot: string;
+  /** 本地网页（scan_project 生成）：工程在本机的根目录，「打开源码」跳 vscode://file/… 而不是 GitHub */
+  localRoot?: string;
   /** 不进下拉框，只能从链接进来；repo 为空表示没有公开源码，出处不链、打开文件不跳 */
   hidden?: boolean;
   counts: { files: number; functions: number; units: Record<string, number>; sharedResources: number; conflictCandidates: number };
@@ -44,8 +46,28 @@ async function loadView(url: string): Promise<Record<string, unknown>> {
   return JSON.parse(text);
 }
 
+/**
+ * 本地网页模式：scan_project 把事实嵌进页面（window.__ARCHX_EMBED__），双击 .html 就能看，
+ * 不需要服务、不 fetch——file:// 下 fetch 本来也用不了。data 是 gzip 后的 base64。
+ */
+interface Embedded { generatedAt: string; engineCommit: string; project: ManifestProject; data: string }
+function embedded(): Embedded | null {
+  const value = (window as unknown as { __ARCHX_EMBED__?: Embedded | null }).__ARCHX_EMBED__;
+  return value && typeof value === "object" && value.data ? value : null;
+}
+async function viewFromBase64(data: string): Promise<Record<string, unknown>> {
+  const bytes = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+  const text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+  return JSON.parse(text);
+}
+
 async function main() {
-  const manifest: Manifest = await (await fetch("data/manifest.json")).json();
+  const embed = embedded();
+  // 本地网页只看这一个工程：演示页顶栏里指向别的演示工程的入口藏掉
+  if (embed) document.getElementById("production-link")?.remove();
+  const manifest: Manifest = embed
+    ? { generatedAt: embed.generatedAt, engineCommit: embed.engineCommit, projects: [embed.project] }
+    : await (await fetch("data/manifest.json")).json();
   const wanted = location.hash.replace(/^#/, "");
   const project = manifest.projects.find((p) => p.id === wanted) ?? manifest.projects[0];
   if (!project) throw new Error("manifest has no projects");
@@ -93,7 +115,7 @@ async function main() {
   document.title = `ArchCheck — ${project.title}`;
 
   // 数据 → 视图 → payload，和宿主同一条链
-  const view = await loadView(`data/${project.id}.json.gz`) as any;
+  const view = (embed ? await viewFromBase64(embed.data) : await loadView(`data/${project.id}.json.gz`)) as any;
   const index = buildIndex(view);
   const irqPairs = irqPairsOf(view);
   let payload = derivePayload(view, {
@@ -115,6 +137,14 @@ async function main() {
 
   const post = (message: unknown) => window.postMessage(message, "*");
   const openOnGitHub = (file: string, line?: number) => {
+    if (project.localRoot) {
+      // 本地网页：交给 VS Code 打开那一行（装了 VS Code 才会响应；没装就什么也不发生）
+      const full = `${project.localRoot.replace(/\\/g, "/").replace(/\/+$/, "")}/${file.replace(/^\/+/, "")}`;
+      const a = document.createElement("a");
+      a.href = `vscode://file/${full}${line ? `:${line}` : ""}`;
+      a.click();
+      return;
+    }
     if (!project.repo) return;
     const url = `${project.repo}/blob/${project.commit}/${file.replace(/^\/+/, "")}${line ? `#L${line}` : ""}`;
     window.open(url, "_blank", "noopener");
