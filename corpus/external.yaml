@@ -1,0 +1,226 @@
+# 外部验证语料清单
+#
+# 这里只记「哪个仓库、哪个提交、怎么产出编译数据库、引擎应该读出什么」。
+# 源码一律不入库：其中多数是 GPL，把它们 vendored 进这个 MIT 仓库等于分发 GPL 代码；
+# 而且九个仓库合计 1.1 GB，没有人会去 clone 那样一个仓库。
+#
+# 源码按 commit clone 到 checkout_root（已 gitignore）。事实来源是这份清单，不是本地那份拷贝。
+#
+# baseline 里只放跨机器恒定的读数（数量），不放耗时——耗时只在同一台机器上做改前改后对比。
+
+version: 1
+
+checkout_root: corpus/external        # 可用环境变量 ARCHCHECK_CORPUS_ROOT 覆盖
+
+projects:
+  # ---------------------------------------------------------------- 已验证
+  - id: stm32h743-cmake
+    repo: https://github.com/Mythologyli/STM32H743-CMake-Template.git
+    commit: 4542a412783c8f21fb49dc80030c5a1c52af0209
+    committed: 2022-07-28
+    license: GPL-3.0
+    size_mb: 105
+    covers:
+      toolchain: cmake + arm-none-eabi-gcc
+      arch: cortex-m7
+      scheduling: freertos          # 3 task / 1 timer，profile 认出 FreeRTOS，引擎判 preemptive
+    why: 规模上限。README 里那组「4887 函数 / 9015 调用 / 约四分半」出自这里。
+    compile_db:
+      kind: cmake
+      command: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      path: build/compile_commands.json
+    baseline:
+      observed_on: 2026-09-23
+      engine_commit: 8579b1a        # 2026-09-23：osThreadNew 规则、任务优先级、RTOS 延时时长
+      translationUnits: 332
+      filesAnalyzed: 332
+      functions: 4887
+      dependencyEdges: 1463
+      entries: 2
+      executionUnits: { isr: 14, callback: 316, task: 6, timer: 1 }   # task 3 → 6：osThreadNew 建的三个应用线程现在认出来了
+      loops: 1358
+      stateMachines: 76
+      sharedResources: 253
+      conflictCandidates: 30
+      criticalSections: 28
+      calls: 9016
+
+  - id: grblhal-esp32
+    repo: https://github.com/grblHAL/ESP32.git
+    commit: 91c0e0c53c3929ac7ec2f3b6ad90d985a990a793
+    committed: 2026-09-08
+    license: GPL-3.0
+    size_mb: 49
+    covers:
+      toolchain: platformio + esp-idf
+      arch: xtensa            # 唯一的非 ARM 目标
+      scheduling: freertos
+    why: 唯一验证非 ARM 架构的样本，也是 ESP-IDF 这条平台路径的唯一样本。
+    compile_db:
+      kind: platformio
+      command: pio run -e esp32doit-devkit-v1
+      path: .pio/build/esp32doit-devkit-v1/compile_commands.json
+    baseline:
+      observed_on: 2026-09-08
+      translationUnits: 160
+      filesAnalyzed: 156     # 4 个单元没进分析，原因未查清
+      functions: 1530
+      dependencyEdges: 822
+      entries: 1
+      executionUnits: { callback: 572, task: 1, timer: 1 }
+      loops: 540
+      stateMachines: 84
+      sharedResources: 244
+      conflictCandidates: 0
+      caveat: >
+        这组读数出自一份本地整理过的编译数据库（db-own/），不是上面 command 直接产出的
+        .pio/build/... 那份。两者是否等价没有验证过。重跑前先确认，对不上以 pio 原始产物为准。
+        另：conflictCandidates 为 0 是已知缺陷——ESP-IDF 的中断处理函数被归类为 callback，
+        没有任何 profile 字段能表达「运行在中断上下文」，于是冲突检测两侧取不到 isr。
+
+  - id: gd32f30x
+    repo: https://github.com/Jerry-yl/gd32f30x.git
+    commit: d9cbf544f79f629df15a7531d17af81759bbbe1d
+    committed: 2022-05-10
+    license: unknown          # 仓库内无 LICENSE 文件
+    size_mb: 306
+    covers:
+      toolchain: keil
+      arch: cortex-m4
+      scheduling: freertos
+    why: 唯一同时覆盖 Keil 工程翻译和 RTOS 识别的样本。
+    compile_db:
+      kind: keil
+      project: Project/test/MDK-ARM/test.uvprojx
+      target: test
+      note: 引擎自己从 .uvprojx 生成，无需装 Keil 之外的东西；但需要 Windows + MDK 的头文件。
+    baseline:
+      observed_on: 2026-09-08
+      translationUnits: 51
+      filesAnalyzed: 51
+      functions: 871
+      dependencyEdges: 177
+      entries: 2
+      executionUnits: { isr: 10, task: 1 }
+      loops: 242
+      stateMachines: 12
+      sharedResources: 25
+      conflictCandidates: 9
+
+  - id: hoverboard-sideboard-gd
+    repo: https://github.com/EFeru/hoverboard-sideboard-hack-GD.git
+    commit: c063fdf2e1b0e11f2db70040c5e6d32e5b79019f
+    committed: 2026-01-14
+    license: GPL-3.0
+    size_mb: 142
+    covers:
+      toolchain: keil
+      arch: cortex-m3
+      scheduling: bare-metal
+    why: >
+      Keil + 裸机这条组合的唯一样本。个人 hack 项目，结构朴素，反而暴露过引擎的默认假设——
+      冲突检测把 main 排除在外那个缺陷就是它抓到的。
+    compile_db:
+      kind: keil
+      project: MDK-ARM/sideboard-hack.uvprojx
+      target: VARIANT_HOVERBOARD
+    baseline:
+      observed_on: 2026-09-08
+      translationUnits: 36
+      filesAnalyzed: 36
+      functions: 689
+      dependencyEdges: 145
+      entries: 2
+      executionUnits: { isr: 13, callback: 2 }
+      loops: 55
+      stateMachines: 13
+      sharedResources: 16
+      conflictCandidates: 13
+      verified_on: 2026-09-09      # 修复合入后逐项复现，八项读数全部一致
+
+  - id: hoverboard-foc
+    repo: https://github.com/EFeru/hoverboard-firmware-hack-FOC.git
+    commit: 4f141cbc97b297e194fd58e56444bd0322f902ac
+    committed: 2026-07-04
+    license: GPL-3.0
+    covers:
+      toolchain: platformio + arm-none-eabi-gcc（也可走 Keil：MDK-ARM/mainboard-hack.uvprojx，target VARIANT_ADC）
+      arch: cortex-m3
+      scheduling: bare-metal
+    why: >
+      首发出镜样本。裸机 STM32F103 电机 FOC：ADC-DMA 中断里跑控制环、主循环里改目标，
+      ISR 与 main 共享状态的教科书场景；16 个冲突候选全是 isr ↔ main。sideboard 留作验证。
+    compile_db:
+      kind: platformio
+      command: pio run -e VARIANT_ADC -t compiledb
+      path: compile_commands.json
+    baseline:
+      observed_on: 2026-09-22
+      engine_commit: 8c015f1
+      translationUnits: 73          # Keil 路径 30 个编译单元 / 590 函数，运行结构读数与此完全一致
+      filesAnalyzed: 73
+      functions: 709
+      dependencyEdges: 293
+      calls: 677
+      entries: 2
+      executionUnits: { isr: 13, callback: 22 }
+      loops: 111
+      stateMachines: 4
+      sharedResources: 35
+      conflictCandidates: 16        # 1 high / 15 medium
+      criticalSections: 8
+
+  # ------------------------------------------------- 覆盖独有路径，但尚未验证
+  - id: vesc-bldc
+    repo: https://github.com/vedderb/bldc.git
+    commit: 4b4dd3062dcbb3dbdd188b8dd2d3e6b88ad69da8
+    committed: 2026-09-04
+    license: GPL-3.0
+    size_mb: 236
+    covers:
+      toolchain: make + arm-none-eabi-gcc
+      arch: cortex-m4
+      scheduling: chibios       # 还没有对应的 profile
+    why: >
+      这批里唯一使用「引擎不认识的 RTOS」的样本。验证的是遇到未知框架时的行为：
+      是干净地报 unknown，还是把任务错当成普通函数。别人第一次拿自己的框架来试就是这个场景。
+    compile_db:
+      kind: make
+      command: bear -- make        # 待确认：需要能跑通的 make 目标
+      path: compile_commands.json
+    baseline: null
+    status: not-yet-verified
+
+  - id: odrive
+    repo: https://github.com/odriverobotics/ODrive.git
+    commit: 3a2e4dd1bfbda9e4c534d5c7d8428a99c361e783
+    committed: 2026-01-20
+    license: MIT
+    size_mb: 52
+    covers:
+      toolchain: make + arm-none-eabi-gcc
+      arch: cortex-m4
+      scheduling: freertos
+      language: c++            # 唯一的重 C++ 样本
+    why: 唯一验证 C++ 的样本——类、模板、命名空间在 AST 层的表现没有任何其他语料能覆盖。
+    compile_db:
+      kind: make
+      command: bear -- make       # 待确认
+      path: compile_commands.json
+    baseline: null
+    status: not-yet-verified
+
+# ---------------------------------------------------------------------- 排除
+# 记在这里是为了别人不要再把它们加回来。
+excluded:
+  - id: gd32-cmake-example
+    repo: https://github.com/Huffer342-WSH/GD32_CMake_Example.git
+    reason: 与 stm32h743-cmake 覆盖同一条路径（CMake + GCC + Cortex-M 裸机）且规模更小，冗余。
+  - id: grbl
+    repo: https://github.com/gnea/grbl.git
+    reason: AVR 8 位 + avr-gcc，不在引擎的目标范围内（32 位 ARM / RISC-V / Xtensa），且上游 2021 年后停更。
+  - id: marlin
+    repo: https://github.com/MarlinFirmware/Marlin.git
+    reason: >
+      暂缓而非否决。141 MB，PlatformIO 多环境需要先选定 env，配置成本高；
+      而它的两项价值——重 C++ 与规模压力——已分别由 odrive 和 stm32h743-cmake 覆盖。

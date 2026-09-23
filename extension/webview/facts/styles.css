@@ -1,0 +1,505 @@
+/* 代码事实面板。颜色全部走 VS Code 主题变量，明暗两套都成立；
+   语义色（顺序 / 回边 / 出口 / 守卫）用 VS Code 的图表色板，它在两套主题下都有定义。 */
+
+:root {
+  --line: var(--vscode-panel-border, rgba(128, 128, 128, 0.35));
+  --dim: var(--vscode-descriptionForeground);
+  --pos: var(--vscode-charts-blue, #3794ff);
+  --neg: var(--vscode-charts-orange, #d18616);
+  --guard: var(--vscode-charts-purple, #b180d7);
+  --back: var(--vscode-charts-red, #f14c4c);
+  --exit: var(--vscode-charts-green, #89d185);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+}
+
+code { font-family: var(--vscode-editor-font-family, ui-monospace, Consolas, monospace); }
+.sub { color: var(--dim); font-size: 0.9em; font-weight: normal; }
+.boot { padding: 32px; }
+.empty, .hint { padding: 16px; color: var(--dim); }
+
+.app { display: flex; flex-direction: column; height: 100vh; }
+.bar { display: flex; align-items: baseline; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
+
+.theme { display: flex; min-height: 0; flex: 1 1 auto; }
+
+/* 左侧机器列表 */
+.machines { width: 250px; flex: 0 0 250px; border-right: 1px solid var(--line); overflow: auto; padding: 6px; }
+.machine {
+  display: block; position: relative; width: 100%; text-align: left; padding: 6px 22px 6px 8px; margin-bottom: 2px;
+  border: 1px solid transparent; border-radius: 4px; background: none; color: inherit; font: inherit; cursor: pointer;
+}
+.machine:hover { background: var(--vscode-list-hoverBackground); }
+.machine.sel { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); border-color: var(--vscode-focusBorder); }
+.machine.sel .sub { color: inherit; opacity: 0.8; }
+.machine code { display: block; }
+.machine .sub { display: block; margin-top: 2px; }
+.conf { position: absolute; right: 8px; top: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.conf.high { background: var(--exit); } .conf.medium { background: var(--neg); } .conf.low { background: var(--back); }
+.tables { margin-top: 8px; padding: 0 8px; }
+.tables summary { cursor: pointer; }
+
+/* 右侧主板 */
+.board { flex: 1 1 auto; overflow: auto; padding: 10px 14px 24px; min-width: 0; }
+.board header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.warn { color: var(--back); margin: 4px 0; }
+
+button.link, button.ghost {
+  border: none; background: none; color: var(--vscode-textLink-foreground); font: inherit; cursor: pointer; padding: 0 2px;
+}
+button.link:hover { text-decoration: underline; }
+button.link.strong { font-weight: 600; }
+button.link.block { display: block; text-align: left; padding: 3px 0; }
+button.ghost { color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 1px 7px; margin-left: auto; }
+button.ghost:hover { color: var(--vscode-foreground); border-color: var(--vscode-focusBorder); }
+
+/* 状态图 */
+.graph { display: block; width: 100%; margin: 10px 0 14px; overflow: visible; }
+.state rect { fill: var(--vscode-editorWidget-background); stroke: var(--line); stroke-width: 1; }
+.state text { fill: var(--vscode-foreground); font-family: var(--vscode-editor-font-family, monospace); font-size: 12px; pointer-events: none; }
+.state { cursor: pointer; }
+.state:hover rect { stroke: var(--vscode-focusBorder); }
+.state.sel rect { stroke: var(--vscode-focusBorder); stroke-width: 2; fill: var(--vscode-list-activeSelectionBackground); }
+.state.term rect { stroke-dasharray: 4 3; }
+.edge { fill: none; stroke-width: 1.4; opacity: 0.55; }
+.edge.next { stroke: var(--pos); color: var(--pos); }
+.edge.jump { stroke: var(--pos); color: var(--pos); stroke-dasharray: 5 3; }
+.edge.back { stroke: var(--back); color: var(--back); }
+.edge.self { stroke: var(--guard); color: var(--guard); }
+.edge.exit { stroke: var(--exit); color: var(--exit); }
+.edge.on { opacity: 1; stroke-width: 2.2; }
+
+/* 状态明细 */
+.detail { border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; background: var(--vscode-editorWidget-background); }
+.detail-head { display: flex; align-items: center; gap: 8px; }
+.detail h4 { margin: 12px 0 6px; font-size: 1em; }
+.group { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.grow { flex: 1 1 auto; min-width: 0; }
+/* 徽章类不能叫 .num：表格列早就用 .num 表示「右对齐等宽数字」，同名会把每个数字染成徽章 */
+.letter, .badge-num {
+  flex: 0 0 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground);
+}
+.to { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 3px; }
+.pill { font-size: 11px; padding: 0 6px; border-radius: 9px; border: 1px solid var(--line); color: var(--dim); }
+.pill.next { border-color: var(--pos); color: var(--pos); }
+.pill.jump { border-color: var(--pos); color: var(--pos); }
+.pill.back { border-color: var(--back); color: var(--back); }
+.pill.self { border-color: var(--guard); color: var(--guard); }
+.pill.exit { border-color: var(--exit); color: var(--exit); }
+.rows { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.rows.inner { margin-top: 3px; padding-left: 10px; border-left: 2px solid var(--line); }
+
+/* 一行判断 */
+button.row {
+  display: inline-flex; align-items: baseline; gap: 6px; max-width: 100%;
+  border: 1px solid var(--line); border-left-width: 3px; border-radius: 4px; padding: 1px 8px;
+  background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
+}
+button.row:hover { background: var(--vscode-list-hoverBackground); }
+button.row code { white-space: pre-wrap; word-break: break-all; }
+.row .tag { font-size: 10.5px; color: var(--dim); flex: 0 0 auto; }
+.row.pos { border-left-color: var(--pos); }
+.row.neg { border-left-color: var(--neg); }
+.row.guard { border-left-color: var(--guard); }
+
+/* 主题导航与表格 */
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.segmented button { border: none; background: none; color: inherit; font: inherit; padding: 2px 10px; cursor: pointer; }
+.segmented button + button { border-left: 1px solid var(--line); }
+.segmented button.on { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+.segmented button.dim { color: var(--dim); }
+.segmented button:hover:not(.on) { background: var(--vscode-list-hoverBackground); }
+.bar .themes { margin-right: 6px; }
+
+.board.wide { flex: 1 1 auto; }
+table.grid { border-collapse: collapse; width: 100%; margin: 8px 0 4px; font-size: 0.95em; }
+table.grid th, table.grid td { text-align: left; padding: 2px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.grid th { color: var(--dim); font-weight: normal; }
+table.grid td.num, table.grid th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.grid th.bar, table.grid td.bar { width: 22%; border-bottom: 1px solid var(--line); }
+table.grid td.bar i { display: block; height: 8px; border-radius: 2px; background: var(--pos); opacity: 0.55; }
+table.grid tbody tr:hover { background: var(--vscode-list-hoverBackground); }
+
+/* 依赖：分层 DSM。格子固定 20×20，多了就滚，行列头用 sticky 冻结 */
+.deps { display: flex; flex-direction: column; }
+.deps-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.deps-bar input { font: inherit; padding: 2px 6px; width: 150px; border: 1px solid var(--line); border-radius: 4px; background: var(--vscode-input-background); color: var(--vscode-input-foreground); }
+.declared-chip { border: 1px dashed var(--guard); color: var(--guard); border-radius: 4px; padding: 1px 8px; font-size: 0.9em; }
+.bad { color: var(--back); }
+
+.dm-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--vscode-editorWidget-background); max-height: calc(100vh - 260px); }
+.dm-grid { position: relative; font-size: 10.5px; }
+.dm-layer-cols { position: sticky; top: 0; z-index: 3; background: var(--vscode-editorWidget-background); border-bottom: 1px solid var(--line); box-sizing: border-box; }
+.dm-body { position: relative; }
+.dm-layer-rows { position: sticky; left: 0; z-index: 2; background: var(--vscode-editorWidget-background); border-right: 1px solid var(--line); box-sizing: border-box; }
+.dm-corner { position: sticky; left: 0; top: 0; display: flex; align-items: flex-end; padding: 6px 8px; box-sizing: border-box; background: var(--vscode-editorWidget-background); z-index: 4; border-right: 1px solid var(--line); }
+.dm-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 8px; font-size: 9.5px; line-height: 1.35; color: var(--dim); align-content: end; height: 100%; }
+.dm-legend-h { grid-column: 1 / -1; color: var(--vscode-foreground); }
+.dm-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.dm-legend i.dep { background: var(--pos); } .dm-legend i.back { background: var(--back); }
+.dm-legend i.bypass { background: var(--neg); } .dm-legend i.typeonly { background: var(--dim); }
+.dm-legend i.plan { background: var(--guard); outline: 1px dashed var(--guard); }
+
+.dm-row, .dm-col, .dm-cell, .dm-block, .dm-band { position: absolute; left: 0; top: 0; }
+.dm-row, .dm-col, .dm-cell { transition: transform .55s cubic-bezier(.4, 0, .2, 1), opacity .3s; }
+.dm-block, .dm-band { transition: transform .55s cubic-bezier(.4, 0, .2, 1), top .55s cubic-bezier(.4, 0, .2, 1), width .55s, height .55s; }
+@media (prefers-reduced-motion: reduce) { .dm-row, .dm-col, .dm-cell, .dm-block, .dm-band { transition: none; } }
+.dm-row { display: flex; align-items: center; gap: 6px; padding-right: 4px; box-sizing: border-box; cursor: pointer; white-space: nowrap; overflow: hidden; border-bottom: 1px solid var(--vscode-editorWidget-background); }
+.dm-row i { width: 8px; height: 8px; border-radius: 2px; flex: 0 0 8px; opacity: 0.7; }
+.dm-row span { font-family: var(--vscode-editor-font-family, monospace); overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 60px; }
+.dm-row small { color: var(--dim); font-size: 9.5px; white-space: nowrap; }
+.dm-row:hover { background: var(--vscode-list-hoverBackground); }
+.dm-row.sel, .dm-col.sel { background: var(--vscode-list-activeSelectionBackground); }
+.dm-row.dir span, .dm-col.dir span { font-weight: 600; }
+.dm-row.pending { opacity: 0.45; }
+.dm-row.declared { outline: 1px dashed var(--guard); outline-offset: -1px; }
+.dm-tog { flex: 0 0 12px; color: var(--dim); font-style: normal; cursor: pointer; text-align: center; }
+.dm-tog:hover { color: var(--guard); }
+.dm-pin { border: none; background: none; color: var(--dim); cursor: pointer; padding: 0 1px; font-size: 10px; line-height: 1; visibility: hidden; }
+.dm-row:hover .dm-pin, .dm-row.sel .dm-pin { visibility: visible; }
+.dm-pin:hover { color: var(--guard); }
+.dm-col { display: flex; align-items: flex-end; justify-content: center; cursor: pointer; }
+.dm-col span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--vscode-editor-font-family, monospace); font-size: 9.5px; padding: 4px 0; white-space: nowrap; max-height: 112px; overflow: hidden; }
+.dm-col.hit, .dm-row.hit { background: var(--vscode-editor-findMatchHighlightBackground, rgba(234, 92, 0, 0.33)); }
+
+.dm-cell { border-radius: 2px; }
+.dm-cell.diag { background: var(--dim); opacity: 0.25; }
+.dm-cell.cell { background: var(--pos); cursor: pointer; }
+.dm-cell.cell.back { background: var(--back); }
+.dm-cell.cell.bypass { background: var(--neg); }
+.dm-cell.cell.typeonly { background: var(--dim); }
+.dm-cell.cell.plan { outline: 1px dashed var(--guard); background: var(--guard); }
+.dm-cell.cell.hl { outline: 2px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.dm-cell.cell.dim { opacity: 0.15 !important; }
+.dm-cell.cell:hover { outline: 2px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.dm-block { border-radius: 3px; background: var(--dim); opacity: 0.07; pointer-events: none; }
+.dm-band { border-radius: 2px; background: var(--dim); opacity: 0.5; cursor: pointer; }
+.dm-band { overflow: hidden; }
+.dm-band:hover { background: var(--guard); opacity: 1; }
+.dm-band-play { position: absolute; left: 0; top: 0; width: 100%; height: 18px; border: none; background: none; color: var(--vscode-editorWidget-background); font-size: 8px; line-height: 18px; padding: 0; cursor: pointer; }
+.dm-band-play:hover { background: var(--guard); color: var(--vscode-button-foreground); }
+.dm-corner-play { flex: 0 0 24px; width: 24px; height: 24px; margin-right: 8px; border: 1px solid var(--line); border-radius: 4px; background: none; color: var(--vscode-foreground); cursor: pointer; font-size: 11px; }
+.dm-corner-play:hover { border-color: var(--guard); color: var(--guard); }
+
+/* 回放条：第几步、这一步为什么这么排 */
+.dm-play { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; font-size: 12px; }
+.dm-play input[type=range] { width: 240px; accent-color: var(--guard); }
+.dm-play .why { color: var(--dim); }
+.dm-play .why b { color: var(--vscode-foreground); font-family: var(--vscode-editor-font-family, monospace); }
+
+/* 切割集：反向边的汇总表 */
+.dp-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 6px; }
+.dp-table th { text-align: left; color: var(--dim); font-weight: 600; border-bottom: 1px solid var(--line); padding: 3px 6px; white-space: nowrap; }
+.dp-table td { padding: 3px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.dp-table td.num, .dp-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.dp-table tr.dp-edge-row { cursor: pointer; }
+.dp-table tr.dp-edge-row:hover { background: var(--vscode-list-hoverBackground); }
+
+.detail details { margin: 4px 0; }
+.detail summary { cursor: pointer; }
+.detail .line { padding: 1px 0 1px 14px; }
+
+/* 执行关系：按需展开的调用树 */
+.tree { margin: 8px 0; }
+.tnode { border-left: 1px solid var(--line); padding-left: 4px; }
+.tnode:first-child { border-left: none; padding-left: 0; }
+.trow { display: flex; align-items: center; gap: 5px; padding: 1px 0; }
+.trow:hover { background: var(--vscode-list-hoverBackground); }
+button.tcaret { border: none; background: none; color: var(--dim); cursor: pointer; width: 16px; padding: 0; font-size: 10px; }
+button.tcaret:disabled { cursor: default; }
+.pill.register { border-color: var(--exit); color: var(--exit); }
+.pill.schedule { border-color: var(--guard); color: var(--guard); }
+.pill.irq { border-color: var(--back); color: var(--back); }
+
+/* 共享与并发：变量 × 单元矩阵、中断优先级梯子 */
+.ladder { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 6px 0 10px; }
+.rung { border: 1px solid var(--line); border-left: 3px solid var(--back); border-radius: 4px; background: none; color: inherit; font: inherit; padding: 2px 8px; cursor: pointer; text-align: left; }
+.rung:hover { background: var(--vscode-list-hoverBackground); }
+.rung b { display: block; font-family: var(--vscode-editor-font-family, monospace); }
+table.rw th.unit { text-align: center; }
+table.rw th.unit.isr { color: var(--back); } table.rw th.unit.task { color: var(--pos); }
+table.rw th.unit.callback { color: var(--guard); } table.rw th.unit.main { color: var(--dim); }
+table.rw td.cellmark { text-align: center; }
+table.rw tbody tr { cursor: pointer; }
+table.rw tbody tr.sel { background: var(--vscode-list-activeSelectionBackground); }
+.mark { display: inline-block; min-width: 34px; border-radius: 3px; font-size: 10.5px; padding: 0 4px; border: 1px solid var(--line); }
+.mark.w { border-color: var(--back); color: var(--back); }
+.mark.rw { border-color: var(--neg); color: var(--neg); }
+.mark.r { border-color: var(--pos); color: var(--pos); }
+.mark.addr { border-color: var(--dim); color: var(--dim); }
+.mark.locked { opacity: 0.6; }
+.pill.high { border-color: var(--back); color: var(--back); }
+.pill.medium { border-color: var(--neg); color: var(--neg); }
+.pill.wake { border-color: var(--exit); color: var(--exit); }
+.pill.isr { border-color: var(--back); color: var(--back); }
+.pill.task { border-color: var(--pos); color: var(--pos); }
+.pill.callback { border-color: var(--guard); color: var(--guard); }
+.dp-more { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; margin: 8px 0; }
+.dp-more summary { cursor: pointer; }
+
+/* 顺序与时间：循环分类的色码 */
+.pill.loop-busy { border-color: var(--back); color: var(--back); }
+.pill.loop-wait { border-color: var(--neg); color: var(--neg); }
+.pill.loop-main { border-color: var(--pos); color: var(--pos); }
+.pill.loop-iter { border-color: var(--dim); color: var(--dim); }
+.pill.loop-macro { border-color: var(--guard); color: var(--guard); }
+h4.bad { color: var(--back); }
+
+/* 顺序与时间：一轮的列式展开。往右是嵌套深度，不是时间 */
+.rd-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 8px 0 2px; }
+.rd-toggle { margin-left: auto; color: var(--dim); font-size: 11.5px; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.rd-note { margin: 0 0 8px; }
+.rd-scroll { overflow-x: auto; overflow-y: visible; padding-bottom: 6px; }
+.rd-levels { display: flex; align-items: flex-start; gap: 26px; min-width: min-content; }
+.rd-level { display: flex; flex-direction: column; min-width: 260px; position: relative; }
+.rd-level + .rd-level { border-left: 1px dashed var(--line); padding-left: 26px; margin-left: -26px; }
+.rd-level-head { color: var(--dim); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.rd-slot { margin-bottom: 10px; }
+
+.rd-box { border: 1px solid var(--line); border-left-width: 3px; border-radius: 5px; background: var(--vscode-editorWidget-background); }
+.rd-box.root { border-left-color: var(--pos); }
+.rd-box.main { border-left-color: var(--pos); }
+.rd-box.busy { border-left-color: var(--back); }
+.rd-box.wait { border-left-color: var(--guard); }
+.rd-box.iter, .rd-box.macro { border-left-color: var(--dim); }
+.rd-head { display: flex; align-items: baseline; gap: 5px; padding: 4px 8px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.rd-head .ghost { margin-left: auto; }
+.rd-tag { flex: 0 0 auto; min-width: 16px; text-align: center; border-radius: 3px; background: var(--dim); color: var(--vscode-editorWidget-background); font-size: 10px; padding: 0 3px; }
+.rd-boxcond { padding: 2px 8px; border-bottom: 1px solid var(--line); color: var(--dim); font-size: 11px; overflow-wrap: anywhere; }
+.rd-rows { padding: 3px 0; }
+
+.rd-row { display: flex; align-items: baseline; gap: 5px; padding: 1px 8px 1px 0; font-size: 11.5px; white-space: nowrap; }
+.rd-row:hover { background: var(--vscode-list-hoverBackground); }
+.rd-row.yield { color: var(--guard); }
+.rd-row.frame { color: var(--dim); }
+.rd-mark { flex: 0 0 auto; width: 12px; text-align: center; color: var(--dim); font-size: 10px; }
+.rd-mark.wait { color: var(--guard); }
+.rd-mark.register { color: var(--exit); }
+.rd-brk { border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font-size: 9.5px; }
+.rd-brk.loop { border-color: var(--guard); color: var(--guard); }
+.rd-brk.case { border-color: var(--pos); color: var(--pos); }
+.rd-cond { overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.rd-line { border: none; background: none; color: var(--dim); cursor: pointer; font-size: 10px; padding: 0; margin-left: auto; }
+.rd-line:hover { color: var(--vscode-textLink-foreground); }
+
+.rd-vars { display: inline-flex; gap: 3px; flex-wrap: wrap; }
+.rd-var { border-radius: 3px; padding: 0 3px; font-size: 10px; font-family: var(--vscode-editor-font-family, monospace); border: 1px solid var(--line); color: var(--dim); }
+.rd-var.w { border-color: var(--neg); color: var(--neg); }
+.rd-var.locked { border-style: dashed; }
+.rd-var.bad { background: var(--back); border-color: var(--back); color: var(--vscode-button-foreground); }
+.rd-deep { color: var(--guard); font-size: 10px; }
+.rd-warn { background: var(--back); color: var(--vscode-button-foreground); border-radius: 8px; padding: 0 5px; font-size: 9.5px; }
+.rd-badge { border-radius: 3px; padding: 0 3px; font-size: 9.5px; border: 1px solid var(--line); color: var(--dim); }
+.rd-badge.busy { border-color: var(--back); color: var(--back); }
+.rd-badge.main { border-color: var(--pos); color: var(--pos); }
+.rd-badge.wait { border-color: var(--guard); color: var(--guard); }
+
+.rd-exits { display: flex; flex-wrap: wrap; gap: 4px; padding: 3px 8px; border-top: 1px solid var(--line); }
+.rd-exit { font-size: 10px; color: var(--dim); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
+.rd-exit.none { border-color: var(--back); color: var(--back); }
+.rd-exit.loopback { border-color: var(--pos); color: var(--pos); }
+
+/* 双根对比：中断 × 任务的共用函数数，数字深浅按量级 */
+.cmp { margin-top: 14px; }
+.cmp table.grid td.cnt { text-align: center; cursor: pointer; font-variant-numeric: tabular-nums; min-width: 34px; }
+.cmp table.grid td.cnt.z { color: var(--dim); }
+.cmp table.grid td.cnt.l1 { background: color-mix(in srgb, var(--neg) 10%, transparent); }
+.cmp table.grid td.cnt.l2 { background: color-mix(in srgb, var(--neg) 24%, transparent); }
+.cmp table.grid td.cnt.l3 { background: color-mix(in srgb, var(--neg) 40%, transparent); }
+.cmp table.grid td.cnt.sel { outline: 2px solid var(--vscode-focusBorder); outline-offset: -2px; }
+.cmp .pick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+.cmp .pick select { max-width: 220px; }
+.cmp .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+@media (max-width: 720px) { .cmp .two { grid-template-columns: 1fr; } }
+
+/* 枚举一览：未在 switch 出现的成员淡掉，但要在——那正是设计和实现对不上的地方 */
+.enum-table tr.unused td { color: var(--dim); }
+.verdict { margin: 2px 0 6px; }
+
+/* 函数搜索：输入名字，倒推到入口 */
+.fnsearch { display: flex; gap: 4px; margin-bottom: 8px; }
+.fnsearch input { flex: 1 1 auto; min-width: 0; }
+.fnsearch .hits { margin: 0 0 8px; }
+.chain { list-style: none; padding: 0; margin: 4px 0 8px; }
+.chain li { padding: 1px 0; }
+.chain li .hop { color: var(--dim); font-size: 10.5px; margin-left: 6px; }
+
+/* 沿链展开到的那个函数：高亮一行，告诉人「就是这儿」 */
+.trow.target { background: color-mix(in srgb, var(--vscode-focusBorder) 18%, transparent); border-radius: 3px; }
+
+/* 运行图 */
+.runmap { margin: 8px 0 14px; }
+.runmap .rm-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+.runmap .rm-chip { font-size: 11px; padding: 2px 8px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+.runmap .rm-chip.bad { border-color: var(--neg); color: var(--neg); }
+.runmap .rm-chip.on { outline: 2px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.runmap .rm-strip { display: flex; align-items: center; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+.runmap .rm-spacer { flex: 1 1 auto; }
+.runmap .rm-cells { display: flex; gap: 3px; flex-wrap: wrap; }
+.runmap .rm-cell { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--line); background: var(--line); padding: 0; cursor: pointer; }
+.runmap .rm-cell.isr { border-color: var(--neg); }
+.runmap .rm-cell.callback { border-style: dashed; }
+.runmap .rm-cell.w-conflict { background: var(--neg); }
+.runmap .rm-cell.w-pollution { background: var(--vscode-charts-orange, #d97706); }
+.runmap .rm-cell.on { outline: 2px solid var(--vscode-focusBorder); }
+.runmap .rm-wrap { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--vscode-editor-background); }
+.runmap svg { display: block; width: 100%; height: auto; max-height: 560px; user-select: none; }
+.runmap .rm-label { font-size: 10.5px; fill: var(--dim); }
+.runmap .rm-layer { fill: var(--vscode-editorWidget-background, transparent); stroke: var(--line); }
+.runmap .rm-node rect { fill: var(--vscode-editorWidget-background, transparent); stroke: var(--line); stroke-width: 1.2; }
+.runmap .rm-node.isr rect { stroke: var(--neg); }
+.runmap .rm-node.callback rect { stroke-dasharray: 4 3; }
+.runmap .rm-node.w-conflict rect { stroke-width: 2; }
+.runmap .rm-node.page rect { stroke-width: 2.4; stroke: var(--vscode-focusBorder); }
+.runmap .rm-node.idle rect { fill: transparent; stroke: var(--dim); }
+.runmap .rm-name { font-size: 11px; font-weight: 700; fill: var(--vscode-foreground); }
+.runmap .rm-rhythm { font-size: 9.5px; fill: var(--dim); }
+.runmap .rm-var rect { fill: var(--vscode-editor-background); stroke: var(--line); stroke-width: 1.2; }
+.runmap .rm-var.cross rect { stroke: var(--vscode-foreground); }
+.runmap .rm-var.wake rect { stroke: var(--vscode-charts-blue, #0284c7); }
+.runmap .rm-var.conflict rect { stroke: var(--neg); stroke-width: 1.8; }
+.runmap .rm-var.pollution rect { stroke: var(--vscode-charts-orange, #d97706); stroke-width: 1.8; }
+.runmap .rm-var.sel rect { stroke: var(--vscode-focusBorder); stroke-width: 2.4; }
+.runmap .rm-vname { font-size: 10.5px; fill: var(--vscode-foreground); font-family: var(--vscode-editor-font-family, monospace); }
+.runmap .rm-badge { font-size: 8px; fill: var(--neg); font-weight: 700; text-anchor: end; }
+.runmap .rm-lock { font-size: 8px; }
+.runmap .rm-atom { font-size: 7.5px; fill: var(--vscode-charts-orange, #d97706); text-anchor: end; }
+.runmap .rm-edge { fill: none; opacity: .75; stroke: var(--line); }
+.runmap .rm-edge.write, .runmap .rm-edge.both { stroke-width: 1.6; }
+.runmap .rm-edge.read { stroke-width: .8; opacity: .55; }
+.runmap .rm-edge.shared { stroke: var(--line); }
+.runmap .rm-edge.cross { stroke: var(--dim); }
+.runmap .rm-edge.wake { stroke: var(--vscode-charts-blue, #0284c7); }
+.runmap .rm-edge.conflict { stroke: var(--neg); }
+.runmap .rm-edge.pollution { stroke: var(--vscode-charts-orange, #d97706); }
+.runmap .rm-edge.bad { stroke: var(--neg); stroke-width: 2.2; }
+.runmap .rm-edge.dim { opacity: .12; }
+.runmap .rm-edge.hi { opacity: 1; stroke-width: 2.2; }
+.runmap .rm-arrow path { fill: var(--line); }
+.runmap .rm-arrow.cross path { fill: var(--dim); }
+.runmap .rm-arrow.wake path { fill: var(--vscode-charts-blue, #0284c7); }
+.runmap .rm-arrow.conflict path, .runmap .rm-arrow.bad path { fill: var(--neg); }
+.runmap .rm-arrow.pollution path { fill: var(--vscode-charts-orange, #d97706); }
+.runmap .rm-main { margin-top: 6px; line-height: 1.8; }
+
+/* 两栏外壳：左栏 = 导航 + 本主题可选的对象 + 检查面板；中间只留舞台，少放选择 */
+.app.side-layout { flex-direction: row; }
+.side { width: 300px; flex: 0 0 300px; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); }
+.themes-v { display: flex; flex-direction: column; padding: 6px; gap: 2px; border-bottom: 1px solid var(--line); }
+.themes-v button { text-align: left; border: none; background: none; color: inherit; font: inherit; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+.themes-v button.on { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+.themes-v button.dim { color: var(--dim); }
+.themes-v button:hover:not(.on) { background: var(--vscode-list-hoverBackground); }
+.side-status { display: block; padding: 4px 12px 6px; border-bottom: 1px solid var(--line); }
+.side .rail { flex: 0 1 auto; max-height: 42%; overflow: auto; border-bottom: 1px solid var(--line); }
+.side .rail:empty { display: none; }
+.side .rail .machines { width: auto; flex: none; border-right: 0; }
+.side .rail .ladder { padding: 6px; }
+.side .rail .deps-bar { flex-direction: column; align-items: stretch; gap: 6px; padding: 8px; }
+.side .rail .deps-bar input { width: 100%; box-sizing: border-box; }
+.side .inspector { flex: 1 1 auto; overflow: auto; padding: 8px; min-height: 0; }
+.side .inspector:empty::before { content: attr(data-hint); color: var(--dim); font-size: 12px; }
+.side .inspector .detail { margin-bottom: 8px; }
+.side .inspector .detail-head { flex-wrap: wrap; }
+.side .inspector .two { grid-template-columns: 1fr; }
+.stage { flex: 1 1 auto; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.stage > .theme, .stage > .board { flex: 1 1 auto; min-height: 0; }
+
+/* 侧栏模式：这个 webview 就是 VS Code 的侧边栏视图，只画左栏，撑满 */
+.app.mode-side { flex-direction: column; }
+.side.full { width: auto; flex: 1 1 auto; border-right: 0; }
+.mode-side .stage { display: none; }
+
+/* 节拍：横轴毫秒、纵轴任务。颜色走主题变量，语义色给兜底 */
+.beat { margin: 6px 0 10px; }
+.beat-facts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.beat-facts .bf { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit; padding: 3px 8px; font: inherit; font-size: 12px; }
+.beat-facts button.bf { cursor: pointer; }
+.beat-facts button.bf:hover { border-color: var(--vscode-focusBorder); }
+.beat-facts .bf i { font-style: normal; color: var(--dim); font-size: 11px; }
+.beat-facts .bf b { font-variant-numeric: tabular-nums; }
+.beat-facts .bf u { text-decoration: none; color: var(--vscode-textLink-foreground); font-size: 10.5px; }
+.beat-facts .bf.bad b { color: var(--neg); }
+.beat-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.beat-spacer { flex: 1 1 auto; }
+.beat-key { display: inline-flex; align-items: center; gap: 4px; color: var(--dim); font-size: 11px; }
+.beat-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-left: 8px; }
+.beat-key i.run { background: var(--vscode-charts-blue, #2563eb); }
+.beat-key i.unb { background: var(--neg); }
+.beat-key i.band { background: color-mix(in srgb, var(--vscode-charts-blue, #2563eb) 30%, transparent); border: 1px solid var(--vscode-charts-blue, #2563eb); }
+.beat-key i.lead { height: 2px; background: var(--dim); }
+.beat-vp { border: 1px solid var(--line); border-radius: 6px; background: var(--vscode-editor-background); overflow: hidden auto; max-height: 420px; cursor: grab; user-select: none; }
+.beat-vp:active { cursor: grabbing; }
+.beat-vp svg { display: block; }
+.beat .beat-h { font-size: 11px; fill: var(--dim); font-weight: 700; }
+.beat .beat-name { font-size: 10px; fill: var(--vscode-foreground); font-family: var(--vscode-editor-font-family, monospace); }
+.beat .beat-per { font-size: 9px; fill: var(--dim); }
+.beat .beat-row:hover .beat-name, .beat .beat-row.sel .beat-name { fill: var(--vscode-focusBorder); font-weight: 700; }
+.beat .beat-lane { stroke: var(--line); }
+.beat .beat-tickline { stroke: var(--line); opacity: .6; }
+.beat .beat-tick { font-size: 8.5px; fill: var(--dim); }
+.beat .beat-isrband { fill: color-mix(in srgb, var(--neg) 10%, transparent); stroke: color-mix(in srgb, var(--neg) 40%, transparent); }
+.beat .beat-isrt { font-size: 9px; fill: var(--neg); }
+.beat .beat-dense-t { font-size: 9px; fill: var(--dim); }
+.beat .beat-slot.run { fill: var(--vscode-charts-blue, #2563eb); }
+.beat .beat-slot.unbounded { fill: var(--neg); }
+.beat .beat-slot:hover { stroke: var(--vscode-focusBorder); stroke-width: 1.2; }
+.beat .beat-lead { stroke: var(--dim); }
+.beat .beat-yield { stroke: var(--vscode-foreground); stroke-width: 1; stroke-dasharray: 2 2; opacity: .7; }
+.beat .beat-yield.sleep { stroke-dasharray: none; stroke-width: 1.4; }
+.beat .beat-band.run { fill: color-mix(in srgb, var(--vscode-charts-blue, #2563eb) 30%, transparent); stroke: var(--vscode-charts-blue, #2563eb); }
+.beat .beat-band.unbounded { fill: color-mix(in srgb, var(--neg) 30%, transparent); stroke: var(--neg); }
+.beat .beat-chip rect { fill: color-mix(in srgb, var(--pos) 25%, transparent); stroke: var(--pos); }
+.beat .beat-chip text { fill: var(--vscode-foreground); font-size: 9.5px; font-variant-numeric: tabular-nums; }
+.beat .beat-chip { cursor: pointer; }
+.beat .beat-susp text { font-size: 10px; fill: var(--vscode-charts-orange, #d97706); cursor: pointer; }
+.beat-dd { margin-top: 8px; }
+.beat-off { margin: 6px 0; }
+table.grid tr.pick { cursor: pointer; }
+.rail-toggle { display: block; padding: 6px 8px; }
+
+/* 状态图：UML 语义 + dagre 走线 */
+.fsm-wrap { border: 1px solid var(--line); border-radius: 6px; margin: 8px 0 12px; background: var(--vscode-editor-background); }
+.fsm-tools { display: flex; gap: 10px; align-items: center; padding: 4px 8px; border-bottom: 1px solid var(--line); font-size: 12px; flex-wrap: wrap; }
+.fsm-spacer { flex: 1 1 auto; }
+.fsm-legend { display: inline-flex; align-items: center; gap: 4px; color: var(--dim); font-size: 11px; }
+.fsm-legend i { display: inline-block; width: 12px; height: 2px; margin-left: 8px; }
+.fsm-legend i.next { background: var(--pos); } .fsm-legend i.jump { background: var(--pos); opacity: .5; } .fsm-legend i.back { background: var(--back); } .fsm-legend i.self { background: var(--guard); } .fsm-legend i.exit { background: var(--exit); }
+.graph.uml { margin: 0; width: 100%; user-select: none; cursor: grab; }
+.graph.uml:active { cursor: grabbing; }
+.uml-init circle { fill: var(--vscode-foreground); }
+.uml-init line { stroke: var(--vscode-foreground); stroke-width: 1.4; color: var(--vscode-foreground); }
+.state.term circle.outer { fill: none; stroke: var(--vscode-foreground); stroke-width: 1.4; }
+.state.term circle.core { fill: var(--vscode-foreground); stroke: none; }
+.state.term.sel circle.outer { stroke: var(--vscode-focusBorder); stroke-width: 2.2; }
+.state.extra rect { stroke: var(--neg); stroke-dasharray: 4 3; }
+.state rect.stack { fill: none; stroke: var(--line); }
+.edge.active { opacity: 1; stroke-width: 2.4; }
+.uml-badge circle { fill: var(--vscode-badge-background); stroke: var(--vscode-editor-background); stroke-width: 1.5; }
+.uml-badge text { fill: var(--vscode-badge-foreground); font-size: 10px; font-weight: 700; pointer-events: none; }
+.uml-flags .flag { font-size: 9.5px; fill: var(--dim); }
+.uml-flags .flag.extra { fill: var(--neg); }
+.uml-flags .flag.child { fill: var(--vscode-textLink-foreground); }
+.uml-guard rect { fill: var(--guard); opacity: .85; }
+.uml-guard text { fill: var(--vscode-editor-background); font-size: 9px; font-weight: 700; pointer-events: none; }
+
+.warn-inline { color: var(--neg); }
+
+/* 抢占式时间图：复用节拍的一套，多三种带子和一个优先级标签 */
+.beat .beat-band.event { fill: color-mix(in srgb, var(--guard) 22%, transparent); stroke: var(--guard); }
+.beat .beat-band.poll { fill: color-mix(in srgb, var(--neg) 18%, transparent); stroke: var(--neg); }
+.beat .beat-band.unknown { fill: color-mix(in srgb, var(--dim) 15%, transparent); stroke: var(--dim); stroke-dasharray: 3 2; }
+.beat .beat-band.dense { fill: color-mix(in srgb, var(--vscode-charts-blue, #2563eb) 30%, transparent); stroke: var(--vscode-charts-blue, #2563eb); }
+.beat-key i.band.event { background: color-mix(in srgb, var(--guard) 30%, transparent); border: 1px solid var(--guard); }
+.beat-key i.band.poll { background: color-mix(in srgb, var(--neg) 25%, transparent); border: 1px solid var(--neg); }
+.beat .beat-prio { font-size: 9.5px; fill: var(--vscode-textLink-foreground); font-variant-numeric: tabular-nums; cursor: pointer; }
+.beat .beat-prio.unresolved { fill: var(--neg); }

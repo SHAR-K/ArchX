@@ -1,0 +1,6 @@
+# 仓库里一律存 LF。金样是逐字节比对的，检出时被转成 CRLF 就会假失败——
+# 上一次就是 git stash 碰了一下 view.json，测试立刻报「投影输出和金样不一致」。
+* text=auto eol=lf
+*.png binary
+*.exe binary
+*.vsix binary

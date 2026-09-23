@@ -1,0 +1,36 @@
+  .beat-vp { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); max-height: calc(100vh - 300px); overflow: hidden auto; cursor: grab; user-select: none; margin-bottom: 10px; }
+  .beat-vp:active { cursor: grabbing; }
+  .beat-inner { display: block; }
+  .fsm-svg.beat { display: block; border: none; background: transparent; }
+  .beat .beat-h { font-size: 11px; fill: #64748b; font-weight: 700; }
+  .beat .beat-name { font-size: 10px; fill: #0f172a; font-family: ui-monospace, Consolas, monospace; }
+  .beat .beat-per { font-size: 9px; fill: #64748b; }
+  .beat .beat-row:hover .beat-name, .beat .beat-row.sel .beat-name { fill: #7c3aed; }
+  .beat .beat-lane { stroke: #f1f5f9; }
+  .beat .beat-tickline { stroke: #eef2f6; } .beat .beat-tick { font-size: 8.5px; fill: #94a3b8; }
+  .beat .beat-isrband { fill: #fef2f2; stroke: #fecaca; } .beat .beat-isrt { font-size: 9px; fill: #b91c1c; }
+  .beat .beat-dense-t { font-size: 9px; fill: #1e3a8a; }
+  /* 到期一刻的一格：深蓝 = 这一轮会跑的段，红 = 走到无界忙等 */
+  .beat .beat-slot { rx: 1.5; } .beat .beat-slot.run { fill: #2563eb; } .beat .beat-slot.unbounded { fill: #dc2626; }
+  .beat .beat-slot:hover { stroke: #7c3aed; stroke-width: 1.2; }
+  .beat .beat-lead { stroke: #cbd5e1; }
+  /* 让出：段与段之间那一道竖线 */
+  .beat .beat-yield { stroke: #1e3a8a; stroke-width: 1; } .beat .beat-yield.sleep { stroke: #0f172a; stroke-width: 1.4; }
+  .beat .beat-yield:not(.sleep) { stroke-dasharray: 2 2; }
+  /* 整条带：没有定时器（每圈必跑），或此尺度下到期密于一格 */
+  .beat .beat-band { rx: 2; } .beat .beat-band.run { fill: #bfdbfe; stroke: #93c5fd; } .beat .beat-band.unbounded { fill: #fecaca; stroke: #f87171; }
+  .beat .beat-chip rect { fill: #d1fae5; stroke: #34d399; }
+  .beat .beat-chip text { fill: #065f46; font-size: 9.5px; font-variant-numeric: tabular-nums; }
+  .beat .beat-chip { cursor: pointer; } .beat .beat-chip:hover rect { fill: #6ee7b7; }
+  .beat-key { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
+  .beat-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-left: 8px; }
+  .beat-key i.run { background: #2563eb; } .beat-key i.unb { background: #dc2626; } .beat-key i.band { background: #bfdbfe; border: 1px solid #93c5fd; } .beat-key i.cell { background: #cbd5e1; width: 6px; } .beat-key i.yield { background: #0f172a; width: 2px; height: 12px; border-radius: 0; }
+  /* 事实条：通用标签 + 值 + 出处，一行铺开 */
+  .beat-facts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .beat-facts .bf { display: inline-flex; align-items: baseline; gap: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 3px 8px; font-size: 12px; text-decoration: none; color: inherit; }
+  .beat-facts .bf i { font-style: normal; color: var(--muted); font-size: 11px; }
+  .beat-facts .bf b { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .beat-facts .bf u { text-decoration: none; color: #2563eb; font-size: 10.5px; }
+  .beat-facts a.bf:hover { border-color: #2563eb; background: #f8fbff; }
+  .beat-facts .bf.bad b { color: var(--red); }
+  .beat .beat-susp text { font-size: 9px; fill: #b45309; cursor: pointer; } .beat .beat-susp:hover text { fill: #7c3aed; }

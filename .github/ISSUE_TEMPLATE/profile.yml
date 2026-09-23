@@ -1,0 +1,28 @@
+name: Missing framework profile
+description: Your RTOS, MCU library or platform SDK has no profile yet, so tasks and interrupts go unrecognised
+labels: [profile]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Profiles are YAML — no Python involved. If you would rather open a PR directly,
+        section 2 of [CONTRIBUTING.en.md](../../CONTRIBUTING.en.md) walks through it.
+  - type: input
+    id: framework
+    attributes:
+      label: Framework name and version
+    validations:
+      required: true
+  - type: textarea
+    id: apis
+    attributes:
+      label: Key APIs
+      description: The functions that create tasks, register callbacks, enable/disable interrupts, block and wait, and enter/leave critical sections
+    validations:
+      required: true
+  - type: input
+    id: example
+    attributes:
+      label: A public project that uses it (optional)
+      description: Repository URL and commit — it becomes the validation sample for the profile
+      placeholder: https://github.com/org/repo @ abc1234

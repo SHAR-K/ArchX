@@ -1,0 +1,16 @@
+{
+  "name": "archx-local",
+  "owner": {
+    "name": "ArchX"
+  },
+  "description": "ArchX architecture-driven development workflows",
+  "version": "0.25.1",
+  "plugins": [
+    {
+      "name": "archx",
+      "source": "./plugins/archx",
+      "description": "Continuous architecture design and constrained delivery workflows for ArchX projects",
+      "version": "0.25.1"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: gd32f30x
+kind: mcu
+description: 'GD32F30x 标准外设库：nvic_irq_enable 使能中断（实参 IRQn、抢占、子优先级），nvic_irq_disable / enable 临界区。GD32F30x firmware library:
+  nvic_irq_enable (IRQn, preempt, sub) and nvic disable / enable pairs.'
+isr_enable:
+- rule: gd32.nvic_irq_enable
+  function: nvic_irq_enable
+  irq_argument: 0
+critical_section:
+- rule: gd32.nvic_irq_disable
+  begin: nvic_irq_disable
+  end: nvic_irq_enable
+  kind: irq
+  match_argument: true

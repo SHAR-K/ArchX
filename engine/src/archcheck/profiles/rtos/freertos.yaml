@@ -1,0 +1,123 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: freertos
+kind: rtos
+description: FreeRTOS：任务 / 定时器 / 延时与队列等待 / 临界区。FreeRTOS tasks, timers, delays, queue waits and critical sections.
+# 抢占式：高优先级线程可以在任意点打断低优先级线程。
+scheduling: preemptive
+task_create:
+# 第 5 个实参是优先级（数字越大越高）：xTaskCreate(fn, name, stack, arg, PRIORITY, handle)
+- rule: freertos.xTaskCreate
+  function: xTaskCreate
+  entry_argument: 0
+  priority_argument: 4
+- rule: freertos.xTaskCreateStatic
+  function: xTaskCreateStatic
+  entry_argument: 0
+  priority_argument: 4
+- rule: freertos.xTaskCreatePinnedToCore
+  function: xTaskCreatePinnedToCore
+  entry_argument: 0
+  priority_argument: 4
+- rule: freertos.xTaskCreateStaticPinnedToCore
+  function: xTaskCreateStaticPinnedToCore
+  entry_argument: 0
+  priority_argument: 4
+timer_create:
+- rule: freertos.xTimerCreate
+  function: xTimerCreate
+  entry_argument: 4
+- rule: freertos.xTimerCreateStatic
+  function: xTimerCreateStatic
+  entry_argument: 4
+callback_register:
+- rule: freertos.xTimerPendFunctionCall
+  function: xTimerPendFunctionCall
+  entry_argument: 0
+task_control:
+- rule: freertos.vTaskSuspend
+  function: vTaskSuspend
+  kind: suspend
+  task_argument: 0
+- rule: freertos.vTaskResume
+  function: vTaskResume
+  kind: resume
+  task_argument: 0
+- rule: freertos.vTaskDelete
+  function: vTaskDelete
+  kind: exit
+  task_argument: 0
+blocking:
+# 延时实参是 tick 数：vTaskDelay(ticks)；vTaskDelayUntil / xTaskDelayUntil 的第 2 个实参是增量
+- rule: freertos.vTaskDelay
+  function: vTaskDelay
+  kind: delay
+  duration_argument: 0
+  duration_unit: tick
+- rule: freertos.vTaskDelayUntil
+  function: vTaskDelayUntil
+  kind: delay
+  duration_argument: 1
+  duration_unit: tick
+- rule: freertos.xTaskDelayUntil
+  function: xTaskDelayUntil
+  kind: delay
+  duration_argument: 1
+  duration_unit: tick
+- rule: freertos.xQueueReceive
+  function: xQueueReceive
+  kind: wait
+- rule: freertos.xQueuePeek
+  function: xQueuePeek
+  kind: wait
+- rule: freertos.xSemaphoreTake
+  function: xSemaphoreTake*
+  kind: wait
+- rule: freertos.xQueueSemaphoreTake
+  function: xQueueSemaphoreTake
+  kind: wait
+- rule: freertos.ulTaskNotifyTake
+  function: ulTaskNotifyTake*
+  kind: wait
+- rule: freertos.xTaskNotifyWait
+  function: xTaskNotifyWait*
+  kind: wait
+- rule: freertos.xEventGroupWaitBits
+  function: xEventGroupWaitBits
+  kind: wait
+- rule: freertos.xStreamBufferReceive
+  function: xStreamBufferReceive
+  kind: wait
+- rule: freertos.xMessageBufferReceive
+  function: xMessageBufferReceive
+  kind: wait
+- rule: freertos.taskYIELD
+  function: taskYIELD
+  kind: yield
+critical_section:
+- rule: freertos.taskENTER_CRITICAL
+  begin: taskENTER_CRITICAL
+  end: taskEXIT_CRITICAL
+  kind: irq
+- rule: freertos.taskENTER_CRITICAL_FROM_ISR
+  begin: taskENTER_CRITICAL_FROM_ISR
+  end: taskEXIT_CRITICAL_FROM_ISR
+  kind: irq
+- rule: freertos.vPortEnterCritical
+  begin: vPortEnterCritical
+  end: vPortExitCritical
+  kind: irq
+- rule: freertos.portDISABLE_INTERRUPTS
+  begin: portDISABLE_INTERRUPTS
+  end: portENABLE_INTERRUPTS
+  kind: irq
+- rule: freertos.vTaskSuspendAll
+  begin: vTaskSuspendAll
+  end: xTaskResumeAll
+  kind: scheduler
+- rule: freertos.xSemaphoreTake
+  begin: xSemaphoreTake*
+  end: xSemaphoreGive*
+  kind: mutex
+  match_argument: true

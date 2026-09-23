@@ -1,0 +1,9 @@
+**/*.ts
+**/*.tsx
+tsconfig.json
+webview/
+agent/
+src/
+dist/**/*.map
+*.vsix
+mcp/

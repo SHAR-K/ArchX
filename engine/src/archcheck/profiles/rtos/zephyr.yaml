@@ -1,0 +1,61 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: zephyr
+kind: rtos
+description: Zephyr：k_sleep / k_sem_take / k_msgq_get / irq_lock / k_mutex。Zephyr kernel sleeps, waits, irq locks and mutexes.
+# 抢占式：高优先级线程可以在任意点打断低优先级线程。
+scheduling: preemptive
+# k_thread_create(thread, stack, size, entry, p1, p2, p3, PRIO, options, delay)：Zephyr 的优先级数字越小越高
+task_create:
+- rule: zephyr.k_thread_create
+  function: k_thread_create
+  entry_argument: 3
+  priority_argument: 7
+task_control:
+- rule: zephyr.k_thread_suspend
+  function: k_thread_suspend
+  kind: suspend
+  task_argument: 0
+- rule: zephyr.k_thread_resume
+  function: k_thread_resume
+  kind: resume
+  task_argument: 0
+- rule: zephyr.k_thread_abort
+  function: k_thread_abort
+  kind: exit
+  task_argument: 0
+blocking:
+# k_msleep(ms) / k_usleep(us) 实参是时长；k_sleep(k_timeout_t) 的实参是 K_MSEC() 之类的宏，不折
+- rule: zephyr.k_msleep
+  function: k_msleep
+  kind: delay
+  duration_argument: 0
+  duration_unit: ms
+- rule: zephyr.k_usleep
+  function: k_usleep
+  kind: delay
+  duration_argument: 0
+  duration_unit: us
+- rule: zephyr.k_sleep
+  function: k_sleep
+  kind: delay
+- rule: zephyr.k_sem_take
+  function: k_sem_take
+  kind: wait
+- rule: zephyr.k_msgq_get
+  function: k_msgq_get
+  kind: wait
+- rule: zephyr.k_yield
+  function: k_yield
+  kind: yield
+critical_section:
+- rule: zephyr.k_mutex_lock
+  begin: k_mutex_lock
+  end: k_mutex_unlock
+  kind: mutex
+  match_argument: true
+- rule: zephyr.irq_lock
+  begin: irq_lock
+  end: irq_unlock
+  kind: irq

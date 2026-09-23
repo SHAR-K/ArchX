@@ -1,0 +1,50 @@
+name: Site
+
+# 静态演示页。数据（site/public/data/*.json.gz）已在库里，由 tools/build-site.mts 从本地扫描结果生成；
+# 这里只构建页面并发布到 GitHub Pages，不扫代码。
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "site/**"
+      - "extension/webview/**"
+      - "packages/facts-view/**"
+      - "packages/core/**"
+      - "vite.config.site.ts"
+      - ".github/workflows/site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

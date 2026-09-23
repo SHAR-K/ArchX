@@ -1,0 +1,35 @@
+{
+  "name": "archx",
+  "version": "0.25.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:extension": "vite build --config vite.config.extension-host.ts --configLoader native && vite build --config vite.config.extension-facts.ts --configLoader native && vite build --config vite.config.extension-mcp.ts --configLoader native",
+    "build:archcheck-engine": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-archcheck-engine.ps1",
+    "verify:archcheck-engine": "node tools/verify-archcheck-engine.mjs",
+    "test:engine": "npm run verify:archcheck-engine && node tools/archcheck-engine-smoke.mjs && npm run test:engine-unit",
+    "test:engine-unit": "cd engine && python -m unittest discover -s tests -p \"test_*.py\"",
+    "package:extension": "npm run verify:archcheck-engine && npm run build:extension && cd extension && vsce package --no-dependencies --target win32-x64",
+    "test": "npm run test:engine-unit && node tools/identifier-guard.mjs && node tools/i18n-guard.mjs && node tools/mcp-smoke.mjs && node --experimental-strip-types tools/core-smoke.ts && node --experimental-strip-types tools/facts-view-smoke.ts && npm run test:extension",
+    "test:extension": "npm run build:extension && node tools/extension-smoke.mjs && node --experimental-strip-types tools/facts-panel-smoke.ts && npm run build:site && node --experimental-strip-types tools/site-smoke.ts",
+    "site:data": "node --experimental-strip-types tools/build-site.mts",
+    "build:site": "vite build --config vite.config.site.ts --configLoader native",
+    "check": "tsc --noEmit -p tsconfig.node.json --pretty false && tsc --noEmit -p extension/tsconfig.json --pretty false"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^3.1.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@types/vscode": "^1.96.0",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
+  }
+}

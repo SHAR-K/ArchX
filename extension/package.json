@@ -1,0 +1,160 @@
+{
+  "name": "archx",
+  "displayName": "ArchX",
+  "description": "%description%",
+  "version": "0.25.3",
+  "type": "module",
+  "publisher": "archx-local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onView:archx.partitions",
+    "onCommand:archx.openWorkbench",
+    "onCommand:archx.initialize",
+    "onView:archx.agentView",
+    "onView:archx.factsSide"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "archx.initialize",
+        "title": "%command.initialize%",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "archx.addPartition",
+        "title": "%command.addPartition%",
+        "icon": "$(add)"
+      },
+      {
+        "command": "archx.addPartitionFromFolder",
+        "title": "%command.addPartitionFromFolder%"
+      },
+      {
+        "command": "archx.scanPartition",
+        "title": "%command.scanPartition%",
+        "icon": "$(search)"
+      },
+      {
+        "command": "archx.openFacts",
+        "title": "%command.openFacts%",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "archx.openFolderFacts",
+        "title": "%command.openFolderFacts%"
+      },
+      {
+        "command": "archx.refresh",
+        "title": "%command.refresh%",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "archx.installClaudeWorkflow",
+        "title": "%command.installClaudeWorkflow%",
+        "icon": "$(extensions)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "archx",
+          "title": "ArchX",
+          "icon": "media/network.svg"
+        }
+      ]
+    },
+    "views": {
+      "archx": [
+        {
+          "id": "archx.partitions",
+          "name": "%view.partitions%"
+        },
+        {
+          "type": "webview",
+          "id": "archx.factsSide",
+          "name": "%view.factsSide%"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "archx.addPartition",
+          "when": "view == archx.partitions",
+          "group": "navigation@1"
+        },
+        {
+          "command": "archx.scanPartition",
+          "when": "view == archx.partitions",
+          "group": "navigation@2"
+        },
+        {
+          "command": "archx.refresh",
+          "when": "view =~ /archx\\./",
+          "group": "navigation@9"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "archx.scanPartition",
+          "when": "view == archx.partitions && viewItem == archx.partition",
+          "group": "inline"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "archx.addPartitionFromFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "archx@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ArchX",
+      "properties": {
+        "archx.archcheck.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "%config.pythonPath%"
+        },
+        "archx.archcheck.enginePath": {
+          "type": "string",
+          "default": "",
+          "description": "%config.enginePath%"
+        },
+        "archx.archcheck.keilProject": {
+          "type": "string",
+          "default": "",
+          "description": "%config.keilProject%"
+        },
+        "archx.archcheck.keilTarget": {
+          "type": "string",
+          "default": "",
+          "description": "%config.keilTarget%"
+        },
+        "archx.ui.fontScale": {
+          "type": "number",
+          "default": 1.15,
+          "minimum": 0.85,
+          "maximum": 1.5,
+          "multipleOf": 0.05,
+          "description": "%config.fontScale%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node ../../tools/build-extension.mjs"
+  }
+}

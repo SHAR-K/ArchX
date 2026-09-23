@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "vite.config.extension-host.ts",
+    "vite.config.extension-facts.ts",
+    "vite.config.extension-mcp.ts",
+    "packages/core/src",
+    "packages/claude/src",
+    "vite.config.site.ts",
+    "tools/build-site.mts",
+    "tools/site-smoke.ts"
+  ]
+}

@@ -1,0 +1,19 @@
+# blinky 自己的调度器规则。规则即数据：引擎不认识任何函数名，都从这种文件来。
+#
+# 这个样例有一个最小的合作式调度器：scheduler_add(task) 把函数指针存进表，
+# scheduler_run() 轮询它们。两个名字都是样例自己的，不取自任何真实工程。
+name: blinky-scheduler
+kind: rtos
+description: 样例自带的最小合作式调度器：scheduler_add 注册任务，scheduler_run 轮询。
+scheduling: cooperative
+task_create:
+- rule: blinky.scheduler_add
+  function: scheduler_add
+  entry_argument: 0
+  confidence: high
+blocking:
+- rule: blinky.scheduler_sleep
+  function: scheduler_sleep
+  kind: delay
+  duration_argument: 0
+  duration_unit: ms

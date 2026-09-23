@@ -1,0 +1,37 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: posix
+kind: rtos
+description: POSIX 线程：pthread_create、sleep / sem_wait / cond_wait、pthread_mutex。POSIX threads, sleeps, semaphores and mutexes.
+# 抢占式：高优先级线程可以在任意点打断低优先级线程。
+scheduling: preemptive
+task_create:
+- rule: posix.pthread_create
+  function: pthread_create
+  entry_argument: 2
+blocking:
+- rule: posix.sleep
+  function: sleep
+  kind: delay
+- rule: posix.usleep
+  function: usleep
+  kind: delay
+- rule: posix.nanosleep
+  function: nanosleep
+  kind: delay
+- rule: posix.sem_wait
+  function: sem_wait
+  kind: wait
+- rule: posix.pthread_cond_wait
+  function: pthread_cond_wait
+  kind: wait
+- rule: posix.sched_yield
+  function: sched_yield
+  kind: yield
+critical_section:
+- rule: posix.pthread_mutex_lock
+  begin: pthread_mutex_lock
+  end: pthread_mutex_unlock
+  kind: mutex
+  match_argument: true

@@ -1,0 +1,31 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: esp-idf
+kind: platform
+description: ESP-IDF：事件处理器 / GPIO 中断 / esp_intr_alloc 回调注册，portENTER_CRITICAL 临界区。ESP-IDF event handlers, GPIO / esp_intr_alloc
+  callback registration, portENTER_CRITICAL.
+# 抢占式：高优先级线程可以在任意点打断低优先级线程。
+scheduling: preemptive
+callback_register:
+- rule: esp_idf.esp_event_handler_register
+  function: esp_event_handler_register
+  entry_argument: 2
+- rule: esp_idf.esp_event_handler_instance_register
+  function: esp_event_handler_instance_register
+  entry_argument: 2
+- rule: esp_idf.gpio_isr_handler_add
+  function: gpio_isr_handler_add
+  entry_argument: 1
+- rule: esp_idf.esp_intr_alloc
+  function: esp_intr_alloc
+  entry_argument: 2
+- rule: esp_idf.esp_intr_alloc_intrstatus
+  function: esp_intr_alloc_intrstatus
+  entry_argument: 4
+critical_section:
+- rule: esp_idf.portENTER_CRITICAL
+  begin: portENTER_CRITICAL*
+  end: portEXIT_CRITICAL*
+  kind: irq
+  match_argument: true

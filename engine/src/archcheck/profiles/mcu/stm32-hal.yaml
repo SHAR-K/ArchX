@@ -1,0 +1,23 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: stm32-hal
+kind: mcu
+description: STM32 HAL：HAL_NVIC_EnableIRQ 使能，HAL_Delay 延时，HAL_NVIC_DisableIRQ / EnableIRQ 临界区。STM32 HAL NVIC enable, HAL_Delay
+  and NVIC disable / enable pairs.
+isr_enable:
+- rule: stm32_hal.HAL_NVIC_EnableIRQ
+  function: HAL_NVIC_EnableIRQ
+  irq_argument: 0
+blocking:
+- rule: stm32_hal.HAL_Delay
+  function: HAL_Delay
+  kind: delay
+  duration_argument: 0
+  duration_unit: ms
+critical_section:
+- rule: stm32_hal.HAL_NVIC_DisableIRQ
+  begin: HAL_NVIC_DisableIRQ
+  end: HAL_NVIC_EnableIRQ
+  kind: irq
+  match_argument: true

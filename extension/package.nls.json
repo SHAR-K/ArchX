@@ -1,0 +1,18 @@
+{
+  "description": "Architecture-driven agent development workbench for C/C++ firmware",
+  "command.initialize": "ArchX: Initialize Project",
+  "command.addPartition": "ArchX: Create Architecture Partition",
+  "command.addPartitionFromFolder": "ArchX: Use Folder as Architecture Partition",
+  "command.scanPartition": "ArchX: Scan Partition",
+  "command.openFacts": "ArchX: Open Code Facts",
+  "command.openFolderFacts": "ArchX: Analyze Folder and Open Code Facts",
+  "command.refresh": "ArchX: Refresh",
+  "command.installClaudeWorkflow": "ArchX: Install Claude Code Workflow",
+  "view.partitions": "Architecture Partitions",
+  "view.factsSide": "Code Facts",
+  "config.pythonPath": "Only used with an external ArchCheck source engine; the bundled standalone engine needs no Python.",
+  "config.enginePath": "Optional ArchCheck standalone executable, engine directory or source repository; when empty the engine bundled in the VSIX is preferred.",
+  "config.keilProject": "Optional path to the Keil .uvprojx project.",
+  "config.keilTarget": "Optional Keil target name.",
+  "config.fontScale": "ArchX 架构工作台和 Agent 视图的字号缩放比例，修改后即时生效。"
+}

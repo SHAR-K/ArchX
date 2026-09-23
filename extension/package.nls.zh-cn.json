@@ -1,0 +1,18 @@
+{
+  "description": "架构驱动的智能体开发工作台",
+  "command.initialize": "ArchX: 初始化当前项目",
+  "command.addPartition": "ArchX: 创建架构分区",
+  "command.addPartitionFromFolder": "ArchX: 将目录设为架构分区",
+  "command.scanPartition": "ArchX: 扫描架构分区",
+  "command.openFacts": "ArchX: 打开代码事实",
+  "command.openFolderFacts": "ArchX: 分析目录并打开代码事实",
+  "command.refresh": "ArchX: 刷新",
+  "command.installClaudeWorkflow": "ArchX: 安装 Claude Code 原生工作流",
+  "view.partitions": "架构工作区",
+  "view.factsSide": "代码事实",
+  "config.pythonPath": "仅在使用外部 ArchCheck 源码引擎时使用；内置独立引擎不需要 Python。",
+  "config.enginePath": "可选的 ArchCheck 独立程序、引擎目录或源码仓库；留空时优先使用 VSIX 内置引擎。",
+  "config.keilProject": "可选的 Keil .uvprojx 路径。",
+  "config.keilTarget": "可选的 Keil Target 名称。",
+  "config.fontScale": "ArchX 架构工作台和 Agent 视图的字号缩放比例，修改后即时生效。"
+}

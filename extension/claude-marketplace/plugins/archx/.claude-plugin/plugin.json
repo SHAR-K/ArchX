@@ -1,0 +1,15 @@
+{
+  "name": "archx",
+  "version": "0.25.1",
+  "description": "读代码事实：跑 ArchCheck 引擎，在 ArchX 面板里显示，按主题切片读回",
+  "author": {
+    "name": "ArchX"
+  },
+  "license": "MIT",
+  "keywords": [
+    "architecture",
+    "code-facts",
+    "embedded",
+    "static-analysis"
+  ]
+}

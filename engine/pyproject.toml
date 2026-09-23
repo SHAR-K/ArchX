@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "archcheck"
+version = "0.15.0"
+description = "Architecture health scanner for C and C++ projects"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "SHAR-K" }]
+dependencies = ["PyYAML>=6.0,<7"]
+
+[project.scripts]
+archcheck = "archcheck.cli:main"
+archcheck-gui = "archcheck.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+archcheck = ["templates/*.html", "profiles/*/*.yaml"]

@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-09-23",
+  "engineCommit": "8579b1a",
+  "projects": [
+    {
+      "id": "hoverboard-foc",
+      "title": "hoverboard-firmware-hack-FOC",
+      "repo": "https://github.com/EFeru/hoverboard-firmware-hack-FOC",
+      "commit": "4f141cbc97b297e194fd58e56444bd0322f902ac",
+      "license": "GPL-3.0",
+      "kind": "bare-metal",
+      "blurb": "Bare-metal STM32F103 motor FOC. The control loop runs in the ADC-DMA interrupt, the super-loop in main changes targets; every conflict candidate is interrupt ↔ main.",
+      "build": "pio run -e VARIANT_ADC -t compiledb",
+      "focus": [
+        "**"
+      ],
+      "region": "",
+      "snapshot": "9f4081bceec3",
+      "counts": {
+        "files": 171,
+        "functions": 710,
+        "units": {
+          "isr": 13,
+          "callback": 22
+        },
+        "sharedResources": 35,
+        "conflictCandidates": 16
+      }
+    },
+    {
+      "id": "stm32h743",
+      "title": "STM32H743-CMake-Template",
+      "repo": "https://github.com/Mythologyli/STM32H743-CMake-Template",
+      "commit": "4542a412783c8f21fb49dc80030c5a1c52af0209",
+      "license": "GPL-3.0",
+      "kind": "freertos",
+      "blurb": "FreeRTOS on a Cortex-M7: 3 tasks, 14 interrupts, a software timer and a CLI. Shown as one partition — Core, Applications, the CLI and the kernel — the way you would scan a folder of it; LVGL and the HAL stay outside.",
+      "build": "cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "focus": [
+        "Core/**",
+        "Applications/**",
+        "Libraries/FreeRTOS-Plus-CLI/**",
+        "Middlewares/Third_Party/**"
+      ],
+      "region": "",
+      "snapshot": "ff216d1ddba2",
+      "counts": {
+        "files": 168,
+        "functions": 616,
+        "units": {
+          "isr": 14,
+          "callback": 19,
+          "task": 6,
+          "timer": 1
+        },
+        "sharedResources": 66,
+        "conflictCandidates": 28
+      }
+    }
+  ]
+}

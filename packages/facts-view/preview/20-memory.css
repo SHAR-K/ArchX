@@ -1,0 +1,11 @@
+  .mem-table { width: 100%; font-size: 11.5px; margin-bottom: 10px; }
+  .mem-table th.sortable { cursor: pointer; white-space: nowrap; } .mem-table th.sortable.on { color: #1d4ed8; }
+  .mem-table td { font-variant-numeric: tabular-nums; }
+  .mem-barcell { width: 22%; }
+  .mem-bar { display: block; height: 5px; border-radius: 2px; margin: 1px 0; }
+  .mem-bar.rom { background: #93c5fd; } .mem-bar.ram { background: #fca5a5; }
+  .mem-sec { font-size: 10px; padding: 0 5px; border-radius: 3px; background: #e2e8f0; color: #334155; }
+  .mem-sec.bss { background: #fee2e2; color: #991b1b; } .mem-sec.data { background: #dbeafe; color: #1e40af; } .mem-sec.constdata, .mem-sec.conststring { background: #dcfce7; color: #166534; }
+  .mem-art { font-size: 13px; word-break: break-all; line-height: 1.3; }
+  .mem-more { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 6px 10px; }
+  .mem-more summary { cursor: pointer; font-size: 12px; } .mem-more p { margin: 4px 0; }

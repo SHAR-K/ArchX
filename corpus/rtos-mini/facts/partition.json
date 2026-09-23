@@ -1,0 +1,2416 @@
+{
+  "schemaVersion": 1,
+  "project": "corpus/rtos-mini",
+  "partition": {
+    "id": "application",
+    "name": "application",
+    "focusPaths": [
+      "src/**"
+    ]
+  },
+  "completeness": "full-scan-projection",
+  "files": [
+    {
+      "path": "src/main.c",
+      "architecture_node": "src/main.c",
+      "total_lines": 56,
+      "code_lines": 44,
+      "fan_in": 0,
+      "fan_out": 1,
+      "global_variables": 4,
+      "cross_file_globals": 0,
+      "in_dependency_cycle": false,
+      "risk_score": 10
+    },
+    {
+      "path": "src/rtos.c",
+      "architecture_node": "src/rtos.c",
+      "total_lines": 9,
+      "code_lines": 7,
+      "fan_in": 0,
+      "fan_out": 1,
+      "global_variables": 0,
+      "cross_file_globals": 0,
+      "in_dependency_cycle": false,
+      "risk_score": 2
+    },
+    {
+      "path": "src/rtos.h",
+      "architecture_node": "src/rtos.h",
+      "total_lines": 22,
+      "code_lines": 15,
+      "fan_in": 2,
+      "fan_out": 0,
+      "global_variables": 0,
+      "cross_file_globals": 0,
+      "in_dependency_cycle": false,
+      "risk_score": 4
+    },
+    {
+      "path": "src/startup/startup.s",
+      "architecture_node": "src/startup",
+      "total_lines": 22,
+      "code_lines": 22,
+      "fan_in": 0,
+      "fan_out": 0,
+      "global_variables": 0,
+      "cross_file_globals": 0,
+      "in_dependency_cycle": false,
+      "risk_score": 0
+    }
+  ],
+  "dependencyEdges": [
+    {
+      "source": "src/main.c",
+      "target": "src/rtos.h"
+    },
+    {
+      "source": "src/rtos.c",
+      "target": "src/rtos.h"
+    }
+  ],
+  "dependencyCycles": [],
+  "functions": [
+    {
+      "symbol_id": "function:src/main.c:TIM_IRQHandler",
+      "name": "TIM_IRQHandler",
+      "detail": "void (void)",
+      "location": {
+        "path": "src/main.c",
+        "line": 45,
+        "column": 6
+      },
+      "end_line": 49,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/main.c:control_task",
+      "name": "control_task",
+      "detail": "void (void *)",
+      "location": {
+        "path": "src/main.c",
+        "line": 18,
+        "column": 6
+      },
+      "end_line": 24,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/main.c:logger_task",
+      "name": "logger_task",
+      "detail": "void (void *)",
+      "location": {
+        "path": "src/main.c",
+        "line": 26,
+        "column": 6
+      },
+      "end_line": 33,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/main.c:main",
+      "name": "main",
+      "detail": "int (void)",
+      "location": {
+        "path": "src/main.c",
+        "line": 51,
+        "column": 5
+      },
+      "end_line": 56,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/main.c:worker_task",
+      "name": "worker_task",
+      "detail": "void (void *)",
+      "location": {
+        "path": "src/main.c",
+        "line": 35,
+        "column": 6
+      },
+      "end_line": 43,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:osDelay",
+      "name": "osDelay",
+      "detail": "void (unsigned int)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 5,
+        "column": 6
+      },
+      "end_line": 5,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:osThreadNew",
+      "name": "osThreadNew",
+      "detail": "osThreadId_t (void (*)(void *), void *, const osThreadAttr_t *)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 4,
+        "column": 14
+      },
+      "end_line": 4,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:vTaskDelay",
+      "name": "vTaskDelay",
+      "detail": "void (unsigned int)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 7,
+        "column": 6
+      },
+      "end_line": 7,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:xQueueReceive",
+      "name": "xQueueReceive",
+      "detail": "int (QueueHandle_t, void *, unsigned int)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 8,
+        "column": 5
+      },
+      "end_line": 8,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:xQueueSendFromISR",
+      "name": "xQueueSendFromISR",
+      "detail": "int (QueueHandle_t, const void *, void *)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 9,
+        "column": 5
+      },
+      "end_line": 9,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:xTaskCreate",
+      "name": "xTaskCreate",
+      "detail": "int (void (*)(void *), const char *, unsigned int, void *, unsigned int, void **)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 6,
+        "column": 5
+      },
+      "end_line": 6,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    }
+  ],
+  "variables": [
+    {
+      "symbol_id": "variable:src/main.c:control_attributes",
+      "name": "control_attributes",
+      "detail": "const osThreadAttr_t",
+      "scope": "global",
+      "location": {
+        "path": "src/main.c",
+        "line": 8,
+        "column": 22
+      },
+      "parent_function": null
+    },
+    {
+      "symbol_id": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "detail": "volatile int",
+      "scope": "global",
+      "location": {
+        "path": "src/main.c",
+        "line": 15,
+        "column": 14
+      },
+      "parent_function": null
+    },
+    {
+      "symbol_id": "variable:src/main.c:g_ticks",
+      "name": "g_ticks",
+      "detail": "volatile unsigned int",
+      "scope": "global",
+      "location": {
+        "path": "src/main.c",
+        "line": 14,
+        "column": 19
+      },
+      "parent_function": null
+    },
+    {
+      "symbol_id": "variable:src/main.c:s_events",
+      "name": "s_events",
+      "detail": "QueueHandle_t",
+      "scope": "static",
+      "location": {
+        "path": "src/main.c",
+        "line": 16,
+        "column": 22
+      },
+      "parent_function": null
+    }
+  ],
+  "semanticEdges": [
+    {
+      "source": "function:src/main.c:TIM_IRQHandler",
+      "target": "function:src/rtos.c:xQueueSendFromISR",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 48,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:TIM_IRQHandler",
+      "target": "variable:src/main.c:g_ticks",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 47,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:TIM_IRQHandler",
+      "target": "variable:src/main.c:s_events",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 48,
+          "column": 21
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:control_task",
+      "target": "function:src/rtos.c:osDelay",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 22,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:control_task",
+      "target": "variable:src/main.c:g_setpoint",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 21,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:control_task",
+      "target": "variable:src/main.c:g_ticks",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 21,
+          "column": 24
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:logger_task",
+      "target": "function:src/rtos.c:vTaskDelay",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 31,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:logger_task",
+      "target": "variable:src/main.c:g_setpoint",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 29,
+          "column": 20
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:control_task",
+      "relation": "address_of",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 52,
+          "column": 15
+        }
+      ],
+      "argumentIndex": 0,
+      "callee": "osThreadNew"
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:control_task",
+      "relation": "registers_task",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 52,
+          "column": 15
+        }
+      ],
+      "rule": "cmsis-rtos2.osThreadNew",
+      "evidence": {
+        "priority": {
+          "argument": "&control_attributes",
+          "attr": "control_attributes",
+          "field": "priority"
+        }
+      }
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:logger_task",
+      "relation": "address_of",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 53,
+          "column": 15
+        }
+      ],
+      "argumentIndex": 0,
+      "callee": "xTaskCreate"
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:logger_task",
+      "relation": "registers_task",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 53,
+          "column": 15
+        }
+      ],
+      "rule": "freertos.xTaskCreate",
+      "evidence": {
+        "priority": {
+          "argument": "tskIDLE_PRIORITY + 1"
+        }
+      }
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:worker_task",
+      "relation": "address_of",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 54,
+          "column": 15
+        }
+      ],
+      "argumentIndex": 0,
+      "callee": "xTaskCreate"
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:worker_task",
+      "relation": "registers_task",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 54,
+          "column": 15
+        }
+      ],
+      "rule": "freertos.xTaskCreate",
+      "evidence": {
+        "priority": {
+          "argument": "tskIDLE_PRIORITY + 2"
+        }
+      }
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/rtos.c:osThreadNew",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 52,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/rtos.c:xTaskCreate",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 53,
+          "column": 3
+        },
+        {
+          "path": "src/main.c",
+          "line": 54,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "variable:src/main.c:control_attributes",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 52,
+          "column": 33
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:worker_task",
+      "target": "function:src/rtos.c:xQueueReceive",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 39,
+          "column": 9
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:worker_task",
+      "target": "variable:src/main.c:g_setpoint",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 40,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:worker_task",
+      "target": "variable:src/main.c:s_events",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 39,
+          "column": 23
+        }
+      ]
+    }
+  ],
+  "globalVariables": [
+    {
+      "name": "g_setpoint",
+      "type_name": "volatile int",
+      "storage": "global",
+      "definition": {
+        "path": "src/main.c",
+        "line": 15,
+        "column": 14
+      },
+      "references": [
+        {
+          "path": "src/main.c",
+          "line": 21,
+          "column": 5
+        },
+        {
+          "path": "src/main.c",
+          "line": 29,
+          "column": 20
+        },
+        {
+          "path": "src/main.c",
+          "line": 40,
+          "column": 7
+        }
+      ],
+      "referenced_files": 1,
+      "cross_file": false
+    },
+    {
+      "name": "g_ticks",
+      "type_name": "volatile unsigned int",
+      "storage": "global",
+      "definition": {
+        "path": "src/main.c",
+        "line": 14,
+        "column": 19
+      },
+      "references": [
+        {
+          "path": "src/main.c",
+          "line": 21,
+          "column": 24
+        },
+        {
+          "path": "src/main.c",
+          "line": 47,
+          "column": 3
+        }
+      ],
+      "referenced_files": 1,
+      "cross_file": false
+    },
+    {
+      "name": "s_events",
+      "type_name": "QueueHandle_t",
+      "storage": "static",
+      "definition": {
+        "path": "src/main.c",
+        "line": 16,
+        "column": 22
+      },
+      "references": [
+        {
+          "path": "src/main.c",
+          "line": 39,
+          "column": 23
+        },
+        {
+          "path": "src/main.c",
+          "line": 48,
+          "column": 21
+        }
+      ],
+      "referenced_files": 1,
+      "cross_file": false
+    },
+    {
+      "name": "control_attributes",
+      "type_name": "const osThreadAttr_t",
+      "storage": "global",
+      "definition": {
+        "path": "src/main.c",
+        "line": 8,
+        "column": 22
+      },
+      "references": [
+        {
+          "path": "src/main.c",
+          "line": 52,
+          "column": 33
+        }
+      ],
+      "referenced_files": 1,
+      "cross_file": false
+    }
+  ],
+  "warnings": [],
+  "metrics": {
+    "translation_units": 3,
+    "source_files": 3,
+    "analyzed_files": 4,
+    "include_directories": 1,
+    "include_edges": 2,
+    "dependency_cycle_groups": 0,
+    "global_variables": 4,
+    "cross_file_global_variables": 0,
+    "functions": 11,
+    "variables": 4,
+    "function_calls": 6,
+    "variable_references": 8,
+    "total_lines": 109,
+    "code_lines": 88,
+    "high_risk_files": 0,
+    "unassigned_files": 0,
+    "files_by_extension": {
+      ".c": 2,
+      ".s": 1
+    },
+    "files_by_module": {
+      "src/main.c": 1,
+      "src/rtos.c": 1,
+      "src/startup": 1
+    }
+  },
+  "engineSchemaVersion": 4,
+  "coverage": {
+    "target": "compile-commands:compile_commands.json",
+    "sourceFilesOnDisk": 3,
+    "translationUnits": 3,
+    "filesAnalyzed": 3,
+    "excluded": [],
+    "byDirectory": {
+      ".": {
+        "sourceFilesOnDisk": 3,
+        "filesAnalyzed": 3,
+        "excluded": 0
+      },
+      "src": {
+        "sourceFilesOnDisk": 3,
+        "filesAnalyzed": 3,
+        "excluded": 0
+      },
+      "src/startup": {
+        "sourceFilesOnDisk": 1,
+        "filesAnalyzed": 1,
+        "excluded": 0
+      }
+    }
+  },
+  "entries": [
+    {
+      "kind": "main",
+      "symbolId": "function:src/main.c:main"
+    },
+    {
+      "kind": "reset",
+      "symbolId": "function:src/startup/startup.s:Reset_Handler"
+    }
+  ],
+  "executionUnits": [
+    {
+      "id": "isr:TIM_IRQHandler",
+      "kind": "isr",
+      "entrySymbolId": "function:src/main.c:TIM_IRQHandler",
+      "vector": 0,
+      "vectorTable": {
+        "path": "src/startup/startup.s",
+        "line": 18,
+        "column": 1
+      },
+      "enabledAt": [],
+      "confidence": "high",
+      "runMode": {
+        "mode": "one-shot",
+        "confidence": "high",
+        "periodMs": null,
+        "evidence": {
+          "reason": "no loop in the entry function"
+        }
+      }
+    },
+    {
+      "id": "task:control_task",
+      "kind": "task",
+      "entrySymbolId": "function:src/main.c:control_task",
+      "registeredAt": {
+        "functionId": "function:src/main.c:main",
+        "path": "src/main.c",
+        "line": 52
+      },
+      "rule": "cmsis-rtos2.osThreadNew",
+      "priority": {
+        "argument": "&control_attributes",
+        "value": 40,
+        "symbol": "osPriorityHigh",
+        "basis": "attr-initializer",
+        "at": {
+          "path": "src/main.c",
+          "line": 11
+        },
+        "attr": "control_attributes",
+        "field": "priority"
+      },
+      "confidence": "high",
+      "runMode": {
+        "mode": "periodic",
+        "confidence": "high",
+        "periodMs": 10,
+        "evidence": {
+          "loop": {
+            "function": "function:src/main.c:control_task",
+            "kind": "for",
+            "location": {
+              "path": "src/main.c",
+              "line": 20,
+              "column": 3
+            },
+            "infinite": true
+          },
+          "blockingCalls": [
+            {
+              "callee": "osDelay",
+              "rule": "cmsis_rtos.osDelay",
+              "kind": "delay",
+              "location": {
+                "path": "src/main.c",
+                "line": 22,
+                "column": 5
+              },
+              "via": "ast",
+              "duration": {
+                "argument": "10",
+                "value": 10,
+                "unit": "tick"
+              }
+            }
+          ],
+          "period": {
+            "ms": 10,
+            "basis": [
+              "osDelay(10) × 1 ms/tick"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "task:logger_task",
+      "kind": "task",
+      "entrySymbolId": "function:src/main.c:logger_task",
+      "registeredAt": {
+        "functionId": "function:src/main.c:main",
+        "path": "src/main.c",
+        "line": 53
+      },
+      "rule": "freertos.xTaskCreate",
+      "priority": {
+        "argument": "tskIDLE_PRIORITY + 1",
+        "value": 1,
+        "symbol": "tskIDLE_PRIORITY",
+        "basis": "expression",
+        "at": {
+          "path": "src/main.c",
+          "line": 53
+        }
+      },
+      "confidence": "high",
+      "runMode": {
+        "mode": "periodic",
+        "confidence": "high",
+        "periodMs": 50,
+        "evidence": {
+          "loop": {
+            "function": "function:src/main.c:logger_task",
+            "kind": "for",
+            "location": {
+              "path": "src/main.c",
+              "line": 28,
+              "column": 3
+            },
+            "infinite": true
+          },
+          "blockingCalls": [
+            {
+              "callee": "vTaskDelay",
+              "rule": "freertos.vTaskDelay",
+              "kind": "delay",
+              "location": {
+                "path": "src/main.c",
+                "line": 31,
+                "column": 5
+              },
+              "via": "ast",
+              "duration": {
+                "argument": "50",
+                "value": 50,
+                "unit": "tick"
+              }
+            }
+          ],
+          "period": {
+            "ms": 50,
+            "basis": [
+              "vTaskDelay(50) × 1 ms/tick"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "task:worker_task",
+      "kind": "task",
+      "entrySymbolId": "function:src/main.c:worker_task",
+      "registeredAt": {
+        "functionId": "function:src/main.c:main",
+        "path": "src/main.c",
+        "line": 54
+      },
+      "rule": "freertos.xTaskCreate",
+      "priority": {
+        "argument": "tskIDLE_PRIORITY + 2",
+        "value": 2,
+        "symbol": "tskIDLE_PRIORITY",
+        "basis": "expression",
+        "at": {
+          "path": "src/main.c",
+          "line": 54
+        }
+      },
+      "confidence": "high",
+      "runMode": {
+        "mode": "event-driven",
+        "confidence": "high",
+        "periodMs": null,
+        "evidence": {
+          "loop": {
+            "function": "function:src/main.c:worker_task",
+            "kind": "for",
+            "location": {
+              "path": "src/main.c",
+              "line": 38,
+              "column": 3
+            },
+            "infinite": true
+          },
+          "blockingCalls": [
+            {
+              "callee": "xQueueReceive",
+              "rule": "freertos.xQueueReceive",
+              "kind": "wait",
+              "location": {
+                "path": "src/main.c",
+                "line": 39,
+                "column": 9
+              },
+              "via": "ast"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "externDeclarations": [],
+  "reachability": {
+    "byUnit": {
+      "isr:TIM_IRQHandler": [
+        "function:src/main.c:TIM_IRQHandler",
+        "function:src/rtos.c:xQueueSendFromISR"
+      ],
+      "main:main": [
+        "function:src/main.c:main",
+        "function:src/rtos.c:osThreadNew",
+        "function:src/rtos.c:xTaskCreate"
+      ],
+      "task:control_task": [
+        "function:src/main.c:control_task",
+        "function:src/rtos.c:osDelay"
+      ],
+      "task:logger_task": [
+        "function:src/main.c:logger_task",
+        "function:src/rtos.c:vTaskDelay"
+      ],
+      "task:worker_task": [
+        "function:src/main.c:worker_task",
+        "function:src/rtos.c:xQueueReceive"
+      ]
+    },
+    "domains": {
+      "function:src/main.c:TIM_IRQHandler": [
+        "isr"
+      ],
+      "function:src/main.c:control_task": [
+        "task"
+      ],
+      "function:src/main.c:logger_task": [
+        "task"
+      ],
+      "function:src/main.c:main": [
+        "main"
+      ],
+      "function:src/main.c:worker_task": [
+        "task"
+      ],
+      "function:src/rtos.c:osDelay": [
+        "task"
+      ],
+      "function:src/rtos.c:osThreadNew": [
+        "main"
+      ],
+      "function:src/rtos.c:vTaskDelay": [
+        "task"
+      ],
+      "function:src/rtos.c:xQueueReceive": [
+        "task"
+      ],
+      "function:src/rtos.c:xQueueSendFromISR": [
+        "isr"
+      ],
+      "function:src/rtos.c:xTaskCreate": [
+        "main"
+      ]
+    },
+    "unreached": []
+  },
+  "contractBypass": [],
+  "typeOnlyIncludes": [],
+  "loops": [
+    {
+      "function": "function:src/main.c:control_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 20,
+        "column": 3
+      },
+      "endLine": 23,
+      "infinite": true,
+      "depth": 0,
+      "callsInBody": [
+        "function:src/rtos.c:osDelay"
+      ],
+      "blockingCalls": [
+        {
+          "callee": "osDelay",
+          "rule": "cmsis_rtos.osDelay",
+          "kind": "delay",
+          "location": {
+            "path": "src/main.c",
+            "line": 22,
+            "column": 5
+          },
+          "via": "ast",
+          "duration": {
+            "argument": "10",
+            "value": 10,
+            "unit": "tick"
+          }
+        }
+      ],
+      "exits": []
+    },
+    {
+      "function": "function:src/main.c:logger_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 28,
+        "column": 3
+      },
+      "endLine": 32,
+      "infinite": true,
+      "depth": 0,
+      "callsInBody": [
+        "function:src/rtos.c:vTaskDelay"
+      ],
+      "blockingCalls": [
+        {
+          "callee": "vTaskDelay",
+          "rule": "freertos.vTaskDelay",
+          "kind": "delay",
+          "location": {
+            "path": "src/main.c",
+            "line": 31,
+            "column": 5
+          },
+          "via": "ast",
+          "duration": {
+            "argument": "50",
+            "value": 50,
+            "unit": "tick"
+          }
+        }
+      ],
+      "exits": []
+    },
+    {
+      "function": "function:src/main.c:worker_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 38,
+        "column": 3
+      },
+      "endLine": 42,
+      "infinite": true,
+      "depth": 0,
+      "callsInBody": [
+        "function:src/rtos.c:xQueueReceive"
+      ],
+      "blockingCalls": [
+        {
+          "callee": "xQueueReceive",
+          "rule": "freertos.xQueueReceive",
+          "kind": "wait",
+          "location": {
+            "path": "src/main.c",
+            "line": 39,
+            "column": 9
+          },
+          "via": "ast"
+        }
+      ],
+      "exits": []
+    },
+    {
+      "function": "function:src/main.c:main",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 55,
+        "column": 3
+      },
+      "endLine": 55,
+      "infinite": true,
+      "depth": 0,
+      "callsInBody": [],
+      "blockingCalls": [],
+      "exits": []
+    }
+  ],
+  "stateMachines": [],
+  "resourceAccesses": [
+    {
+      "function": "function:src/main.c:control_task",
+      "variable": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "kind": "write",
+      "location": {
+        "path": "src/main.c",
+        "line": 21,
+        "column": 5
+      }
+    },
+    {
+      "function": "function:src/main.c:control_task",
+      "variable": "variable:src/main.c:g_ticks",
+      "name": "g_ticks",
+      "kind": "read",
+      "location": {
+        "path": "src/main.c",
+        "line": 21,
+        "column": 24
+      }
+    },
+    {
+      "function": "function:src/main.c:logger_task",
+      "variable": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "kind": "read",
+      "location": {
+        "path": "src/main.c",
+        "line": 29,
+        "column": 20
+      }
+    },
+    {
+      "function": "function:src/main.c:worker_task",
+      "variable": "variable:src/main.c:s_events",
+      "name": "s_events",
+      "kind": "read",
+      "location": {
+        "path": "src/main.c",
+        "line": 39,
+        "column": 23
+      }
+    },
+    {
+      "function": "function:src/main.c:worker_task",
+      "variable": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "kind": "read_write",
+      "location": {
+        "path": "src/main.c",
+        "line": 40,
+        "column": 7
+      }
+    },
+    {
+      "function": "function:src/main.c:TIM_IRQHandler",
+      "variable": "variable:src/main.c:g_ticks",
+      "name": "g_ticks",
+      "kind": "read_write",
+      "location": {
+        "path": "src/main.c",
+        "line": 47,
+        "column": 3
+      }
+    },
+    {
+      "function": "function:src/main.c:TIM_IRQHandler",
+      "variable": "variable:src/main.c:s_events",
+      "name": "s_events",
+      "kind": "read",
+      "location": {
+        "path": "src/main.c",
+        "line": 48,
+        "column": 21
+      }
+    },
+    {
+      "function": "function:src/main.c:main",
+      "variable": "variable:src/main.c:control_attributes",
+      "name": "control_attributes",
+      "kind": "address_taken",
+      "location": {
+        "path": "src/main.c",
+        "line": 52,
+        "column": 33
+      }
+    }
+  ],
+  "criticalSections": [],
+  "scanTotals": {
+    "loops": 4,
+    "stateMachines": 0,
+    "resourceAccesses": 8,
+    "criticalSections": 0,
+    "sharedResources": 3,
+    "conflictCandidates": 1,
+    "dataDependencies": 4
+  },
+  "dataDependencies": [
+    {
+      "from": "isr:TIM_IRQHandler",
+      "to": "task:control_task",
+      "fromKind": "isr",
+      "toKind": "task",
+      "order": "async",
+      "fromPosition": null,
+      "toPosition": 0,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_ticks",
+          "name": "g_ticks",
+          "variable": "variable:src/main.c:g_ticks",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    },
+    {
+      "from": "task:control_task",
+      "to": "task:logger_task",
+      "fromKind": "task",
+      "toKind": "task",
+      "order": "preemptive",
+      "fromPosition": 0,
+      "toPosition": 1,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_setpoint",
+          "name": "g_setpoint",
+          "variable": "variable:src/main.c:g_setpoint",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    },
+    {
+      "from": "task:control_task",
+      "to": "task:worker_task",
+      "fromKind": "task",
+      "toKind": "task",
+      "order": "preemptive",
+      "fromPosition": 0,
+      "toPosition": 2,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_setpoint",
+          "name": "g_setpoint",
+          "variable": "variable:src/main.c:g_setpoint",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    },
+    {
+      "from": "task:worker_task",
+      "to": "task:logger_task",
+      "fromKind": "task",
+      "toKind": "task",
+      "order": "preemptive",
+      "fromPosition": 2,
+      "toPosition": 1,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_setpoint",
+          "name": "g_setpoint",
+          "variable": "variable:src/main.c:g_setpoint",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    }
+  ],
+  "runModes": [
+    {
+      "unitId": "main:main",
+      "function": "function:src/main.c:main",
+      "mode": "busy-poll",
+      "confidence": "medium",
+      "periodMs": null,
+      "evidence": {
+        "loop": {
+          "function": "function:src/main.c:main",
+          "kind": "for",
+          "location": {
+            "path": "src/main.c",
+            "line": 55,
+            "column": 3
+          },
+          "infinite": true
+        },
+        "blockingCalls": [],
+        "note": "no blocking rule matched in the loop body or its callees"
+      }
+    },
+    {
+      "unitId": "reset:Reset_Handler",
+      "function": "function:src/startup/startup.s:Reset_Handler",
+      "mode": "unknown",
+      "confidence": "low",
+      "periodMs": null,
+      "evidence": {
+        "reason": "no AST for the entry function"
+      }
+    },
+    {
+      "unitId": "isr:TIM_IRQHandler",
+      "function": "function:src/main.c:TIM_IRQHandler",
+      "mode": "one-shot",
+      "confidence": "high",
+      "periodMs": null,
+      "evidence": {
+        "reason": "no loop in the entry function"
+      }
+    },
+    {
+      "unitId": "task:control_task",
+      "function": "function:src/main.c:control_task",
+      "mode": "periodic",
+      "confidence": "high",
+      "periodMs": 10,
+      "evidence": {
+        "loop": {
+          "function": "function:src/main.c:control_task",
+          "kind": "for",
+          "location": {
+            "path": "src/main.c",
+            "line": 20,
+            "column": 3
+          },
+          "infinite": true
+        },
+        "blockingCalls": [
+          {
+            "callee": "osDelay",
+            "rule": "cmsis_rtos.osDelay",
+            "kind": "delay",
+            "location": {
+              "path": "src/main.c",
+              "line": 22,
+              "column": 5
+            },
+            "via": "ast",
+            "duration": {
+              "argument": "10",
+              "value": 10,
+              "unit": "tick"
+            }
+          }
+        ],
+        "period": {
+          "ms": 10,
+          "basis": [
+            "osDelay(10) × 1 ms/tick"
+          ]
+        }
+      }
+    },
+    {
+      "unitId": "task:logger_task",
+      "function": "function:src/main.c:logger_task",
+      "mode": "periodic",
+      "confidence": "high",
+      "periodMs": 50,
+      "evidence": {
+        "loop": {
+          "function": "function:src/main.c:logger_task",
+          "kind": "for",
+          "location": {
+            "path": "src/main.c",
+            "line": 28,
+            "column": 3
+          },
+          "infinite": true
+        },
+        "blockingCalls": [
+          {
+            "callee": "vTaskDelay",
+            "rule": "freertos.vTaskDelay",
+            "kind": "delay",
+            "location": {
+              "path": "src/main.c",
+              "line": 31,
+              "column": 5
+            },
+            "via": "ast",
+            "duration": {
+              "argument": "50",
+              "value": 50,
+              "unit": "tick"
+            }
+          }
+        ],
+        "period": {
+          "ms": 50,
+          "basis": [
+            "vTaskDelay(50) × 1 ms/tick"
+          ]
+        }
+      }
+    },
+    {
+      "unitId": "task:worker_task",
+      "function": "function:src/main.c:worker_task",
+      "mode": "event-driven",
+      "confidence": "high",
+      "periodMs": null,
+      "evidence": {
+        "loop": {
+          "function": "function:src/main.c:worker_task",
+          "kind": "for",
+          "location": {
+            "path": "src/main.c",
+            "line": 38,
+            "column": 3
+          },
+          "infinite": true
+        },
+        "blockingCalls": [
+          {
+            "callee": "xQueueReceive",
+            "rule": "freertos.xQueueReceive",
+            "kind": "wait",
+            "location": {
+              "path": "src/main.c",
+              "line": 39,
+              "column": 9
+            },
+            "via": "ast"
+          }
+        ]
+      }
+    }
+  ],
+  "sharedResources": [
+    {
+      "resource": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "variable": "variable:src/main.c:g_setpoint",
+      "volatile": true,
+      "typeName": "volatile int",
+      "widthBytes": 4,
+      "atomicity": "single-word",
+      "unitCount": 3,
+      "accessCount": 3,
+      "units": [
+        {
+          "unit": "task:control_task",
+          "unitKind": "task",
+          "kinds": [
+            "write"
+          ],
+          "unprotectedKinds": [
+            "write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:control_task",
+              "kind": "write",
+              "location": {
+                "path": "src/main.c",
+                "line": 21,
+                "column": 5
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:logger_task",
+          "unitKind": "task",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:logger_task",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 29,
+                "column": 20
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:worker_task",
+          "unitKind": "task",
+          "kinds": [
+            "read_write"
+          ],
+          "unprotectedKinds": [
+            "read_write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:worker_task",
+              "kind": "read_write",
+              "location": {
+                "path": "src/main.c",
+                "line": 40,
+                "column": 7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": "variable:src/main.c:g_ticks",
+      "name": "g_ticks",
+      "variable": "variable:src/main.c:g_ticks",
+      "volatile": true,
+      "typeName": "volatile unsigned int",
+      "widthBytes": 4,
+      "atomicity": "single-word",
+      "unitCount": 2,
+      "accessCount": 2,
+      "units": [
+        {
+          "unit": "isr:TIM_IRQHandler",
+          "unitKind": "isr",
+          "kinds": [
+            "read_write"
+          ],
+          "unprotectedKinds": [
+            "read_write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:TIM_IRQHandler",
+              "kind": "read_write",
+              "location": {
+                "path": "src/main.c",
+                "line": 47,
+                "column": 3
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:control_task",
+          "unitKind": "task",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:control_task",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 21,
+                "column": 24
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": "variable:src/main.c:s_events",
+      "name": "s_events",
+      "variable": "variable:src/main.c:s_events",
+      "volatile": false,
+      "typeName": "QueueHandle_t",
+      "widthBytes": null,
+      "atomicity": "unknown",
+      "unitCount": 2,
+      "accessCount": 2,
+      "units": [
+        {
+          "unit": "isr:TIM_IRQHandler",
+          "unitKind": "isr",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:TIM_IRQHandler",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 48,
+                "column": 21
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:worker_task",
+          "unitKind": "task",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:worker_task",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 39,
+                "column": 23
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "conflictCandidates": [
+    {
+      "resource": "variable:src/main.c:g_ticks",
+      "name": "g_ticks",
+      "variable": "variable:src/main.c:g_ticks",
+      "volatile": true,
+      "isrSide": [
+        {
+          "unit": "isr:TIM_IRQHandler",
+          "unitKind": "isr",
+          "kinds": [
+            "read_write"
+          ],
+          "unprotectedKinds": [
+            "read_write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:TIM_IRQHandler",
+              "kind": "read_write",
+              "location": {
+                "path": "src/main.c",
+                "line": 47,
+                "column": 3
+              }
+            }
+          ]
+        }
+      ],
+      "otherSide": [
+        {
+          "unit": "task:control_task",
+          "unitKind": "task",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:control_task",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 21,
+                "column": 24
+              }
+            }
+          ]
+        }
+      ],
+      "pattern": "isr-write/other-access",
+      "confidence": "medium",
+      "reason": "one side writes and the other reads outside any recognised critical section (flag hand-off pattern); the variable is volatile, which orders the accesses but does not make compound updates atomic",
+      "approximation": "reachability-and-same-block-critical-sections; not a path proof"
+    }
+  ],
+  "astFacts": {
+    "functionsRequested": 11,
+    "functionsAnalyzed": 11,
+    "functionsFailed": 0,
+    "elapsedSeconds": 0.018,
+    "doWhileZeroSkipped": 0,
+    "switchesSkipped": 0,
+    "enumValuesResolved": 1,
+    "initializersRequested": 1,
+    "initializersAnalyzed": 1,
+    "structLayoutsResolved": 0,
+    "structLayoutsFailed": 0,
+    "inactiveRegionFiles": 2,
+    "callbacksHostUnknown": 0,
+    "callbacksHostAmbiguous": 0,
+    "deadBranchCalls": 0,
+    "approximations": {
+      "loops.infinite": "literal condition or missing for-condition only; flag/goto loops are unrecognized",
+      "timeBase.core-clock": "the CMSIS core-clock global's initializer; SystemInit may rewrite it at reset, so it is not a constant",
+      "timeBase.systick": "reload expression folded over literals and hovered constants; the tick period needs the core clock too",
+      "timeBase.tick-counter": "a file-level variable whose only writes are `++` in ISR-reachable functions and that thread code reads; a naming-free pattern, not a proof",
+      "timeBase.timeout-loop": "a loop whose condition compares the tick counter; the bound is in ticks, multiply by the tick period for milliseconds",
+      "loops.exits": "break / return / goto statements lexically inside the body that leave this loop (a break aimed at an inner switch is not one); whether they are reached is not decided",
+      "loops.iterations": "read from the `for` header alone (counter = start, comparison, step); the body may move the counter or the limit, so `max` is the header's upper bound, not a proof",
+      "reachability.dispatches": "may-call: every callback registered into a slot counts as reachable from every function that calls through that slot; which one fires is a runtime fact",
+      "deadBranches": "a call guarded by `param == CONST` that no reachable call site can enable; whole-program constant sets per parameter, not path- or context-sensitive, and only exact constants (literals and resolved enums) count",
+      "executionUnits.hosts": "contexts whose reachable set contains the callback (through dispatches edges); several hosts = ambiguous, none = the dispatcher is not reached from any unit",
+      "runModes.inherited": "a callback with exactly one host inherits that host's mode / period at medium confidence",
+      "runModes": "derived from the entry function's infinite loop and direct blocking calls (macro names matched by text); not a path proof",
+      "stateMachines.transitions.condition": "text of enclosing if conditions; not a path condition",
+      "stateMachines.transitions.conditionSteps": "enclosing if / else branches plus preceding `if (c) break|return|continue;` guards in the same statement sequences, in source order; guards inside called helpers are not seen",
+      "stateMachines.transitions.conditionSteps.parts": "atoms read from the AST: split along the top-level operator; parts carry anyOf: true when they are alternatives (else branch of a && condition, taken branch of a || condition), otherwise all of them must hold; macro-expanded conditions have no range and stay whole",
+      "stateMachines.externalWrites": "assignments to the dispatch variable in other functions with their enclosing if conditions; a call to such a helper from a case body is drawn as a transition to every value the helper may assign",
+      "criticalSections": "same-block-sequence: begin and end API in one statement sequence; cross-function or conditional protection is not seen",
+      "conflictCandidates": "reachability-based; a candidate is not a proven race and an absent candidate is not a proof of safety",
+      "executionUnits[form]": "callbacks found through a function pointer stored in a struct field / initializer table / registration parameter; dispatchers are matched by (struct type, field) or by the table variable, not by pointer analysis",
+      "enableSites": "one data-flow step: parameter -> callers' constants, struct/array field -> the variable's static initializer; runtime writes to the table are not followed",
+      "inactiveFunctions": "text scan of clangd inactive regions for `type name(...) {`; macros and K&R definitions can be missed",
+      "compileBranch": "textual conjunction of the enclosing #if conditions (a fact about the source text); whether it is active is proven by the function being present at all — inactive code is listed under inactiveRegions / inactiveFunctions instead",
+      "externalSymbols.library": "nearest *.lib / *.a in the declaring header's directory; several versions side by side are listed as candidates",
+      "wakeRelations": "ISR-context write + task/callback read inside an if/while/do condition; a polling handshake candidate, not a proof",
+      "runModes.periodMs": "literal delay argument × rule unit (× tick_ms for tick units); None when the argument is not a literal",
+      "controlFlow": "statement skeleton by source ranges (if/else/loops/switch/case); macro-expanded statements without a range are missing, and a case body ends at the next label (fall-through is not modelled)"
+    }
+  },
+  "controlFlow": [
+    {
+      "function": "function:src/main.c:control_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 20,
+        "column": 3
+      },
+      "endLine": 23,
+      "condition": "for (;;) {",
+      "depth": 0,
+      "parent": null
+    },
+    {
+      "function": "function:src/main.c:logger_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 28,
+        "column": 3
+      },
+      "endLine": 32,
+      "condition": "for (;;) {",
+      "depth": 0,
+      "parent": null
+    },
+    {
+      "function": "function:src/main.c:worker_task",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 38,
+        "column": 3
+      },
+      "endLine": 42,
+      "condition": "for (;;) {",
+      "depth": 0,
+      "parent": null
+    },
+    {
+      "function": "function:src/main.c:worker_task",
+      "kind": "if",
+      "location": {
+        "path": "src/main.c",
+        "line": 39,
+        "column": 5
+      },
+      "endLine": 41,
+      "condition": "xQueueReceive(s_events, &event, portMAX_DELAY)",
+      "depth": 1,
+      "parent": 0,
+      "parts": [
+        {
+          "text": "xQueueReceive(s_events, &event, portMAX_DELAY)",
+          "line": 39
+        }
+      ],
+      "partsNegated": [
+        {
+          "text": "xQueueReceive(s_events, &event, portMAX_DELAY)",
+          "line": 39
+        }
+      ]
+    },
+    {
+      "function": "function:src/main.c:main",
+      "kind": "for",
+      "location": {
+        "path": "src/main.c",
+        "line": 55,
+        "column": 3
+      },
+      "endLine": 55,
+      "condition": "for (;;) { }",
+      "depth": 0,
+      "parent": null
+    }
+  ],
+  "wakeRelations": [],
+  "deadBranches": [],
+  "scheduling": "preemptive",
+  "tickMs": 1,
+  "timeBase": [
+    {
+      "kind": "systick",
+      "name": "tick_ms",
+      "value": 1,
+      "unit": "ms",
+      "expression": "tick_ms: 1.0",
+      "location": null,
+      "function": null,
+      "basis": "declared",
+      "confidence": "low",
+      "note": "没有匹配到 SysTick 配置 API，这是 profile 声明的假设值",
+      "evidence": null
+    },
+    {
+      "kind": "tick-counter",
+      "name": "g_ticks",
+      "value": 2,
+      "unit": "count",
+      "expression": "g_ticks++",
+      "location": {
+        "path": "src/main.c",
+        "line": 47,
+        "column": 3
+      },
+      "function": "function:src/main.c:TIM_IRQHandler",
+      "basis": "derived",
+      "confidence": "medium",
+      "note": "中断上下文里只做自增、线程上下文里被读：这是 sleep 与超时的计时基准",
+      "evidence": {
+        "writtenIn": [
+          "function:src/main.c:TIM_IRQHandler"
+        ],
+        "readBy": [
+          "function:src/main.c:TIM_IRQHandler",
+          "function:src/main.c:control_task"
+        ],
+        "readCount": 2,
+        "volatile": null
+      }
+    }
+  ],
+  "externalSymbols": [],
+  "enableSites": [],
+  "inactiveRegions": [
+    {
+      "path": "src/main.c",
+      "kind": "translation-unit",
+      "regions": [],
+      "inactiveLines": 0,
+      "totalLines": 56,
+      "ratio": 0
+    },
+    {
+      "path": "src/rtos.c",
+      "kind": "translation-unit",
+      "regions": [],
+      "inactiveLines": 0,
+      "totalLines": 9,
+      "ratio": 0
+    }
+  ],
+  "inactiveFunctions": [],
+  "enums": [],
+  "taskControls": [],
+  "yieldLocals": [],
+  "typeUses": [
+    {
+      "function": "function:src/main.c:worker_task",
+      "type": "QueueHandle_t",
+      "role": "global",
+      "pointer": false,
+      "asWritten": "QueueHandle_t",
+      "count": 1,
+      "location": {
+        "path": "src/main.c",
+        "line": 39,
+        "column": 23
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 9,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/main.c:TIM_IRQHandler",
+      "type": "QueueHandle_t",
+      "role": "global",
+      "pointer": false,
+      "asWritten": "QueueHandle_t",
+      "count": 1,
+      "location": {
+        "path": "src/main.c",
+        "line": 48,
+        "column": 21
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 9,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/main.c:main",
+      "type": "osThreadAttr_t",
+      "role": "global",
+      "pointer": false,
+      "asWritten": "const osThreadAttr_t",
+      "count": 1,
+      "location": {
+        "path": "src/main.c",
+        "line": 52,
+        "column": 33
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 7,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/rtos.c:osThreadNew",
+      "type": "osThreadId_t",
+      "role": "return",
+      "pointer": false,
+      "asWritten": "osThreadId_t",
+      "count": 1,
+      "location": {
+        "path": "src/rtos.c",
+        "line": 4,
+        "column": 14
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 8,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/rtos.c:osThreadNew",
+      "type": "osThreadAttr_t",
+      "role": "param",
+      "pointer": true,
+      "asWritten": "const osThreadAttr_t *",
+      "count": 1,
+      "location": {
+        "path": "src/rtos.c",
+        "line": 4,
+        "column": 79
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 7,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/rtos.c:xQueueReceive",
+      "type": "QueueHandle_t",
+      "role": "param",
+      "pointer": false,
+      "asWritten": "QueueHandle_t",
+      "count": 1,
+      "location": {
+        "path": "src/rtos.c",
+        "line": 8,
+        "column": 33
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 9,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/rtos.c:xQueueSendFromISR",
+      "type": "QueueHandle_t",
+      "role": "param",
+      "pointer": false,
+      "asWritten": "QueueHandle_t",
+      "count": 1,
+      "location": {
+        "path": "src/rtos.c",
+        "line": 9,
+        "column": 37
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 9,
+        "column": 1
+      },
+      "resolution": "project"
+    }
+  ],
+  "macroUses": [
+    {
+      "file": "src/main.c",
+      "macro": "portMAX_DELAY",
+      "count": 1,
+      "location": {
+        "path": "src/main.c",
+        "line": 39,
+        "column": 41
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 20,
+        "column": 1
+      },
+      "resolution": "project",
+      "definitions": 1
+    },
+    {
+      "file": "src/main.c",
+      "macro": "tskIDLE_PRIORITY",
+      "count": 2,
+      "location": {
+        "path": "src/main.c",
+        "line": 53,
+        "column": 46
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 19,
+        "column": 1
+      },
+      "resolution": "project",
+      "definitions": 1
+    }
+  ],
+  "dataDependenciesBasis": "polling order = depth-first walk from main, calls and registrations in call-line order; same-round when the writer is polled before the reader",
+  "pollingOrder": [
+    "task:control_task",
+    "task:logger_task",
+    "task:worker_task"
+  ],
+  "dependencyOrder": {
+    "nodes": [
+      {
+        "id": "src",
+        "files": 3,
+        "depth": 0,
+        "scc": null
+      },
+      {
+        "id": "src/startup",
+        "files": 1,
+        "depth": 0,
+        "scc": null
+      }
+    ],
+    "edges": [],
+    "sccs": [],
+    "maxDepth": 0,
+    "files": {
+      "order": [
+        "src/main.c",
+        "src/rtos.c",
+        "src/startup/startup.s",
+        "src/rtos.h"
+      ],
+      "level": {
+        "src/rtos.h": 0,
+        "src/startup/startup.s": 0,
+        "src/rtos.c": 1,
+        "src/main.c": 2
+      },
+      "steps": [
+        {
+          "kind": "sink",
+          "node": "src/rtos.h",
+          "out": 0,
+          "in": 2
+        },
+        {
+          "kind": "sink",
+          "node": "src/startup/startup.s",
+          "out": 0,
+          "in": 0
+        },
+        {
+          "kind": "source",
+          "node": "src/main.c",
+          "out": 1,
+          "in": 0
+        },
+        {
+          "kind": "sink",
+          "node": "src/rtos.c",
+          "out": 0,
+          "in": 0
+        }
+      ],
+      "edges": [
+        {
+          "source": "src/main.c",
+          "target": "src/rtos.c",
+          "includes": 0,
+          "calls": 6,
+          "bypassCalls": 0,
+          "typeOnlyIncludes": 0,
+          "types": 0,
+          "macros": 0,
+          "reads": 0,
+          "writes": 0
+        },
+        {
+          "source": "src/main.c",
+          "target": "src/rtos.h",
+          "includes": 1,
+          "calls": 0,
+          "bypassCalls": 0,
+          "typeOnlyIncludes": 0,
+          "types": 3,
+          "macros": 2,
+          "reads": 0,
+          "writes": 0
+        },
+        {
+          "source": "src/rtos.c",
+          "target": "src/rtos.h",
+          "includes": 1,
+          "calls": 0,
+          "bypassCalls": 0,
+          "typeOnlyIncludes": 0,
+          "types": 4,
+          "macros": 0,
+          "reads": 0,
+          "writes": 0
+        }
+      ],
+      "feedback": []
+    },
+    "directories": {
+      "order": [
+        "src/startup",
+        "src"
+      ],
+      "level": {
+        "src": 0,
+        "src/startup": 0
+      },
+      "steps": [
+        {
+          "kind": "sink",
+          "node": "src",
+          "out": 0,
+          "in": 0
+        },
+        {
+          "kind": "sink",
+          "node": "src/startup",
+          "out": 0,
+          "in": 0
+        }
+      ],
+      "feedback": []
+    },
+    "units": {
+      "unitOf": {
+        "src/main.c": "src/main.c",
+        "src/rtos.c": "src/rtos",
+        "src/rtos.h": "src/rtos",
+        "src/startup/startup.s": "src/startup/startup.s"
+      },
+      "members": {
+        "src/main.c": [
+          "src/main.c"
+        ],
+        "src/rtos": [
+          "src/rtos.c",
+          "src/rtos.h"
+        ],
+        "src/startup/startup.s": [
+          "src/startup/startup.s"
+        ]
+      },
+      "order": [
+        "src/main.c",
+        "src/startup/startup.s",
+        "src/rtos"
+      ],
+      "level": {
+        "src/rtos": 0,
+        "src/startup/startup.s": 0,
+        "src/main.c": 1
+      },
+      "steps": [
+        {
+          "kind": "sink",
+          "node": "src/rtos",
+          "out": 0,
+          "in": 1
+        },
+        {
+          "kind": "sink",
+          "node": "src/startup/startup.s",
+          "out": 0,
+          "in": 0
+        },
+        {
+          "kind": "source",
+          "node": "src/main.c",
+          "out": 0,
+          "in": 0
+        }
+      ],
+      "edges": [
+        {
+          "source": "src/main.c",
+          "target": "src/rtos",
+          "includes": 1,
+          "calls": 6,
+          "bypassCalls": 0,
+          "typeOnlyIncludes": 0,
+          "types": 3,
+          "macros": 2,
+          "reads": 0,
+          "writes": 0
+        }
+      ],
+      "feedback": []
+    },
+    "clusters": {
+      "params": {
+        "powCc": 1,
+        "powBid": 1,
+        "powDep": 4,
+        "maxClusterRatio": 0.5,
+        "randBid": 30,
+        "randAccept": 30,
+        "iterationsPerNode": 30,
+        "stableRounds": 8,
+        "seeds": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "clusters": [
+        [
+          "src/main.c",
+          "src/rtos.c"
+        ],
+        [
+          "src/rtos.h"
+        ]
+      ],
+      "cost": 18,
+      "initialCost": 24,
+      "iterations": 45,
+      "steps": [
+        {
+          "i": 1,
+          "node": "src/main.c",
+          "from": 0,
+          "to": 1,
+          "bid": 1296,
+          "second": 1,
+          "cost": 18,
+          "worse": false
+        },
+        {
+          "i": 8,
+          "node": "src/rtos.c",
+          "from": 1,
+          "to": 2,
+          "bid": 1,
+          "second": 0,
+          "cost": 23,
+          "worse": true
+        },
+        {
+          "i": 9,
+          "node": "src/rtos.c",
+          "from": 2,
+          "to": 1,
+          "bid": 1296,
+          "second": 0,
+          "cost": 18,
+          "worse": false
+        },
+        {
+          "i": 16,
+          "node": "src/rtos.c",
+          "from": 1,
+          "to": 2,
+          "bid": 1,
+          "second": 0,
+          "cost": 23,
+          "worse": true
+        },
+        {
+          "i": 21,
+          "node": "src/rtos.c",
+          "from": 2,
+          "to": 1,
+          "bid": 1296,
+          "second": 0,
+          "cost": 18,
+          "worse": false
+        },
+        {
+          "i": 45,
+          "node": null,
+          "from": null,
+          "to": null,
+          "bid": 0,
+          "second": 0,
+          "cost": 18,
+          "worse": false,
+          "bestAt": 1
+        }
+      ],
+      "seedResults": [
+        {
+          "seed": 1,
+          "clusters": 2,
+          "cost": 18
+        },
+        {
+          "seed": 2,
+          "clusters": 2,
+          "cost": 18
+        },
+        {
+          "seed": 3,
+          "clusters": 2,
+          "cost": 18
+        },
+        {
+          "seed": 4,
+          "clusters": 2,
+          "cost": 18
+        },
+        {
+          "seed": 5,
+          "clusters": 2,
+          "cost": 18
+        }
+      ],
+      "stability": {
+        "src/main.c": 1,
+        "src/rtos.c": 1,
+        "src/rtos.h": 1
+      },
+      "directoryAgreement": {
+        "src": {
+          "files": 3,
+          "mainCluster": 0,
+          "inMainCluster": 2,
+          "ratio": 0.667
+        }
+      },
+      "approximations": [
+        "clusters.search: Thebeau 式随机局部搜索，固定种子可复现；结果是启发式，不是最优解",
+        "clusters.weight: 耦合 = include 数 + 调用数，两个方向相加；权重口径是选择，不是事实",
+        "clusters.stability: 主跑簇友在各种子下同簇的比例；低 = 这个文件在两个簇的边界上"
+      ]
+    },
+    "approximations": [
+      "dependencyOrder.granularity: 节点是源文件所在目录；同目录内部的依赖不构成边",
+      "dependencyOrder.depth: 缩点后 DAG 的最长路径深度，0 = 不依赖工程内任何目录；只是图上的顺序，不是分层的名字",
+      "dependencyOrder.span: 边两端的深度差；跨得远只说明依赖了很底下的东西，是否算「跳层」要有人先规定中间必须经过谁",
+      "dependencyOrder.sequence: 分区用源/汇剥离 + 出度−入度撕开（Eades–Lin–Smyth 启发式），反馈边集合小但不保证最小"
+    ]
+  }
+}

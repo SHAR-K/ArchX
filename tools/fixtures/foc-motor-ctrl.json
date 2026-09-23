@@ -1,0 +1,78 @@
+{
+  "summary": "FOC 电机控制组件：容器 motor_ctrl 持有组件公共资产（公开头文件、CMakeLists、Kconfig），三个叶子按时序域与验证方法划分——1 kHz 任务层、20 kHz 电流环中断、零硬件依赖的纯函数数学库。",
+  "nodes": [
+    {
+      "key": "motor-ctrl",
+      "name": "motor_ctrl（FOC 电机控制组件）",
+      "kind": "module",
+      "domain": "build",
+      "responsibility": "ESP-IDF 组件整体：对外暴露 motor_ctrl.h 公开 API，登记源文件与依赖，管理 PWM 频率、电流环带宽、极对数等 Kconfig。公开头文件是与调用方的契约，改动需要容器级变更单。",
+      "inputs": ["调用方通过 motor_ctrl.h 下发的目标与配置", "Kconfig: MOTOR_PWM_FREQ、MOTOR_CURRENT_BW、MOTOR_POLE_PAIRS"],
+      "outputs": ["motor_ctrl.h 公开 API", "组件构建单元（REQUIRES drv_pwm drv_adc）"],
+      "ownedPaths": ["components/motor_ctrl/**"],
+      "codeBindings": [
+        { "type": "interface", "role": "公开 API: init / set_target / get_state / fault_cb", "file": "components/motor_ctrl/include/motor_ctrl.h", "source": "planned", "status": "planned" },
+        { "type": "build", "role": "源文件登记与 REQUIRES", "file": "components/motor_ctrl/CMakeLists.txt", "source": "planned", "status": "planned" },
+        { "type": "config", "role": "PWM 频率、电流环带宽、极对数", "file": "components/motor_ctrl/Kconfig", "source": "planned", "status": "planned" }
+      ],
+      "acceptanceCriteria": ["idf.py build 全机型变体通过", "公开 API 签名变化必须同步更新所有调用方"],
+      "verification": { "build": ["idf.py build"], "tests": [], "staticAnalysis": [], "simulation": [], "logs": [] }
+    },
+    {
+      "key": "motor-ctrl-task",
+      "name": "motor_ctrl_task（1 kHz 任务层）",
+      "kind": "component",
+      "parentKey": "motor-ctrl",
+      "domain": "task",
+      "responsibility": "1 kHz 控制任务：运行状态机（IDLE / ALIGN / RUN / FAULT），把外部目标下发给电流环，处理过流、过温故障并回调上层。不直接操作 PWM 寄存器。",
+      "inputs": ["set_target 目标值", "foc_isr 上报的相电流与故障标志", "FreeRTOS tick"],
+      "outputs": ["写入 foc_isr 私有握手接口的目标 Iq/Id", "fault_cb 回调", "get_state 状态快照"],
+      "ownedPaths": ["components/motor_ctrl/motor_ctrl.c"],
+      "codeBindings": [
+        { "type": "implementation", "role": "1 kHz 任务主循环与状态机", "file": "components/motor_ctrl/motor_ctrl.c", "symbol": "motor_ctrl_task", "source": "planned", "status": "planned" }
+      ],
+      "acceptanceCriteria": ["状态机迁移覆盖全部故障路径", "任务周期抖动 < 100 us"],
+      "verification": { "build": [], "tests": ["真机回归：目标阶跃、故障注入、恢复"], "staticAnalysis": [], "simulation": [], "logs": ["任务周期抖动日志"] }
+    },
+    {
+      "key": "foc-isr",
+      "name": "foc_isr（20 kHz 电流环中断）",
+      "kind": "component",
+      "parentKey": "motor-ctrl",
+      "domain": "isr",
+      "responsibility": "ADC 采样中断：读取相电流 → Clarke/Park 变换 → PI 电流环（含抗饱和积分）→ SVPWM 输出。中断内不得调用阻塞 API，执行时间必须有上界。",
+      "inputs": ["ADC 相电流采样", "任务层写入的目标 Iq/Id", "编码器电角度"],
+      "outputs": ["PWM 占空比", "相电流与故障标志上报"],
+      "ownedPaths": ["components/motor_ctrl/foc_isr.c", "components/motor_ctrl/private_include/**"],
+      "codeBindings": [
+        { "type": "implementation", "role": "电流环中断服务", "file": "components/motor_ctrl/foc_isr.c", "symbol": "foc_adc_isr", "source": "planned", "status": "planned" },
+        { "type": "interface", "role": "任务层与中断层的私有握手接口", "file": "components/motor_ctrl/private_include/foc_isr.h", "source": "planned", "status": "planned" }
+      ],
+      "acceptanceCriteria": ["中断执行时间 < 20 us（示波器 GPIO 打点）", "电流环阶跃无超调震荡"],
+      "verification": { "build": [], "tests": ["真机回归：电流阶跃响应"], "staticAnalysis": [], "simulation": [], "logs": ["示波器 GPIO 打点测量中断执行时间"] }
+    },
+    {
+      "key": "foc-math",
+      "name": "foc_math（纯函数数学库）",
+      "kind": "component",
+      "parentKey": "motor-ctrl",
+      "domain": "host",
+      "responsibility": "Clarke/Park 正反变换、SVPWM 扇区与占空比查表。零 ESP-IDF / FreeRTOS 依赖，宿主 gcc 可直接编译与单测。",
+      "inputs": ["三相电流", "电角度", "目标 Vd/Vq"],
+      "outputs": ["Id/Iq", "三相占空比"],
+      "ownedPaths": ["components/motor_ctrl/foc_math.c", "components/motor_ctrl/foc_math.h"],
+      "codeBindings": [
+        { "type": "implementation", "role": "SVPWM 查表", "file": "components/motor_ctrl/foc_math.c", "symbol": "foc_svpwm", "source": "planned", "status": "planned" },
+        { "type": "test", "role": "宿主单测（文件归测试基础设施，此处仅作证据引用）", "file": "test/host/test_foc_math.c", "source": "planned", "status": "planned" }
+      ],
+      "acceptanceCriteria": ["宿主单测覆盖全部六个 SVPWM 扇区", "查表误差 < 1 LSB"],
+      "verification": { "build": [], "tests": ["gcc -o test_foc_math test/host/test_foc_math.c components/motor_ctrl/foc_math.c && ./test_foc_math"], "staticAnalysis": [], "simulation": [], "logs": [] }
+    }
+  ],
+  "updatedNodes": [],
+  "dependencies": [
+    { "sourceKey": "motor-ctrl-task", "targetKey": "foc-isr", "label": "通过私有握手接口下发目标 Iq/Id" },
+    { "sourceKey": "foc-isr", "targetKey": "foc-math", "label": "每次中断调用坐标变换与 SVPWM" }
+  ],
+  "removedNodeIds": []
+}

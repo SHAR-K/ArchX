@@ -1,0 +1,38 @@
+name: Wrong or missing facts
+description: The engine read something that does not match the code, or read nothing at all
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The single most useful thing is the summary `archcheck` prints. If `functions` is 0
+        or far below what you expect, the cause is almost always the compile database or the
+        toolchain adapter, not your code.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Engine summary output
+      description: The block `archcheck <project>` prints to the terminal, pasted verbatim
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: toolchain
+    attributes:
+      label: Toolchain and framework
+      placeholder: e.g. Keil AC6 + FreeRTOS, CMake + arm-none-eabi-gcc, ESP-IDF
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Project (if public)
+      description: Repository URL and commit — that is what lets us reproduce the exact facts
+      placeholder: https://github.com/org/repo @ 4542a41
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to see
+      description: Name the function, file or task. "The result is wrong" is far less useful than "ISR TIM3_IRQHandler is missing from executionUnits".
+    validations:
+      required: true

@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>archcheck - __ARCHCHECK_PROJECT__</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f5f7;
+      --surface: #ffffff;
+      --surface-muted: #eef1f3;
+      --text: #202529;
+      --muted: #667079;
+      --border: #d5dade;
+      --charcoal: #252b2f;
+      --teal: #087f73;
+      --blue: #2367a7;
+      --amber: #a96100;
+      --red: #b43a3a;
+      --green: #367a45;
+      --focus: #005fcc;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); overflow: hidden; }
+    button, input, select { font: inherit; letter-spacing: 0; }
+    button { cursor: pointer; }
+    a { color: var(--blue); }
+    .app { height: 100vh; display: grid; grid-template-rows: 58px 1fr; }
+    .topbar {
+      display: flex; align-items: center; gap: 18px; padding: 0 20px;
+      background: var(--charcoal); color: #fff; border-bottom: 1px solid #15191c;
+      min-width: 0;
+    }
+    .brand { font-size: 18px; font-weight: 700; white-space: nowrap; }
+    .project-name { color: #cbd2d6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .top-metrics { margin-left: auto; display: flex; gap: 18px; white-space: nowrap; }
+    .top-metric strong { display: block; font-size: 16px; line-height: 17px; }
+    .top-metric span { display: block; color: #aeb7bd; font-size: 11px; }
+    .shell { min-height: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+    .nav { background: #e7eaec; border-right: 1px solid var(--border); padding: 14px 10px; }
+    .nav-button {
+      width: 100%; height: 40px; border: 0; border-left: 3px solid transparent;
+      background: transparent; color: #394148; text-align: left; padding: 0 13px;
+      margin-bottom: 4px; border-radius: 0 4px 4px 0;
+    }
+    .nav-button:hover { background: #dce1e4; }
+    .nav-button.active { background: var(--surface); border-left-color: var(--teal); color: #121619; font-weight: 650; }
+    .nav-meta { margin: 22px 13px 0; color: var(--muted); font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; }
+    .main { min-width: 0; min-height: 0; overflow: auto; }
+    .view { display: none; min-height: 100%; }
+    .view.active { display: block; }
+    .page-header {
+      min-height: 72px; display: flex; align-items: center; gap: 18px; padding: 14px 20px;
+      background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 5;
+    }
+    .page-title { margin: 0; font-size: 20px; font-weight: 680; }
+    .page-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .search { width: 240px; height: 34px; border: 1px solid #bfc6ca; border-radius: 4px; padding: 0 10px; background: #fff; }
+    .search:focus, select:focus, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+    .segment { display: inline-flex; border: 1px solid #bfc6ca; border-radius: 4px; overflow: hidden; }
+    .segment button { height: 32px; border: 0; border-right: 1px solid #bfc6ca; padding: 0 12px; background: #fff; color: #41494f; }
+    .segment button:last-child { border-right: 0; }
+    .segment button.active { color: #fff; background: var(--teal); }
+    .select { height: 34px; border: 1px solid #bfc6ca; border-radius: 4px; background: #fff; padding: 0 28px 0 9px; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 310px; min-height: calc(100vh - 130px); }
+    .graph-area { min-width: 0; background: #fafbfc; position: relative; overflow: hidden; }
+    #architecture-graph { width: 100%; height: calc(100vh - 130px); min-height: 560px; display: block; }
+    .graph-legend {
+      position: absolute; left: 16px; bottom: 14px; display: flex; gap: 14px; padding: 8px 10px;
+      background: rgba(255,255,255,.94); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--muted); font-size: 11px;
+    }
+    .legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+    .detail-panel { background: var(--surface); border-left: 1px solid var(--border); padding: 17px; overflow: auto; }
+    .detail-panel h2 { font-size: 15px; margin: 0 0 12px; overflow-wrap: anywhere; }
+    .detail-panel h3 { font-size: 12px; color: var(--muted); text-transform: uppercase; margin: 20px 0 8px; }
+    .kv { display: grid; grid-template-columns: 88px 1fr; gap: 7px; font-size: 12px; margin-bottom: 5px; }
+    .kv span:first-child { color: var(--muted); }
+    .dependency-list { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+    .dependency-list li { border-top: 1px solid #e5e8ea; padding: 7px 0; overflow-wrap: anywhere; }
+    .code-link { text-decoration: none; overflow-wrap: anywhere; }
+    .code-link:hover { text-decoration: underline; }
+    .table-wrap { padding: 0 20px 24px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); font-size: 12px; }
+    th { position: sticky; top: 72px; z-index: 3; background: #e9edef; color: #485158; text-align: left; font-weight: 650; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid #e1e5e8; vertical-align: top; }
+    tbody tr:hover { background: #f0f7f6; }
+    tbody tr.selected { background: #e2f1ef; }
+    .number { text-align: right; font-variant-numeric: tabular-nums; }
+    .badge { display: inline-block; border-radius: 3px; padding: 2px 6px; font-size: 11px; background: var(--surface-muted); }
+    .badge.global { color: #8d2929; background: #f8e4e3; }
+    .badge.static { color: #725000; background: #f7edcf; }
+    .badge.shared { color: #176435; background: #dff0e4; }
+    .globals-layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; min-height: calc(100vh - 130px); }
+    .globals-detail { border-left: 1px solid var(--border); background: var(--surface); padding: 17px; overflow: auto; }
+    #view-globals table { min-width: 920px; table-layout: fixed; }
+    #view-globals th { top: 0; }
+    #view-globals th:nth-child(1) { width: 20%; }
+    #view-globals th:nth-child(2) { width: 20%; }
+    #view-globals th:nth-child(3) { width: 12%; }
+    #view-globals th:nth-child(4) { width: 34%; }
+    #view-globals th:nth-child(5), #view-globals th:nth-child(6) { width: 7%; }
+    #view-globals td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #view-globals td a { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reference-list { list-style: none; padding: 0; margin: 0; }
+    .reference-list li { padding: 7px 0; border-bottom: 1px solid #e4e7e9; font-size: 12px; }
+    .cycle-list { padding: 18px 20px 30px; display: grid; gap: 12px; }
+    .cycle-item { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: 4px; padding: 14px 16px; }
+    .cycle-item h2 { margin: 0 0 10px; font-size: 14px; }
+    .cycle-path { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 12px; }
+    .arrow { color: var(--red); font-weight: 700; }
+    .empty { color: var(--muted); padding: 24px; text-align: center; }
+    .node-label { font-size: 11px; fill: #263036; pointer-events: none; }
+    .node-text {
+      width: 270px; max-height: 34px; overflow: hidden; color: #263036;
+      font: 11px/15px "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      overflow-wrap: anywhere; pointer-events: none;
+    }
+    .node-group.current .node-text, .node-group.ancestor .node-text { width: 190px; text-align: right; }
+    .node-group.current .node-text { font-weight: 700; font-size: 12px; }
+    .node-brief { display: block; color: #667079; font-size: 10px; font-weight: 400; }
+    .doxygen-brief { margin: 8px 0 12px; color: #394148; font-size: 12px; line-height: 1.55; }
+    .doxygen-warning { color: #8d2929; }
+    .graph-back-node {
+      width: 32px; height: 32px; border: 1px solid #aeb6bb; border-radius: 50%;
+      background: #fff; color: #263036; font-size: 20px; line-height: 28px;
+      padding: 0; cursor: pointer;
+    }
+    .graph-back-node:hover { border-color: #263036; background: #eef1f3; }
+    .graph-back-node:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+    .node-circle { cursor: pointer; stroke: #fff; stroke-width: 2; }
+    .node-circle:hover { stroke: #111; }
+    .edge { fill: none; stroke: #aeb6bb; stroke-opacity: .32; }
+    .edge:not(.hierarchy) { visibility: hidden; }
+    .edge.related { visibility: visible; }
+    .edge.input { stroke: var(--blue); stroke-opacity: .95; }
+    .edge.output { stroke: var(--red); stroke-opacity: .95; }
+    .node-group.selected .node-circle { stroke: #111; stroke-width: 4; }
+    #architecture-graph { cursor: grab; touch-action: none; }
+    #architecture-graph.dragging { cursor: grabbing; }
+    .treemap-breadcrumbs {
+      min-height: 38px; display: flex; align-items: center; gap: 5px; padding: 6px 20px;
+      background: #eef1f3; border-bottom: 1px solid var(--border); overflow-x: auto;
+      white-space: nowrap; font-size: 12px;
+    }
+    .crumb { border: 0; background: transparent; color: var(--blue); padding: 3px 5px; border-radius: 3px; }
+    .crumb:hover { background: #dce3e7; }
+    .crumb-separator { color: #8a949b; }
+    #treemap { width: 100%; height: calc(100vh - 168px); min-height: 520px; display: block; background: #f7f8f9; }
+    .treemap-rect { stroke: #fff; stroke-width: 2; cursor: pointer; }
+    .treemap-rect:hover { stroke: #202529; stroke-width: 2; }
+    .treemap-label { fill: #fff; font-weight: 650; font-size: 12px; pointer-events: none; }
+    .treemap-value { fill: rgba(255,255,255,.85); font-size: 10px; pointer-events: none; }
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100vh; }
+      .shell { grid-template-columns: 1fr; }
+      .nav { display: flex; gap: 4px; padding: 8px; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+      .nav-button { width: auto; min-width: 120px; margin: 0; border-left: 0; border-bottom: 3px solid transparent; border-radius: 4px 4px 0 0; text-align: center; }
+      .nav-button.active { border-left-color: transparent; border-bottom-color: var(--teal); }
+      .nav-meta { display: none; }
+      .workspace, .globals-layout { grid-template-columns: 1fr; }
+      .detail-panel, .globals-detail { border-left: 0; border-top: 1px solid var(--border); min-height: 260px; }
+      .main { overflow: visible; }
+      .page-header { top: 0; align-items: flex-start; flex-direction: column; }
+      .controls { margin-left: 0; justify-content: flex-start; width: 100%; }
+      .search { width: min(100%, 320px); }
+      th { top: 126px; }
+    }
+    @media (max-width: 620px) {
+      .topbar { padding: 0 12px; }
+      .project-name { display: none; }
+      .top-metrics { gap: 10px; }
+      .top-metric:nth-child(n+3) { display: none; }
+      .page-header { padding: 12px; }
+      .table-wrap { padding: 0 0 18px; }
+      th, td { min-width: 92px; padding: 8px; }
+      #architecture-graph { min-height: 480px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">archcheck</div>
+      <div class="project-name" id="project-name"></div>
+      <div class="top-metrics">
+        <div class="top-metric"><strong id="metric-units">0</strong><span>编译单元</span></div>
+        <div class="top-metric"><strong id="metric-edges">0</strong><span>依赖</span></div>
+        <div class="top-metric"><strong id="metric-cycles">0</strong><span>循环</span></div>
+        <div class="top-metric"><strong id="metric-globals">0</strong><span>全局变量</span></div>
+      </div>
+    </header>
+    <div class="shell">
+      <nav class="nav" aria-label="报告视图">
+        <button class="nav-button active" data-view="treemap">代码地图</button>
+        <button class="nav-button" data-view="architecture">依赖架构</button>
+        <button class="nav-button" data-view="globals">全局变量</button>
+        <button class="nav-button" data-view="cycles">循环依赖</button>
+        <div class="nav-meta" id="path-mapping"></div>
+      </nav>
+      <main class="main">
+        <section class="view active" id="view-treemap">
+          <div class="page-header">
+            <div><h1 class="page-title">代码空间地图</h1><p class="page-subtitle">矩形面积表示规模，颜色表示风险或架构归属</p></div>
+            <div class="controls">
+              <select class="select" id="treemap-area" aria-label="选择矩形面积指标">
+                <option value="code_lines">面积：有效代码行</option>
+                <option value="total_lines">面积：总行数</option>
+                <option value="coupling">面积：耦合数</option>
+                <option value="global_variables">面积：全局变量数</option>
+              </select>
+              <select class="select" id="treemap-color" aria-label="选择矩形颜色指标">
+                <option value="risk_score">颜色：风险分数</option>
+                <option value="architecture_node">颜色：架构节点</option>
+                <option value="cross_file_globals">颜色：跨文件全局变量</option>
+              </select>
+            </div>
+          </div>
+          <div class="treemap-breadcrumbs" id="treemap-breadcrumbs"></div>
+          <div class="workspace">
+            <div class="graph-area">
+              <svg id="treemap" role="img" aria-label="代码空间矩形树图"></svg>
+              <div class="graph-legend" id="treemap-legend"></div>
+            </div>
+            <aside class="detail-panel" id="treemap-detail"><h2>请选择架构节点</h2><p class="page-subtitle">点击矩形下钻，查看规模、耦合、全局状态和风险来源。</p></aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-architecture">
+          <div class="page-header">
+            <div><h1 class="page-title">依赖架构</h1><p class="page-subtitle">保留完整父链，并显示当前节点的全部直接输入与输出</p></div>
+            <div class="controls">
+              <input class="search" id="graph-search" type="search" placeholder="搜索并设为中心节点" aria-label="搜索架构节点">
+              <select class="select" id="graph-level" aria-label="选择显示层级">
+                <option value="entries">层级：执行入口</option>
+                <option value="modules">层级：架构节点</option>
+                <option value="files">层级：文件</option>
+                <option value="functions">层级：函数</option>
+                <option value="variables">层级：变量</option>
+              </select>
+              <div class="segment" aria-label="架构图缩放">
+                <button id="graph-zoom-out" type="button" title="缩小">-</button>
+                <button id="graph-zoom-in" type="button" title="放大">+</button>
+              </div>
+              <button class="select" id="graph-reset" type="button">返回上级</button>
+            </div>
+          </div>
+          <div class="workspace">
+            <div class="graph-area">
+              <svg id="architecture-graph" role="img" aria-label="架构依赖图"></svg>
+              <div class="graph-legend"><span><i class="legend-dot" style="background:#2367a7"></i>输入：其他节点进入中心</span><span><i class="legend-dot" style="background:#b43a3a"></i>输出：中心指向其他节点</span><span><i class="legend-dot" style="background:#aeb6bb"></i>其他关系</span></div>
+            </div>
+            <aside class="detail-panel" id="graph-detail"><h2>请选择节点</h2><p class="page-subtitle">点击节点设为中心，查看它的传入和传出关系。</p></aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-globals">
+          <div class="page-header">
+            <div><h1 class="page-title">全局变量</h1><p class="page-subtitle" id="globals-subtitle"></p></div>
+            <div class="controls">
+              <input class="search" id="global-search" type="search" placeholder="搜索名称、类型或文件" aria-label="搜索全局变量">
+              <select class="select" id="global-module" aria-label="按模块筛选全局变量"></select>
+              <select class="select" id="global-scope" aria-label="按存储类别筛选全局变量">
+                <option value="all">全部存储类别</option>
+                <option value="shared">仅跨文件引用</option>
+                <option value="global">外部全局变量</option>
+                <option value="static">文件内静态变量</option>
+              </select>
+            </div>
+          </div>
+          <div class="globals-layout">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>名称</th><th>类型</th><th>存储类别</th><th>定义位置</th><th class="number">引用</th><th class="number">文件</th></tr></thead>
+                <tbody id="globals-body"></tbody>
+              </table>
+            </div>
+            <aside class="globals-detail" id="global-detail"><h2 class="page-title">请选择变量</h2><p class="page-subtitle">变量的定义与引用位置会显示在这里。</p></aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-cycles">
+          <div class="page-header"><div><h1 class="page-title">循环依赖</h1><p class="page-subtitle">相互连接的 include 依赖组</p></div></div>
+          <div class="cycle-list" id="cycle-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script id="archcheck-data" type="application/json">__ARCHCHECK_DATA__</script>
+  <script>
+    const data = JSON.parse(document.getElementById('archcheck-data').textContent);
+    const state = { view: 'treemap', graphLevel: 'modules', graphQuery: '', graphRoot: null, graphZoom: 1, graphData: null, graphHierarchy: null, graphExpanded: new Set(), graphPositions: new Map(), selectedGlobal: null, treemapPath: [] };
+    const projectPath = data.project.replace(/\\/g, '/');
+    const byId = id => document.getElementById(id);
+    const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const moduleOf = path => path.split('/').slice(0, 2).join('/');
+    const fileArchitecture = new Map(data.file_metrics.map(item => [item.path, item.architecture_node]));
+    const architectureNodeOf = path => fileArchitecture.get(path) || moduleOf(path);
+    const codeHref = (location) => `vscode://file/${projectPath}/${location.path}:${location.line || 1}:${location.column || 1}`;
+    const fileHref = path => `vscode://file/${projectPath}/${path}:1:1`;
+    const codeAnchor = (location, label) => `<a class="code-link" href="${esc(codeHref(location))}">${esc(label || `${location.path}:${location.line}`)}</a>`;
+    const fileAnchor = path => `<a class="code-link" href="${esc(fileHref(path))}">${esc(path)}</a>`;
+
+    byId('project-name').textContent = data.project;
+    byId('metric-units').textContent = data.metrics.translation_units;
+    byId('metric-edges').textContent = data.metrics.include_edges;
+    byId('metric-cycles').textContent = data.metrics.dependency_cycle_groups;
+    byId('metric-globals').textContent = data.metrics.global_variables;
+    byId('globals-subtitle').textContent = `${data.metrics.global_variables} 个定义，其中 ${data.metrics.cross_file_global_variables} 个存在跨文件引用`;
+    byId('path-mapping').innerHTML = (data.path_mapping ? `路径映射<br><strong>${esc(data.path_mapping.source)}</strong><br>映射到本地工程` : '无路径映射') + (data.architecture_config ? `<br><br>架构配置<br><strong>architecture.yaml</strong>` : '<br><br>未加载架构配置');
+    byId('graph-level').value = state.graphLevel;
+
+    document.querySelectorAll('.nav-button').forEach(button => button.addEventListener('click', () => {
+      state.view = button.dataset.view;
+      document.querySelectorAll('.nav-button').forEach(item => item.classList.toggle('active', item === button));
+      document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === `view-${state.view}`));
+      if (state.view === 'architecture') renderGraph();
+      if (state.view === 'treemap') renderTreemap();
+    }));
+
+    byId('graph-level').addEventListener('change', event => { state.graphLevel = event.target.value; state.graphRoot = null; renderGraph(); });
+    byId('graph-search').addEventListener('input', event => {
+      state.graphQuery = event.target.value.trim().toLowerCase();
+      const match = state.graphData?.nodes.find(node => `${node.label} ${node.id}`.toLowerCase().includes(state.graphQuery));
+      if (match) revealGraphNode(match.id);
+    });
+    byId('graph-reset').addEventListener('click', () => {
+      const parent=state.graphHierarchy?.parent.get(state.graphRoot);
+      if(parent){state.graphQuery='';byId('graph-search').value='';focusGraphNode(parent);}
+    });
+    byId('graph-zoom-in').addEventListener('click', () => changeGraphZoom(1.25));
+    byId('graph-zoom-out').addEventListener('click', () => changeGraphZoom(.8));
+
+    const moduleColors = { project: '#087f73', platform: '#2367a7', components: '#a96100', third_party: '#6c5a8c' };
+    const nodeColor = path => moduleColors[path.split('/')[0]] || '#59656d';
+    const cycleFiles = new Set(data.dependency_cycles.flat());
+
+    const architectureNames = new Map(data.architecture_modules.map(item => [item.module_id, item.module_id]));
+    const variableById = new Map((data.variables || []).map(item => [item.symbol_id,item]));
+    const functionsByPath = new Map();
+    const globalsByPath = new Map();
+    const variableIdsByFunction = new Map();
+    (data.functions || []).forEach(item => {
+      if (!functionsByPath.has(item.location.path)) functionsByPath.set(item.location.path,[]);
+      functionsByPath.get(item.location.path).push(item);
+    });
+    (data.variables || []).forEach(item => {
+      if (!item.parent_function) {
+        if (!globalsByPath.has(item.location.path)) globalsByPath.set(item.location.path,[]);
+        globalsByPath.get(item.location.path).push(item);
+      }
+    });
+    const semanticDegree = new Map();
+    (data.semantic_edges || []).forEach(edge => {
+      semanticDegree.set(edge.source,(semanticDegree.get(edge.source)||0)+Math.max(1,edge.locations.length));
+      semanticDegree.set(edge.target,(semanticDegree.get(edge.target)||0)+Math.max(1,edge.locations.length));
+      if (edge.relation !== 'calls') {
+        if (!variableIdsByFunction.has(edge.source)) variableIdsByFunction.set(edge.source,new Set());
+        variableIdsByFunction.get(edge.source).add(edge.target);
+      }
+    });
+    const treemapRoot = buildTreemapTree();
+    state.treemapPath = [treemapRoot];
+
+    function buildTreemapTree() {
+      const root = { id: 'root', label: '全部节点', type: 'root', children: [], files: data.file_metrics };
+      const byModule = new Map();
+      data.file_metrics.forEach(metric => {
+        if (!byModule.has(metric.architecture_node)) byModule.set(metric.architecture_node, []);
+        byModule.get(metric.architecture_node).push(metric);
+      });
+      [...byModule.entries()].sort(([a],[b]) => a.localeCompare(b)).forEach(([moduleId, files]) => {
+        const moduleNode = { id: `module:${moduleId}`, label: architectureNames.get(moduleId) || moduleId, type: 'module', moduleId, children: [], files };
+        const prefix = commonDirectoryPrefix(files.map(item => item.path));
+        files.forEach(metric => {
+          const parts = metric.path.split('/');
+          const relativeParts = parts.slice(prefix.length);
+          let parent = moduleNode;
+          relativeParts.slice(0, -1).forEach((part, index) => {
+            let child = parent.children.find(item => item.type === 'directory' && item.label === part);
+            if (!child) {
+              child = { id: `${moduleNode.id}:${relativeParts.slice(0, index + 1).join('/')}`, label: part, type: 'directory', children: [], files: [] };
+              parent.children.push(child);
+            }
+            child.files.push(metric);
+            parent = child;
+          });
+          const fileNode = { id: `file:${metric.path}`, label: parts.at(-1), type: 'file', path: metric.path, children: [], files: [metric], metric };
+          const fileFunctions = functionsByPath.get(metric.path) || [];
+          fileFunctions.forEach(functionItem => {
+            const relatedVariableIds = variableIdsByFunction.get(functionItem.symbol_id) || new Set();
+            const variableChildren = [...relatedVariableIds]
+              .map(id => variableById.get(id))
+              .filter(Boolean)
+              .map(variable => ({
+                id: `${functionItem.symbol_id}:${variable.symbol_id}`,
+                label: variable.name,
+                type: 'variable',
+                location: variable.location,
+                variable,
+                children: [],
+                files: [metric],
+                values: {code_lines:1,total_lines:1,coupling:semanticDegree.get(variable.symbol_id)||1,global_variables:1}
+              }));
+            fileNode.children.push({
+              id: functionItem.symbol_id,
+              label: functionItem.name,
+              type: 'function',
+              location: functionItem.location,
+              functionItem,
+              children: variableChildren,
+              files: [metric],
+              values: {
+                code_lines: Math.max(1,functionItem.end_line-functionItem.location.line+1),
+                total_lines: Math.max(1,functionItem.end_line-functionItem.location.line+1),
+                coupling: semanticDegree.get(functionItem.symbol_id)||1,
+                global_variables: Math.max(1,variableChildren.length)
+              }
+            });
+          });
+          const ownedGlobals = globalsByPath.get(metric.path) || [];
+          ownedGlobals.forEach(variable => fileNode.children.push({
+            id: variable.symbol_id,
+            label: variable.name,
+            type: 'variable',
+            location: variable.location,
+            variable,
+            children: [],
+            files: [metric],
+            values: {code_lines:1,total_lines:1,coupling:semanticDegree.get(variable.symbol_id)||1,global_variables:1}
+          }));
+          parent.children.push(fileNode);
+        });
+        sortTree(moduleNode);
+        root.children.push(moduleNode);
+      });
+      return root;
+    }
+
+    function commonDirectoryPrefix(paths) {
+      if (!paths.length) return [];
+      const split = paths.map(path => path.split('/').slice(0, -1));
+      const prefix = [];
+      for (let index = 0; index < Math.min(...split.map(parts => parts.length)); index += 1) {
+        if (!split.every(parts => parts[index] === split[0][index])) break;
+        prefix.push(split[0][index]);
+      }
+      return prefix;
+    }
+
+    function sortTree(node) {
+      node.children.sort((a, b) => a.type.localeCompare(b.type) || a.label.localeCompare(b.label));
+      node.children.forEach(sortTree);
+    }
+
+    function treemapValue(node, metricName) {
+      if (node.values) return Math.max(1,node.values[metricName] || 0);
+      const files = node.files || [];
+      if (metricName === 'coupling') return Math.max(1, files.reduce((sum, item) => sum + item.fan_in + item.fan_out, 0));
+      if (metricName === 'global_variables') return Math.max(1, files.reduce((sum, item) => sum + item.global_variables, 0));
+      return Math.max(1, files.reduce((sum, item) => sum + (item[metricName] || 0), 0));
+    }
+
+    function treemapRisk(node) {
+      const files = node.files || [];
+      const weight = files.reduce((sum, item) => sum + Math.max(1, item.code_lines), 0);
+      return weight ? Math.round(files.reduce((sum, item) => sum + item.risk_score * Math.max(1, item.code_lines), 0) / weight) : 0;
+    }
+
+    function binaryTreemap(items, rect, metricName) {
+      if (!items.length) return [];
+      if (items.length === 1) return [{ node: items[0], ...rect }];
+      const sorted = [...items].sort((a,b) => treemapValue(b, metricName) - treemapValue(a, metricName));
+      const total = sorted.reduce((sum, item) => sum + treemapValue(item, metricName), 0);
+      let splitIndex = 1, running = treemapValue(sorted[0], metricName);
+      while (splitIndex < sorted.length - 1 && running < total / 2) {
+        running += treemapValue(sorted[splitIndex], metricName);
+        splitIndex += 1;
+      }
+      const first = sorted.slice(0, splitIndex), second = sorted.slice(splitIndex);
+      const ratio = running / total;
+      if (rect.width >= rect.height) {
+        const firstWidth = rect.width * ratio;
+        return binaryTreemap(first, {x:rect.x,y:rect.y,width:firstWidth,height:rect.height}, metricName)
+          .concat(binaryTreemap(second, {x:rect.x+firstWidth,y:rect.y,width:rect.width-firstWidth,height:rect.height}, metricName));
+      }
+      const firstHeight = rect.height * ratio;
+      return binaryTreemap(first, {x:rect.x,y:rect.y,width:rect.width,height:firstHeight}, metricName)
+        .concat(binaryTreemap(second, {x:rect.x,y:rect.y+firstHeight,width:rect.width,height:rect.height-firstHeight}, metricName));
+    }
+
+    function treemapColor(node, colorMetric) {
+      if (colorMetric === 'architecture_node') {
+        const moduleId = node.files?.[0]?.architecture_node || 'unassigned';
+        const palette = ['#087f73','#2367a7','#a96100','#6c5a8c','#367a45','#a74763','#4e6b40','#8b5b32'];
+        let hash = 0; for (const char of moduleId) hash = ((hash << 5) - hash + char.charCodeAt(0)) | 0;
+        return palette[Math.abs(hash) % palette.length];
+      }
+      if (colorMetric === 'cross_file_globals') {
+        const count = (node.files || []).reduce((sum,item) => sum + item.cross_file_globals, 0);
+        return count === 0 ? '#68747b' : count === 1 ? '#a96100' : '#b43a3a';
+      }
+      const risk = treemapRisk(node);
+      return risk < 25 ? '#367a45' : risk < 50 ? '#a17a00' : risk < 70 ? '#c35f22' : '#b43a3a';
+    }
+
+    function renderTreemap() {
+      const svg = byId('treemap');
+      const bounds = svg.getBoundingClientRect();
+      const width = Math.max(560, Math.round(bounds.width || 900));
+      const height = Math.max(500, Math.round(bounds.height || 620));
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      const current = state.treemapPath.at(-1);
+      const areaMetric = byId('treemap-area').value;
+      const colorMetric = byId('treemap-color').value;
+      const layouts = binaryTreemap(current.children, {x:4,y:4,width:width-8,height:height-8}, areaMetric);
+      svg.innerHTML = layouts.map((item,index) => {
+        const inset = 1, x=item.x+inset, y=item.y+inset, w=Math.max(0,item.width-inset*2), h=Math.max(0,item.height-inset*2);
+        const value = treemapValue(item.node, areaMetric);
+        const labelVisible = w > 72 && h > 34;
+        const valueVisible = w > 92 && h > 55;
+        return `<g data-treemap-index="${index}"><rect class="treemap-rect" x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${treemapColor(item.node,colorMetric)}" />${labelVisible ? `<text class="treemap-label" x="${x+8}" y="${y+18}">${esc(item.node.label.length > 28 ? item.node.label.slice(0,26)+'...' : item.node.label)}</text>` : ''}${valueVisible ? `<text class="treemap-value" x="${x+8}" y="${y+34}">${esc(formatTreemapValue(value,areaMetric))}</text>` : ''}</g>`;
+      }).join('') || '<text x="20" y="30">当前节点没有子项</text>';
+      svg.querySelectorAll('[data-treemap-index]').forEach(element => element.addEventListener('click', () => {
+        const node = layouts[Number(element.dataset.treemapIndex)].node;
+        showTreemapDetail(node);
+        if (node.children.length) { state.treemapPath.push(node); renderTreemap(); }
+      }));
+      renderTreemapBreadcrumbs();
+      renderTreemapLegend(colorMetric);
+    }
+
+    function formatTreemapValue(value, metricName) {
+      if (metricName === 'code_lines') return `${value} 行有效代码`;
+      if (metricName === 'total_lines') return `${value} 行`;
+      if (metricName === 'coupling') return `${value} 个依赖连接`;
+      return `${value} 个全局变量`;
+    }
+
+    function renderTreemapBreadcrumbs() {
+      byId('treemap-breadcrumbs').innerHTML = state.treemapPath.map((node,index) => `${index ? '<span class="crumb-separator">/</span>' : ''}<button class="crumb" data-crumb="${index}">${esc(node.label)}</button>`).join('');
+      byId('treemap-breadcrumbs').querySelectorAll('[data-crumb]').forEach(button => button.addEventListener('click', () => {
+        state.treemapPath = state.treemapPath.slice(0, Number(button.dataset.crumb) + 1);
+        renderTreemap();
+      }));
+    }
+
+    function renderTreemapLegend(colorMetric) {
+      byId('treemap-legend').innerHTML = colorMetric === 'risk_score'
+        ? '<span><i class="legend-dot" style="background:#367a45"></i>低风险</span><span><i class="legend-dot" style="background:#a17a00"></i>中风险</span><span><i class="legend-dot" style="background:#c35f22"></i>较高</span><span><i class="legend-dot" style="background:#b43a3a"></i>高风险</span>'
+        : colorMetric === 'cross_file_globals'
+          ? '<span><i class="legend-dot" style="background:#68747b"></i>无跨文件状态</span><span><i class="legend-dot" style="background:#a96100"></i>1 个</span><span><i class="legend-dot" style="background:#b43a3a"></i>多个</span>'
+          : '<span>不同颜色表示不同架构节点</span>';
+    }
+
+    function showTreemapDetail(node) {
+      const files = node.files || [];
+      const lines = treemapValue(node,'code_lines');
+      const globals = treemapValue(node,'global_variables');
+      const shared = files.reduce((sum,item) => sum + item.cross_file_globals, 0);
+      const coupling = treemapValue(node,'coupling');
+      const risky = [...files].sort((a,b) => b.risk_score-a.risk_score).slice(0,10);
+      const title = node.location ? codeAnchor(node.location,node.label) : node.type === 'file' ? fileAnchor(node.path) : esc(node.label);
+      const riskRows = risky.map(item => `<li>${fileAnchor(item.path)} <span class="badge">风险 ${item.risk_score}</span></li>`).join('') || '<li>无</li>';
+      const typeName = {root:'项目',module:'架构节点',directory:'目录',file:'文件',function:'函数',variable:'变量'}[node.type] || node.type;
+      const childName = node.type === 'file' ? '函数和变量' : node.type === 'function' ? '引用变量' : '高风险文件';
+      const childRows = node.type === 'file' || node.type === 'function'
+        ? node.children.slice(0,50).map(item => `<li>${item.location?codeAnchor(item.location,item.label):esc(item.label)} <span class="badge">${{function:'函数',variable:'变量'}[item.type]}</span></li>`).join('') || '<li>无</li>'
+        : riskRows;
+      byId('treemap-detail').innerHTML = `<h2>${title}</h2>${node.functionItem?.detail?`<p class="page-subtitle">${esc(node.functionItem.detail)}</p>`:''}<div class="kv"><span>类型</span><strong>${typeName}</strong></div><div class="kv"><span>子节点</span><strong>${node.children.length}</strong></div><div class="kv"><span>有效代码</span><strong>${lines} 行</strong></div><div class="kv"><span>依赖连接</span><strong>${coupling}</strong></div><div class="kv"><span>变量关系</span><strong>${globals}</strong></div><div class="kv"><span>跨文件状态</span><strong>${shared}</strong></div><div class="kv"><span>风险分数</span><strong>${treemapRisk(node)}</strong></div><h3>${childName}</h3><ul class="dependency-list">${childRows}</ul>`;
+    }
+
+    byId('treemap-area').addEventListener('change', renderTreemap);
+    byId('treemap-color').addEventListener('change', renderTreemap);
+
+    function buildEntryHierarchy() {
+      const functions=data.functions||[],functionById=new Map(functions.map(item=>[item.symbol_id,item]));
+      const calls=(data.semantic_edges||[]).filter(edge=>(edge.relation==='calls'||edge.relation==='registers_task')&&functionById.has(edge.source)&&functionById.has(edge.target));
+      const incoming=new Map();
+      calls.forEach(edge=>incoming.set(edge.target,(incoming.get(edge.target)||0)+1));
+      const score=item=>{
+        const body=Math.max(0,(item.end_line||item.location.line)-item.location.line);
+        const platformPenalty=/^(platform|third_party)\//.test(item.location.path)?-30:0;
+        return (item.name==='main'?1000:0)+(body>0?200:0)+Math.min(100,body)+(incoming.get(item.symbol_id)||0)*10+platformPenalty;
+      };
+      const entry=functions.filter(item=>item.name==='main').sort((a,b)=>score(b)-score(a))[0]
+        || functions.filter(item=>!incoming.has(item.symbol_id)).sort((a,b)=>score(b)-score(a))[0];
+      if(!entry){
+        const rootId='hierarchy:entry:unknown';
+        return {rootId,nodes:[{id:rootId,label:'entry',kind:'project',count:0}],parent:new Map(),children:new Map([[rootId,[]]]),edges:[]};
+      }
+      const nodes=[],parent=new Map(),children=new Map(),seen=new Set(),queue=[entry.symbol_id];
+      const addFunction=(item,parentId)=>{
+        if(seen.has(item.symbol_id))return false;
+        seen.add(item.symbol_id);nodes.push({id:item.symbol_id,label:item.name,kind:'function',count:semanticDegree.get(item.symbol_id)||0,location:item.location,detail:item.detail,documentation:item.documentation});children.set(item.symbol_id,[]);
+        if(parentId){parent.set(item.symbol_id,parentId);children.get(parentId).push(item.symbol_id);}
+        return true;
+      };
+      addFunction(entry,null);
+      const outgoing=new Map();
+      calls.forEach(edge=>{if(!outgoing.has(edge.source))outgoing.set(edge.source,[]);outgoing.get(edge.source).push(edge);});
+      while(queue.length){
+        const source=queue.shift();
+        (outgoing.get(source)||[]).slice().sort((a,b)=>(functionById.get(a.target)?.name||'').localeCompare(functionById.get(b.target)?.name||'')).forEach(edge=>{
+          const target=functionById.get(edge.target);
+          if(target&&addFunction(target,source))queue.push(target.symbol_id);
+        });
+      }
+      const reachableEdges=calls.filter(edge=>seen.has(edge.source)&&seen.has(edge.target)).map(edge=>({...edge,count:Math.max(1,edge.locations.length)}));
+      return {rootId:entry.symbol_id,nodes,parent,children,edges:reachableEdges};
+    }
+
+    function buildGraphHierarchy() {
+      if(state.graphLevel==='entries')return buildEntryHierarchy();
+      const projectId='hierarchy:project';
+      const nodes=[{id:projectId,label:'system',kind:'project',count:data.file_metrics.length}];
+      const parent=new Map(),children=new Map([[projectId,[]]]),nodeIds=new Set([projectId]);
+      const addNode=(node,parentId)=>{
+        if (!nodeIds.has(node.id)) { nodes.push(node);nodeIds.add(node.id);children.set(node.id,[]); }
+        if (parentId && !parent.has(node.id)) { parent.set(node.id,parentId);children.get(parentId).push(node.id); }
+      };
+      const moduleIds=[...new Set(data.file_metrics.map(item=>item.architecture_node))].sort();
+      moduleIds.forEach(id=>addNode({id:`hierarchy:module:${id}`,label:architectureNames.get(id)||id,kind:'module',moduleId:id,count:0},projectId));
+      if (state.graphLevel !== 'modules') {
+        data.file_metrics.slice().sort((a,b)=>a.path.localeCompare(b.path)).forEach(item=>addNode({id:item.path,label:item.path.split('/').pop(),kind:'file',count:item.fan_in+item.fan_out,location:{path:item.path,line:1,column:1}},`hierarchy:module:${item.architecture_node}`));
+      }
+      if (state.graphLevel === 'functions' || state.graphLevel === 'variables') {
+        (data.functions||[]).slice().sort((a,b)=>a.location.path.localeCompare(b.location.path)||a.location.line-b.location.line).forEach(item=>{
+          if (nodeIds.has(item.location.path)) addNode({id:item.symbol_id,label:item.name,kind:'function',count:semanticDegree.get(item.symbol_id)||0,location:item.location,detail:item.detail,documentation:item.documentation},item.location.path);
+        });
+      }
+      const referenceNodeIds=new Map();
+      if (state.graphLevel === 'variables') {
+        (data.variables||[]).slice().sort((a,b)=>a.location.path.localeCompare(b.location.path)||a.location.line-b.location.line).forEach(item=>{
+          const parentId=item.parent_function&&nodeIds.has(item.parent_function)?item.parent_function:item.location.path;
+          if (nodeIds.has(parentId)) addNode({id:item.symbol_id,label:item.name,kind:'variable',count:semanticDegree.get(item.symbol_id)||0,location:item.location,detail:item.detail,scope:item.scope},parentId);
+        });
+        (data.semantic_edges||[]).filter(edge=>edge.relation!=='calls').forEach(edge=>{
+          if (!nodeIds.has(edge.source)) return;
+          const variable=variableById.get(edge.target);
+          if (!variable) return;
+          const key=`${edge.source}\u0000${edge.target}`;
+          if (parent.get(edge.target)===edge.source) {
+            referenceNodeIds.set(key,edge.target);
+            return;
+          }
+          const proxyId=`hierarchy:reference:${edge.source}:${edge.target}`;
+          addNode({id:proxyId,label:variable.name,kind:'variable',count:Math.max(1,edge.locations.length),location:variable.location,detail:variable.detail,scope:variable.scope,symbolId:variable.symbol_id},edge.source);
+          referenceNodeIds.set(key,proxyId);
+        });
+      }
+      const nodeById=new Map(nodes.map(item=>[item.id,item]));
+      children.forEach(items=>items.sort((a,b)=>{
+        const nodeA=nodeById.get(a),nodeB=nodeById.get(b);
+        return (nodeA?.label||a).localeCompare(nodeB?.label||b);
+      }));
+      const dependencyEdges=[];
+      const moduleEdgeCounts=new Map();
+      data.dependency_edges.forEach(edge=>{
+        const source=architectureNodeOf(edge.source),target=architectureNodeOf(edge.target);
+        if(source===target)return;
+        const key=`${source}\u0000${target}`;
+        moduleEdgeCounts.set(key,(moduleEdgeCounts.get(key)||0)+1);
+      });
+      moduleEdgeCounts.forEach((count,key)=>{const [source,target]=key.split('\u0000');dependencyEdges.push({source:`hierarchy:module:${source}`,target:`hierarchy:module:${target}`,count,relation:'depends'});});
+      if(state.graphLevel!=='modules'){
+        data.dependency_edges.forEach(edge=>{if(nodeIds.has(edge.source)&&nodeIds.has(edge.target))dependencyEdges.push({...edge,count:1,relation:'includes'});});
+      }
+      if(state.graphLevel==='functions'||state.graphLevel==='variables'){
+        (data.semantic_edges||[]).filter(edge=>edge.relation==='calls'&&nodeIds.has(edge.source)&&nodeIds.has(edge.target)).forEach(edge=>dependencyEdges.push({...edge,count:Math.max(1,edge.locations.length)}));
+      }
+      if(state.graphLevel==='variables'){
+        (data.semantic_edges||[]).filter(edge=>edge.relation!=='calls'&&nodeIds.has(edge.source)).forEach(edge=>{
+          const target=referenceNodeIds.get(`${edge.source}\u0000${edge.target}`);
+          if(target&&nodeIds.has(target))dependencyEdges.push({...edge,target,count:Math.max(1,edge.locations.length)});
+        });
+      }
+      return {rootId:projectId,nodes,parent,children,edges:dependencyEdges};
+    }
+
+    function layoutFocusedLevel(id) {
+      const svg=byId('architecture-graph'),hierarchy=state.graphHierarchy;
+      const ancestors=[];let owner=id;
+      while(hierarchy?.parent.has(owner)){owner=hierarchy.parent.get(owner);ancestors.push(owner);}
+      ancestors.reverse();
+      const related=new Set(hierarchy?.children.get(id)||[]);
+      hierarchy?.edges.forEach(edge=>{
+        if(edge.source===id)related.add(edge.target);
+        if(edge.target===id)related.add(edge.source);
+      });
+      ancestors.forEach(nodeId=>related.delete(nodeId));
+      related.delete(id);
+      const nodeById=new Map(hierarchy.nodes.map(node=>[node.id,node]));
+      const relatedIds=[...related].filter(nodeId=>nodeById.has(nodeId)).sort((a,b)=>(nodeById.get(a)?.label||a).localeCompare(nodeById.get(b)?.label||b));
+      state.graphAncestry=new Set(ancestors);
+      state.graphRelated=new Set(relatedIds);
+      const contentHeight=Math.max(560,(ancestors.length+Math.max(1,relatedIds.length))*58+120);
+      svg.style.height=`${contentHeight}px`;
+      state.graphPositions=new Map();
+      ancestors.forEach((nodeId,index)=>state.graphPositions.set(nodeId,{x:-100,y:index*58}));
+      const currentY=ancestors.length*58;
+      state.graphPositions.set(id,{x:-100,y:currentY});
+      relatedIds.forEach((nodeId,index)=>{
+        state.graphPositions.set(nodeId,{x:45,y:currentY+index*58});
+      });
+      const bounds=svg.getBoundingClientRect();
+      const width=Math.max(720,Math.round(bounds.width||900))/state.graphZoom;
+      const height=contentHeight/state.graphZoom;
+      state.graphViewport={x:-width/2,y:-60,width,height};
+    }
+
+    function visibleGraphNodes() {
+      const id=state.graphRoot||state.graphHierarchy.rootId;
+      return new Set([id,...(state.graphAncestry||[]),...(state.graphRelated||[])]);
+    }
+
+    function edgePath(a,b) {
+      const dx=b.x-a.x,dy=b.y-a.y,middleX=a.x+dx*.5,middleY=a.y+dy*.5;
+      return `M ${a.x} ${a.y} Q ${middleX-dy*.08} ${middleY+dx*.08}, ${b.x} ${b.y}`;
+    }
+
+    function applyGraphViewBox() {
+      if (!state.graphViewport) return;
+      const v=state.graphViewport;
+      byId('architecture-graph').setAttribute('viewBox',`${v.x} ${v.y} ${v.width} ${v.height}`);
+    }
+
+    function focusGraphNode(id) {
+      if (!id || !state.graphData) return;
+      state.graphRoot=id;
+      state.graphZoom=1;
+      layoutFocusedLevel(id);
+      renderGraphContent();
+      applyGraphViewBox();
+      const svg=byId('architecture-graph');
+      svg.querySelectorAll('.node-group').forEach(item=>item.classList.toggle('selected',item.dataset.node===id));
+      svg.querySelectorAll('.edge').forEach(item=>{
+        if(item.dataset.hierarchy==='true')return;
+        const input=item.dataset.target===id,output=item.dataset.source===id;
+        item.classList.toggle('related',input||output);
+        item.classList.toggle('input',input&&!output);
+        item.classList.toggle('output',output);
+        item.setAttribute('marker-end',output?'url(#arrow-output)':input?'url(#arrow-input)':'url(#arrow-neutral)');
+      });
+      const parent=state.graphHierarchy.parent.get(id);
+      byId('graph-reset').disabled=!parent;
+      byId('graph-reset').title=parent?'返回当前节点的直接上级':'当前已经是顶层节点';
+      showGraphDetail(id,state.graphData);
+    }
+
+    function revealGraphNode(id) {
+      if (!state.graphHierarchy?.parent.has(id) && id!==state.graphHierarchy?.rootId) return;
+      focusGraphNode(id);
+    }
+
+    function changeGraphZoom(factor) {
+      state.graphZoom=Math.max(.25,Math.min(4,state.graphZoom*factor));
+      const id=state.graphRoot||state.graphHierarchy?.rootId;
+      if(!id)return;
+      layoutFocusedLevel(id);
+      applyGraphViewBox();
+    }
+
+    function enableGraphPan(svg) {
+      let drag=null;
+      svg.onmousedown=event=>{
+        if (!state.graphViewport) return;
+        drag={x:event.clientX,y:event.clientY,view:{...state.graphViewport}};
+        svg.classList.add('dragging');
+      };
+      svg.onmousemove=event=>{
+        if (!drag) return;
+        const scale=state.graphViewport.width/Math.max(1,svg.getBoundingClientRect().width);
+        state.graphViewport.x=drag.view.x-(event.clientX-drag.x)*scale;
+        state.graphViewport.y=drag.view.y-(event.clientY-drag.y)*scale;
+        applyGraphViewBox();
+      };
+      svg.onmouseup=svg.onmouseleave=()=>{drag=null;svg.classList.remove('dragging');};
+      svg.onwheel=event=>{event.preventDefault();changeGraphZoom(event.deltaY<0?1.15:.87);};
+    }
+
+    function renderGraphContent() {
+      const svg=byId('architecture-graph'),visible=visibleGraphNodes(),hierarchy=state.graphHierarchy;
+      const hierarchyEdges=[];
+      visible.forEach(id=>{
+        const owner=hierarchy.parent.get(id);
+        if(owner&&visible.has(owner))hierarchyEdges.push({source:owner,target:id});
+      });
+      const dependencyEdges=hierarchy.edges.filter(edge=>visible.has(edge.source)&&visible.has(edge.target));
+      const hierarchyMarkup=hierarchyEdges.map(edge=>{
+        const a=state.graphPositions.get(edge.source),b=state.graphPositions.get(edge.target);
+        return `<path class="edge hierarchy" data-hierarchy="true" d="${edgePath(a,b)}" stroke-width="1.5"/>`;
+      }).join('');
+      const dependencyMarkup=dependencyEdges.map((edge,index)=>{
+        const a=state.graphPositions.get(edge.source),b=state.graphPositions.get(edge.target);
+        return `<path class="edge" data-edge="${index}" data-source="${esc(edge.source)}" data-target="${esc(edge.target)}" d="${edgePath(a,b)}" stroke-width="${Math.min(4,1+Math.log2(edge.count||1))}" marker-end="url(#arrow-neutral)"/>`;
+      }).join('');
+      const colors={project:'#252b2f',module:'#087f73',file:'#2367a7',function:'#a96100',variable:'#6c5a8c'};
+      const nodeMarkup=hierarchy.nodes.filter(node=>visible.has(node.id)).map(node=>{
+        const pos=state.graphPositions.get(node.id),hasChildren=(hierarchy.children.get(node.id)||[]).length>0;
+        const size=node.kind==='project'?20:node.kind==='module'?14:node.kind==='file'?10:8;
+        const current=node.id===state.graphRoot,ancestor=state.graphAncestry?.has(node.id);
+        const indicator=hasChildren&&!current?`<text class="node-label" x="${pos.x-size-9}" y="${pos.y+4}" text-anchor="middle">+</text>`:'';
+        const pathNode=current||ancestor,labelX=pathNode?pos.x-size-198:pos.x+size+8,labelWidth=pathNode?190:270;
+        const brief=node.kind==='function'&&node.documentation?.brief?node.documentation.brief:'';
+        const nodeTitle=brief?`${node.label} - ${brief}`:node.label;
+        const nodeText=`${esc(node.label)}${brief?`<span class="node-brief">${esc(brief)}</span>`:''}`;
+        return `<g class="node-group${current?' current':ancestor?' ancestor':''}" data-node="${esc(node.id)}"><circle class="node-circle" cx="${pos.x}" cy="${pos.y}" r="${size}" fill="${colors[node.kind]}"/>${indicator}<foreignObject x="${labelX}" y="${pos.y-18}" width="${labelWidth}" height="36"><div xmlns="http://www.w3.org/1999/xhtml" class="node-text" title="${esc(nodeTitle)}">${nodeText}</div></foreignObject></g>`;
+      }).join('');
+      const currentPosition=state.graphPositions.get(state.graphRoot),parentId=hierarchy.parent.get(state.graphRoot);
+      const backMarkup=parentId?`<foreignObject x="${currentPosition.x-266}" y="${currentPosition.y-16}" width="34" height="34"><button xmlns="http://www.w3.org/1999/xhtml" class="graph-back-node" type="button" title="返回上级" aria-label="返回上级">&#8592;</button></foreignObject>`:'';
+      svg.innerHTML=`<defs><marker id="arrow-neutral" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8d969c"/></marker><marker id="arrow-input" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#2367a7"/></marker><marker id="arrow-output" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#b43a3a"/></marker></defs>${hierarchyMarkup}${dependencyMarkup}${nodeMarkup}${backMarkup}`;
+      svg.querySelectorAll('[data-node]').forEach(element=>element.addEventListener('click',event=>{
+        event.stopPropagation();
+        focusGraphNode(element.dataset.node);
+      }));
+      svg.querySelector('.graph-back-node')?.addEventListener('click',event=>{
+        event.stopPropagation();
+        if(parentId)focusGraphNode(parentId);
+      });
+      enableGraphPan(svg);
+      applyGraphViewBox();
+    }
+
+    function renderGraph() {
+      const svg=byId('architecture-graph');
+      state.graphHierarchy=buildGraphHierarchy();
+      state.graphData={nodes:state.graphHierarchy.nodes,edges:state.graphHierarchy.edges};
+      state.graphZoom=1;
+      if (!state.graphData.nodes.length) { svg.innerHTML='<text x="24" y="38">当前层级没有可显示的数据。</text>'; return; }
+      focusGraphNode(state.graphHierarchy.rootId);
+    }
+
+    function showGraphDetail(id, graph) {
+      const incoming=graph.edges.filter(edge=>edge.target===id).sort((a,b)=>b.count-a.count),outgoing=graph.edges.filter(edge=>edge.source===id).sort((a,b)=>b.count-a.count),node=graph.nodes.find(item=>item.id===id);
+      if (!node) return;
+      const nodeById=new Map(graph.nodes.map(item=>[item.id,item]));
+      const title=node.location?codeAnchor(node.location,node.label):esc(node.label);
+      const relationName={depends:'依赖',includes:'包含',calls:'调用',address_of:'取地址',registers_task:'注册任务',registers_callback:'注册回调',enables_isr:'使能中断',references:'引用',declares:'声明'};
+      const list=items=>items.slice(0,80).map(edge=>{const other=nodeById.get(edge.source===id?edge.target:edge.source);if(!other)return '';const label=other.location?codeAnchor(other.location,other.label):esc(other.label);return `<li>${label} <span class="badge">${relationName[edge.relation]||edge.relation} ${edge.count}</span></li>`;}).join('')||'<li>无</li>';
+      const levelName={project:'项目',module:'架构节点',file:'文件',function:'函数',variable:'变量'}[node.kind];
+      const childCount=state.graphHierarchy?.children.get(id)?.length||0;
+      byId('graph-detail').innerHTML=`<h2>${title}</h2>${node.detail?`<p class="page-subtitle">${esc(node.detail)}</p>`:''}${doxygenMarkup(node.documentation)}<div class="kv"><span>层级</span><strong>${levelName}</strong></div><div class="kv"><span>下级节点</span><strong>${childCount}</strong></div><div class="kv"><span>输入</span><strong>${incoming.length}</strong></div><div class="kv"><span>输出</span><strong>${outgoing.length}</strong></div><h3>输入：谁进入本节点</h3><ul class="dependency-list">${list(incoming)}</ul><h3>输出：本节点指向谁</h3><ul class="dependency-list">${list(outgoing)}</ul>`;
+    }
+
+    function doxygenMarkup(documentation) {
+      if(!documentation)return '';
+      const params=(documentation.params||[]).map(item=>`<li><strong>${esc(item[0])}</strong>${item[1]?`：${esc(item[1])}`:''}</li>`).join('');
+      const notes=(documentation.notes||[]).map(item=>`<li>${esc(item)}</li>`).join('');
+      const warnings=(documentation.warnings||[]).map(item=>`<li class="doxygen-warning">${esc(item)}</li>`).join('');
+      return `${documentation.brief?`<p class="doxygen-brief">${esc(documentation.brief)}</p>`:''}${params?`<h3>参数</h3><ul class="dependency-list">${params}</ul>`:''}${documentation.returns?`<h3>返回值</h3><p class="doxygen-brief">${esc(documentation.returns)}</p>`:''}${notes?`<h3>备注</h3><ul class="dependency-list">${notes}</ul>`:''}${warnings?`<h3>警告</h3><ul class="dependency-list">${warnings}</ul>`:''}`;
+    }
+
+    function filteredGlobals() {
+      const query = byId('global-search').value.trim().toLowerCase();
+      const scope = byId('global-scope').value;
+      const selectedModule = byId('global-module').value;
+      return data.global_variables.filter(item => {
+        if (selectedModule !== 'all' && architectureNodeOf(item.definition.path) !== selectedModule) return false;
+        if (scope === 'shared' && !item.cross_file) return false;
+        if ((scope === 'global' || scope === 'static') && item.storage !== scope) return false;
+        const haystack = `${item.name} ${item.type_name} ${item.definition.path}`.toLowerCase();
+        return !query || haystack.includes(query);
+      });
+    }
+
+    function renderGlobals() {
+      const items = filteredGlobals();
+      const storageName = value => value === 'static' ? '文件内 static' : '外部 global';
+      byId('globals-body').innerHTML = items.map((item, index) => `<tr data-global-index="${data.global_variables.indexOf(item)}"><td><strong>${esc(item.name)}</strong>${item.cross_file ? ' <span class="badge shared">跨文件</span>' : ''}</td><td>${esc(item.type_name)}</td><td><span class="badge ${esc(item.storage)}">${storageName(item.storage)}</span></td><td>${codeAnchor(item.definition)}</td><td class="number">${item.references.length}</td><td class="number">${item.referenced_files}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">没有匹配的变量</td></tr>';
+      byId('globals-body').querySelectorAll('[data-global-index]').forEach(row => row.addEventListener('click', () => {
+        byId('globals-body').querySelectorAll('tr').forEach(item => item.classList.remove('selected'));
+        row.classList.add('selected');
+        showGlobalDetail(data.global_variables[Number(row.dataset.globalIndex)]);
+      }));
+    }
+
+    function showGlobalDetail(item) {
+      const references = item.references.map(location => `<li>${codeAnchor(location)}</li>`).join('') || '<li>未报告引用位置</li>';
+      const storageName = item.storage === 'static' ? '文件内 static' : '外部 global';
+      byId('global-detail').innerHTML = `<h2 class="page-title">${esc(item.name)}</h2><p class="page-subtitle">${esc(item.type_name)}</p><h3>定义位置</h3><p>${codeAnchor(item.definition)}</p><div class="kv"><span>存储类别</span><strong>${storageName}</strong></div><div class="kv"><span>引用数</span><strong>${item.references.length}</strong></div><div class="kv"><span>引用文件</span><strong>${item.referenced_files}</strong></div><h3>引用位置</h3><ul class="reference-list">${references}</ul>`;
+    }
+
+    byId('global-search').addEventListener('input', renderGlobals);
+    byId('global-scope').addEventListener('change', renderGlobals);
+    byId('global-module').addEventListener('change', renderGlobals);
+
+    function renderCycles() {
+      byId('cycle-list').innerHTML = data.dependency_cycles.map((group, index) => `<article class="cycle-item"><h2>循环依赖组 ${index + 1} <span class="badge">${group.length} 个文件</span></h2><div class="cycle-path">${group.map(path => fileAnchor(path)).join('<span class="arrow">&#8594;</span>')}<span class="arrow">&#8634;</span></div></article>`).join('') || '<div class="empty">未发现循环依赖</div>';
+    }
+
+    const globalModules = [...new Set(data.global_variables.map(item => architectureNodeOf(item.definition.path)))].sort();
+    byId('global-module').innerHTML = '<option value="all">全部模块</option>' + globalModules.map(module => `<option value="${esc(module)}">${esc(architectureNames.get(module) || module)}</option>`).join('');
+    renderGlobals();
+    renderCycles();
+    requestAnimationFrame(renderTreemap);
+    window.addEventListener('resize', () => {
+      if (state.view === 'architecture') focusGraphNode(state.graphRoot||state.graphHierarchy?.rootId);
+      if (state.view === 'treemap') renderTreemap();
+    });
+  </script>
+</body>
+</html>

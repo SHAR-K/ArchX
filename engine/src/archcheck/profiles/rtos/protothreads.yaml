@@ -1,0 +1,43 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+#
+# 本文件只收 Adam Dunkels protothreads 1.4（pt.h / pt-sem.h）的标准宏。
+# 标准 protothreads 没有注册 API —— 用法是主循环里 PT_SCHEDULE(f(&pt))，
+# 所以这里没有 task_create。封装层（thread_create / os_task_add 之类）的名字
+# 因项目而异，属于 <project>/framework_rules.yaml。
+#
+# Only the standard macros of Adam Dunkels protothreads 1.4 belong here.
+# Wrapper APIs differ per project and belong in project-local rules.
+name: protothreads
+kind: rtos
+description: 'protothreads 1.4 标准宏：PT_WAIT_* / PT_YIELD* 让出点，PT_SEM_WAIT 信号量等待，PT_EXIT
+  / PT_RESTART 控制；宏名按源码文本匹配。Standard protothreads 1.4 macros: waits, yields, semaphore
+  waits and thread control, matched by macro text.'
+# 协作式：线程跑到自己让出为止，线程之间不抢占，只有中断插进来。
+scheduling: cooperative
+task_control:
+- rule: protothreads.PT_EXIT
+  function: PT_EXIT
+  kind: exit
+  task_argument: null
+- rule: protothreads.PT_RESTART
+  function: PT_RESTART
+  kind: restart
+  task_argument: null
+blocking:
+# PT_WAIT* 覆盖 PT_WAIT_UNTIL / PT_WAIT_WHILE / PT_WAIT_THREAD。
+- rule: protothreads.PT_WAIT
+  function: PT_WAIT*
+  kind: wait
+# PT_SEM_* 前缀不同，通配匹配不到，单列。
+- rule: protothreads.PT_SEM_WAIT
+  function: PT_SEM_WAIT
+  kind: wait
+# 更具体的放前面：PT_YIELD* 会通配到 PT_YIELD_UNTIL。
+- rule: protothreads.PT_YIELD_UNTIL
+  function: PT_YIELD_UNTIL
+  kind: wait
+- rule: protothreads.PT_YIELD
+  function: PT_YIELD*
+  kind: yield

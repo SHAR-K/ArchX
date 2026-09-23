@@ -1,0 +1,82 @@
+  .pt-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 10px; }
+  .pt-levels { display: flex; align-items: flex-start; gap: 0; width: max-content; min-width: 100%; }
+  .pt-level { display: flex; flex-direction: column; gap: 8px; align-self: stretch; position: relative; padding-left: 16px; }
+  .pt-level-head { font-size: 11px; color: #64748b; font-weight: 700; padding: 0 4px 2px; display: flex; gap: 6px; }
+  .pt-line { display: flex; align-items: stretch; }
+  .pt-box { flex: 1; border: 1px solid #93c5fd; border-radius: 8px; background: #fff; min-width: 300px; max-width: 520px; }
+  .pt-box.busy { border-color: #fca5a5; } .pt-box.wait { border-color: #fcd34d; } .pt-box.iter { border-color: #cbd5e1; }
+  .pt-box-head { display: flex; align-items: center; gap: 6px; padding: 5px 9px; font-size: 11.5px; border-radius: 8px 8px 0 0; font-family: ui-monospace, Consolas, monospace; }
+  .pt-box-head.main { background: #dbeafe; color: #1e3a8a; } .pt-box-head.busy { background: #fee2e2; color: #991b1b; } .pt-box-head.wait { background: #fef3c7; color: #92400e; } .pt-box-head.iter { background: #f1f5f9; color: #334155; }
+  .pt-box-head.sel { outline: 2px solid #7c3aed; } .pt-box-head i { font-style: normal; opacity: .75; font-size: 10px; }
+  .pt-where { margin-left: auto; font-size: 9.5px; opacity: .7; font-family: system-ui, sans-serif; white-space: nowrap; }
+  .pt-cond { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pt-loop { display: flex; align-items: center; gap: 6px; margin: 5px 6px 0; padding: 3px 7px; border-radius: 5px; border: 1px solid; font-family: ui-monospace, Consolas, monospace; font-size: 11px; cursor: pointer; }
+  .pt-loop.busy { border-color: #dc2626; background: #fee2e2; color: #991b1b; } .pt-loop.wait { border-color: #d97706; background: #fef3c7; color: #92400e; } .pt-loop.iter { border-color: #cbd5e1; background: #f1f5f9; color: #334155; } .pt-loop.main { border-color: #2563eb; background: #dbeafe; color: #1e3a8a; }
+  .pt-loop.sel { outline: 2px solid #7c3aed; } .pt-loop i { font-style: normal; opacity: .75; font-size: 10px; } .pt-loop .sg-line { margin-left: auto; }
+  .pt-fn { font-family: ui-monospace, Consolas, monospace; font-weight: 700; cursor: pointer; } .pt-fn:hover { text-decoration: underline; }
+  .pt-fold { width: 22px; flex: 0 0 22px; padding: 0; border: none; background: none; color: #64748b; font-size: 10px; cursor: pointer; line-height: 1; text-align: left; }
+  .pt-fold small { font-size: 8px; opacity: .7; } .pt-fold:hover { color: #7c3aed; }
+  .pt-fold-gap { width: 22px; flex: 0 0 22px; align-self: stretch; }
+  .pt-fold-gap.cont { border-left: 1px solid #cbd5e1; margin-left: 7px; width: 15px; flex: 0 0 15px; }
+  .pt-row.cont { margin-top: -1px; }
+  .pt-row.deep { opacity: .82; } .pt-row.deep .s1-name { font-weight: 400; }
+  .pt-box-body { padding: 5px 6px; display: flex; flex-direction: column; gap: 1px; }
+  .pt-row { display: flex; align-items: center; gap: 6px; font-size: 11.5px; padding: 2px 5px 2px calc(5px + var(--d, 0) * 12px); border-radius: 4px; cursor: pointer; }
+  .pt-row:hover { background: #f8fafc; } .pt-row.sel { background: #f5f3ff; outline: 1px solid #c4b5fd; } .pt-row.crit { background: #f0fdf4; } .pt-row.frame { color: #475569; font-size: 10.5px; cursor: default; }
+  .pt-row .s1-name { font-size: 11.5px; } .pt-row .s1-counts { margin-left: auto; } .pt-row .sg-line { margin-left: 6px; }
+  .pt-badge { display: inline-block; min-width: 15px; text-align: center; font-size: 9.5px; font-weight: 700; border-radius: 3px; background: #475569; color: #fff; padding: 0 3px; line-height: 15px; font-family: system-ui, sans-serif; }
+  .pt-badge.busy { background: #dc2626; } .pt-badge.wait { background: #d97706; } .pt-badge.iter { background: #94a3b8; } .pt-badge.main { background: #2563eb; }
+  .pt-divider { flex: 0 0 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; margin: 4px 6px; border-radius: 8px; background: repeating-linear-gradient(90deg, #ffedd5 0 4px, transparent 4px 8px); }
+  .pt-exit { writing-mode: vertical-rl; display: flex; align-items: center; gap: 5px; font-size: 10.5px; padding: 8px 4px; border-radius: 6px; background: #fff; border: 1px solid #fcd34d; color: #b45309; }
+  .pt-exit.cond { border-color: #cbd5e1; color: #334155; } .pt-exit.back { border-color: #93c5fd; color: #1d4ed8; } .pt-exit.none { border-color: #fca5a5; color: #991b1b; }
+  .pt-exit.return, .pt-exit.break, .pt-exit.goto { border-color: #cbd5e1; color: #334155; }
+  .pt-exit .sg-line { margin: 0; } .pt-exit b { font-weight: 700; }
+  .pt-empty { padding: 2px 6px; }
+  .pt-row .brk, .pt-exit .brk, .pt-box-head .brk { display: inline-block; font-family: ui-monospace, Consolas, monospace; font-size: 9.5px; background: #475569; color: #fff; border-radius: 3px; padding: 0 5px; line-height: 15px; }
+  /* 子框从父框那道缝里长出来：组的左侧一道短虚线接回父框 */
+  .pt-level .pt-line[data-parent] { position: relative; }
+  .pt-level .pt-line[data-parent]::before { content: ""; position: absolute; left: -7px; top: 13px; width: 7px; border-top: 1px dashed #cbd5e1; }
+  /* 一个框在长出子循环的那一行裂开：断口画成虚线，读作"同一个框被切开" */
+  .pt-box.cut-bottom { border-bottom-style: dashed; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .pt-box.cut-top { border-top-style: dashed; border-top-left-radius: 0; border-top-right-radius: 0; }
+  /* 让出 = return：整行断口，下面的代码要等下一次调用 */
+  .pt-row.yieldrow { background: #fffbeb; border-radius: 4px; gap: 6px; padding-left: 5px; border-top: 1px dashed #f59e0b; border-bottom: 1px dashed #f59e0b; }
+  .pt-row.yieldrow b { font-size: 11px; color: #92400e; }
+  .pt-ret { font-family: ui-monospace, Consolas, monospace; font-size: 10.5px; color: #b45309; font-weight: 700; }
+  .pt-cut { flex: 1; border-top: 1px dashed #f59e0b; margin: 0 4px; height: 1px; }
+  .pt-inv { font-size: 10px; color: #92400e; background: #fde68a; border-radius: 3px; padding: 0 5px; }
+  .pt-lost { font-size: 10px; color: #991b1b; background: #fee2e2; border-radius: 3px; padding: 0 5px; text-decoration: none; margin-left: 4px; }
+  .pt-lost:hover { background: #fecaca; }
+  /* 回边：框（含裂开的各片）是一个循环，跑完回到开头 */
+  .pt-back { position: absolute; left: 2px; width: 9px; border: 1px solid #93c5fd; border-right: none; border-radius: 7px 0 0 7px; pointer-events: none; }
+  .pt-back.busy { border-color: #fca5a5; } .pt-back.wait { border-color: #fcd34d; } .pt-back.iter { border-color: #cbd5e1; }
+  .pt-back::before { content: "▲"; position: absolute; top: -7px; left: -2.5px; font-size: 8px; line-height: 1; color: #60a5fa; }
+  .pt-back.busy::before { color: #f87171; } .pt-back.wait::before { color: #fbbf24; } .pt-back.iter::before { color: #cbd5e1; }
+  .pt-back span { writing-mode: vertical-rl; position: absolute; top: 50%; left: -1px; transform: translateY(-50%); font-size: 9px; color: #64748b; background: var(--surface); padding: 3px 0; }
+  .pt-inv-mark { font-size: 11px; color: #b45309; flex: 0 0 auto; }
+  .pt-sched { font-size: 11px; font-weight: 700; color: #1e3a8a; background: #dbeafe; border-radius: 4px; padding: 0 6px; }
+  /* 空体循环：一行 chip，占它深度那一列的位置，不给整框 */
+  .pt-line.chip { align-items: center; }
+  .pt-chip { flex: 1; min-width: 300px; max-width: 520px; display: flex; align-items: center; gap: 6px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; padding: 2px 7px; font-size: 11px; font-family: ui-monospace, Consolas, monospace; cursor: pointer; }
+  .pt-chip.busy { border-color: #fca5a5; background: #fff5f5; color: #991b1b; } .pt-chip.wait { border-color: #fcd34d; background: #fffbeb; color: #92400e; } .pt-chip.iter { color: #334155; }
+  .pt-chip.sel { outline: 2px solid #7c3aed; }
+  .pt-chip b { font-weight: 700; } .pt-chip i { font-style: normal; opacity: .75; font-size: 10px; }
+  .pt-chip .pt-cond { flex: 1; min-width: 0; }
+  .pt-chip .sg-line { margin: 0; }
+  .pt-chip-exit { font-size: 10px; color: #64748b; white-space: nowrap; font-family: system-ui, sans-serif; }
+  /* 任务堆叠：折叠头一行一个任务，点开原地长出它那一轮的树 */
+  .sq-list { display: flex; flex-direction: column; gap: 4px; }
+  .sq-task { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  .sq-task.open { border-color: #93c5fd; }
+  .sq-head { display: flex; align-items: center; gap: 8px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
+  .sq-head:hover { background: #f8fafc; }
+  .sq-no { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 22px; text-align: right; }
+  .sq-name { font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+  .sq-name:hover { text-decoration: underline; }
+  .sq-f { display: inline-flex; align-items: baseline; gap: 4px; font-size: 11.5px; } .sq-f i { font-style: normal; color: var(--muted); font-size: 11px; } .sq-f b { font-variant-numeric: tabular-nums; }
+  .sq-f.bad b { color: var(--red); }
+  .sq-state { font-size: 11px; max-width: 260px; }
+  .sq-body { border-top: 1px dashed var(--line); padding: 8px 10px 10px; }
+  .pt-title { font-size: 12px; margin: 0 0 6px; color: #334155; }
+  .sq-susp { font-size: 10.5px; color: #92400e; background: #fde68a; border-radius: 3px; padding: 0 5px; text-decoration: none; }
+  .sq-susp:hover { background: #fcd34d; }

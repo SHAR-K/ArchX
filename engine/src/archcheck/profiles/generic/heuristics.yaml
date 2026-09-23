@@ -1,0 +1,31 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+#
+# 准入判据 / admission test：只收在公开框架文档或厂商 SDK 里能查到的 API 名。
+# 只存在于某一个项目里的名字属于项目规则，写进 <project>/framework_rules.yaml。
+name: generic-heuristics
+kind: generic
+description: '命名启发式（低置信度）：*_set_callback / *_set_*_cb / *_register_callback 回调注册，delay_ms
+  / delay_us 延时。Naming heuristics (low confidence): callback setters and delay_ms / delay_us.'
+callback_register:
+- rule: generic.set_callback
+  function: '*_set_callback'
+  confidence: low
+- rule: generic.set_cb
+  function: '*_set_*_cb'
+  confidence: low
+- rule: generic.register_callback
+  function: '*_register_callback'
+  confidence: low
+blocking:
+- rule: generic.delay_ms
+  function: delay_ms
+  kind: delay
+  confidence: medium
+- rule: generic.delay_us
+  function: delay_us
+  kind: delay
+  confidence: medium
+  duration_argument: 0
+  duration_unit: us

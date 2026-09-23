@@ -1,0 +1,81 @@
+/* 静态演示页的主题：面板样式全部走 --vscode-* 变量，这里给浏览器一套等价的值，明暗跟随系统。
+   取值对应 VS Code 的 Light Modern / Dark Modern，图表色板两套主题下都有定义。 */
+
+:root {
+  --vscode-font-family: system-ui, "Segoe UI", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: ui-monospace, "Cascadia Code", Consolas, "JetBrains Mono", monospace;
+
+  --vscode-foreground: #3b3b3b;
+  --vscode-descriptionForeground: #717171;
+  --vscode-editor-background: #ffffff;
+  --vscode-editorWidget-background: #f8f8f8;
+  --vscode-panel-border: #e5e5e5;
+  --vscode-focusBorder: #005fb8;
+  --vscode-textLink-foreground: #005fb8;
+  --vscode-list-hoverBackground: #f2f2f2;
+  --vscode-list-activeSelectionBackground: #e8e8e8;
+  --vscode-list-activeSelectionForeground: #000000;
+  --vscode-button-foreground: #ffffff;
+  --vscode-badge-background: #cccccc;
+  --vscode-badge-foreground: #3b3b3b;
+  --vscode-input-background: #ffffff;
+  --vscode-input-foreground: #3b3b3b;
+  --vscode-editor-findMatchHighlightBackground: rgba(234, 92, 0, 0.33);
+
+  --vscode-charts-blue: #3794ff;
+  --vscode-charts-orange: #d18616;
+  --vscode-charts-purple: #b180d7;
+  --vscode-charts-red: #f14c4c;
+  --vscode-charts-green: #89d185;
+
+  --site-bar-h: 40px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vscode-foreground: #cccccc;
+    --vscode-descriptionForeground: #9d9d9d;
+    --vscode-editor-background: #1f1f1f;
+    --vscode-editorWidget-background: #202020;
+    --vscode-panel-border: #2b2b2b;
+    --vscode-focusBorder: #0078d4;
+    --vscode-textLink-foreground: #4daafc;
+    --vscode-list-hoverBackground: #2a2d2e;
+    --vscode-list-activeSelectionBackground: #04395e;
+    --vscode-list-activeSelectionForeground: #ffffff;
+    --vscode-badge-background: #616161;
+    --vscode-badge-foreground: #f8f8f8;
+    --vscode-input-background: #313131;
+    --vscode-input-foreground: #cccccc;
+  }
+}
+
+/* 顶栏：换工程、出处、语言。面板占掉剩下的高度 */
+.site-bar {
+  display: flex; align-items: center; gap: 12px; height: var(--site-bar-h); padding: 0 14px;
+  border-bottom: 1px solid var(--vscode-panel-border); background: var(--vscode-editorWidget-background);
+  font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-foreground);
+}
+.site-brand { font-weight: 600; color: inherit; text-decoration: none; letter-spacing: 0.2px; }
+.site-select {
+  font: inherit; color: var(--vscode-input-foreground); background: var(--vscode-input-background);
+  border: 1px solid var(--vscode-panel-border); border-radius: 4px; padding: 3px 6px;
+}
+.site-meta a { color: var(--vscode-textLink-foreground); text-decoration: none; }
+.site-meta a:hover { text-decoration: underline; }
+.site-dim, .site-note { color: var(--vscode-descriptionForeground); font-size: 0.92em; }
+.site-note { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.site-spacer { flex: 1 1 auto; }
+.site-ghost {
+  font: inherit; color: inherit; background: none; border: 1px solid var(--vscode-panel-border); border-radius: 4px;
+  padding: 2px 8px; cursor: pointer;
+}
+.site-ghost:hover { background: var(--vscode-list-hoverBackground); }
+
+body { overflow: hidden; }
+#root .app { height: calc(100vh - var(--site-bar-h)); }
+
+@media (max-width: 900px) {
+  .site-note { display: none; }
+}

@@ -1,0 +1,57 @@
+# ArchCheck profile — 规则即数据：引擎不认识任何具体函数名，全部来自这里。
+# Rules are data: the engine knows no API name of its own; everything comes from files like this.
+# 字段说明 / field reference: profiles/README.md
+name: cmsis-rtos2
+kind: rtos
+description: CMSIS-RTOS2：osDelay / osSemaphoreAcquire / osMessageQueueGet / osMutex。CMSIS-RTOS2 delays, waits and mutexes.
+# 抢占式：高优先级线程可以在任意点打断低优先级线程。
+scheduling: preemptive
+# osThreadNew(func, argument, &attr)：优先级在属性结构体的 .priority 里（osPriorityXxx，数字越大越高）
+task_create:
+- rule: cmsis-rtos2.osThreadNew
+  function: osThreadNew
+  entry_argument: 0
+  attr_argument: 2
+  priority_field: priority
+timer_create:
+- rule: cmsis-rtos2.osTimerNew
+  function: osTimerNew
+  entry_argument: 0
+task_control:
+- rule: cmsis-rtos2.osThreadSuspend
+  function: osThreadSuspend
+  kind: suspend
+  task_argument: 0
+- rule: cmsis-rtos2.osThreadResume
+  function: osThreadResume
+  kind: resume
+  task_argument: 0
+- rule: cmsis-rtos2.osThreadTerminate
+  function: osThreadTerminate
+  kind: exit
+  task_argument: 0
+blocking:
+# osDelay(ticks) 的实参是内核 tick 数；osDelayUntil 是绝对时刻，不算周期
+- rule: cmsis_rtos.osDelay
+  function: osDelay
+  kind: delay
+  duration_argument: 0
+  duration_unit: tick
+- rule: cmsis_rtos.osDelayUntil
+  function: osDelayUntil
+  kind: delay
+- rule: cmsis_rtos.osSemaphoreAcquire
+  function: osSemaphoreAcquire
+  kind: wait
+- rule: cmsis_rtos.osMessageQueueGet
+  function: osMessageQueueGet
+  kind: wait
+- rule: cmsis_rtos.osThreadYield
+  function: osThreadYield
+  kind: yield
+critical_section:
+- rule: cmsis_rtos.osMutexAcquire
+  begin: osMutexAcquire
+  end: osMutexRelease
+  kind: mutex
+  match_argument: true
