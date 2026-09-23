@@ -30,6 +30,8 @@ code, scan again. To see your own project, install the extension and scan it.
 
 The same panel on a larger production codebase, with identifiers and paths replaced:
 **[shar-k.github.io/ArchX/production](https://shar-k.github.io/ArchX/production/)**.
+And the viewer as it looked before it became the panel, kept as it was designed:
+**[shar-k.github.io/ArchX/preview](https://shar-k.github.io/ArchX/preview/)**.
 
 ## Why
 
