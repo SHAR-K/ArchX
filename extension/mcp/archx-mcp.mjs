@@ -284,7 +284,7 @@ input.on("line", async (line) => {
       respond(request.id, {
         protocolVersion: request.params?.protocolVersion || "2025-06-18",
         capabilities: { tools: {} },
-        serverInfo: { name: "archx", version: "0.25.1" },
+        serverInfo: { name: "archx", version: "0.26.1" },
       });
     } else if (request.method === "ping") respond(request.id, {});
     else if (request.method === "tools/list") respond(request.id, { tools });

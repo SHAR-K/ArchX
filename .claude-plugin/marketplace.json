@@ -9,7 +9,7 @@
       "name": "archx",
       "source": "./extension/claude-marketplace/plugins/archx",
       "description": "Scan a C/C++ firmware project with ArchCheck and read the code facts by theme; a local page shows them as pictures",
-      "version": "0.25.1"
+      "version": "0.26.1"
     }
   ]
 }

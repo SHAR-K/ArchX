@@ -1,6 +1,6 @@
 {
   "name": "archx",
-  "version": "0.25.1",
+  "version": "0.26.1",
   "description": "Read code facts: run the ArchCheck engine on a C/C++ firmware project, read them back by theme, see them on a local page or in the ArchX panel",
   "author": {
     "name": "ArchX"

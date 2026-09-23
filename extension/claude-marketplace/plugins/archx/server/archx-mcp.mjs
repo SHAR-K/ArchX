@@ -4640,7 +4640,7 @@ readline.createInterface({
 			capabilities: { tools: {} },
 			serverInfo: {
 				name: "archx",
-				version: "0.25.1"
+				version: "0.26.1"
 			}
 		});
 		else if (request.method === "ping") respond(request.id, {});

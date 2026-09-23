@@ -258,6 +258,11 @@ VSIX、文档或测试夹具，改名脱敏也不算数。验收发现问题记�
 | D2 | 扫描分区复用已有事实、分析目录每次重扫。同一个工程走两条路会看到两个时代的事实，而界面上没有区别。两条都该复用 + 都该说清多旧 + 都该能一键重扫 |
 | B2 | Agent 注意力高亮：MCP 每次取对象就推给宿主，界面高亮并留淡出轨迹，标明是「取过」不是「用过」 |
 | B7 | **已完成**。节拍视图进了顺序与时间主题；blinky 本来就是协作式，补了一个周期任务就够 |
+| K1 | Keil map 选错：`find_image_artifact` 在 Keil 目录和工程根下 glob 所有 *.map 取最新的，多 target 时会读到别的 target 的产物。改为从 .uvprojx 当前 target 的 ListingPath + OutputName 定位，找不到就报缺，不猜（约 0.5 天，Linker 要求发布前做） |
+| K2 | 一个工程里有多个 .uvprojx 或多个 target 时，scan_project 现在静默取第一个。改为返回 needs-choice 带候选列表，让 agent 问用户（约 0.25 天） |
+| P1 | MCP 以 `archcheck-mcp` 发 npm，`npx archcheck-mcp` 即可用，不依赖 Claude 插件市场。等用户点头并建好 npm 账号 |
+| P2 | 本机 Claude 插件和 VSIX 落后于仓库：`claude plugin marketplace update archx` + `claude plugin update archx@archx`，并重装新 VSIX。等用户操作 |
+| B8 | 节拍图顺序轴、原型里的内存页，仍在积压 |
 
 ### 途中发现、顺手修掉的
 

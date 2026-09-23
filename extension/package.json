@@ -2,7 +2,7 @@
   "name": "archx",
   "displayName": "ArchX",
   "description": "%description%",
-  "version": "0.25.3",
+  "version": "0.26.1",
   "type": "module",
   "publisher": "archx-local",
   "license": "MIT",
