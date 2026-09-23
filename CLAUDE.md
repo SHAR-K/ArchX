@@ -27,8 +27,8 @@ selling points and they must be stated in that order.
 Extraction is deterministic or the facts are not trustworthy — offline, reproducible, no
 model call, the same commit scanned twice yields the same answer. Consumption goes through
 an agent or the facts cannot be read at all: four directories of a public 332-file STM32H743
-project (`stm32h743` in `corpus/external.yaml`) project to 15 MB of facts (0.54 MB gzipped),
-and nobody reads 15 MB in a panel. The MCP layer exists so facts can be sliced
+project (`stm32h743` in `corpus/external.yaml`) project to 17 MB of facts (0.58 MB gzipped),
+and nobody reads 17 MB in a panel. The MCP layer exists so facts can be sliced
 by theme, by object, by field path — that is the only way a human ever reaches this data.
 
 The MCP layer is justified by slicing, not by MCP being a popular thing to build.

@@ -17,7 +17,7 @@
 | 工程 | 分区 | 体积 |
 | --- | --- | --- |
 | hoverboard-foc（裸机） | 整仓库 | 3.7 MB → 0.23 MB gz |
-| stm32h743（FreeRTOS） | `Core/** Applications/** Libraries/FreeRTOS-Plus-CLI/** Middlewares/Third_Party/**` | 15 MB → 0.54 MB gz |
+| stm32h743（FreeRTOS） | `Core/** Applications/** Libraries/FreeRTOS-Plus-CLI/** Middlewares/Third_Party/**` | 17 MB → 0.58 MB gz |
 
 `tools/build-site.mts` 读 `work/corpus-scan/<id>/architecture.json`（本机扫描产物，gitignore），切分区、投影，
 gzip 写到 `site/public/data/`。**只存投影不存主题**：主题在页面里由 `derivePayload` 现算，主题一改重新
