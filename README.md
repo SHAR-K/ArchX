@@ -57,7 +57,7 @@ statable, and the panel is where a human checks the agent against them.
 ArchCheck is a tool your coding agent calls. Install the engine and the Claude Code plugin:
 
 ```bash
-pip install "git+https://github.com/SHAR-K/ArchX#subdirectory=engine"
+pip install archcheck
 claude plugin marketplace add SHAR-K/ArchX && claude plugin install archx@archx
 ```
 
@@ -72,7 +72,7 @@ straight from disk with no server. The facts stay on your machine.
 
 **You need**
 
-1. **Python 3.10+ and git** — pip installs the engine from the repository.
+1. **Python 3.10+** — the engine is the [`archcheck`](https://pypi.org/project/archcheck/) package on PyPI.
 2. **node on `PATH`** — the plugin's MCP server runs on it. Claude Code installed with the native
    installer does not always bring node along.
 3. **clangd** — the interrupts, tasks, loops and state machines come from its AST. Without it the
