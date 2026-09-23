@@ -75,4 +75,4 @@ export interface RunMapLayout {
 }
 
 export declare function buildRunMap(view: FactsView, options?: { index?: FactsIndex }): RunMapModel;
-export declare function layoutRunMap(model: RunMapModel, options?: { page?: string | null; filter?: string | null; expandIdle?: boolean }): RunMapLayout;
+export declare function layoutRunMap(model: RunMapModel, options?: { page?: string | null; focus?: string | null; filter?: string | null; expandIdle?: boolean }): RunMapLayout;

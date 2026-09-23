@@ -167,6 +167,9 @@ export function buildRunMap(view, options = {}) {
  */
 export function layoutRunMap(model, options = {}) {
   const page = options.page && [...model.isrs, ...model.threads].find((n) => n.id === options.page) || null;
+  // focus：选中一个单元时只画它碰到的变量和碰同一批变量的单元，分层含义不变（和 page 的区别：page 换成以它为中心的三层）。
+  // 几十个单元、几千条边的全景光靠淡化看不出来，也拖
+  const focus = !page && options.focus && [...model.isrs, ...model.threads].find((n) => n.id === options.focus) || null;
   const filter = options.filter ?? null;
   const expandIdle = Boolean(options.expandIdle);
   const passFilter = (v) => !filter || v.flow === filter || (filter === "conflict" && v.conflict) || (filter === "pollution" && v.pollution) || (filter === "mismatch" && v.protMismatch) || (filter === "wake" && v.wake) || (filter === "nonAtomic" && v.nonAtomic);
@@ -185,6 +188,14 @@ export function layoutRunMap(model, options = {}) {
       return me.write && !othersW ? 0 : me.write ? 1 : 2;
     };
     layerLabels = [t("Written out by {name} (it is the owner)", { name: page.name }), t("Written by it and by others"), t("Read-only for it")];
+  } else if (focus) {
+    vars = model.vars.filter((v) => v.units.some((u) => u.unit === focus.id) && passFilter(v));
+    const involved = new Set(vars.flatMap((v) => v.units.map((u) => u.unit)));
+    involved.add(focus.id);
+    isrs = model.isrs.filter((n) => involved.has(n.id));
+    threads = model.threads.filter((n) => involved.has(n.id));
+    layerOf = (v) => v.layer;
+    layerLabels = [t("Written by interrupts (flows down to threads)"), t("Multiple writers · no owner"), t("Written by threads (flows up to interrupts, or between threads)")];
   } else {
     vars = model.vars.filter(passFilter);
     idle = { isr: model.isrs.filter((n) => !usedSet.has(n.id)), thread: model.threads.filter((n) => !usedSet.has(n.id)) };

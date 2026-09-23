@@ -554,14 +554,12 @@
   "Data dependencies between tasks": "任务之间的数据依赖",
   "{n} pairs · a higher task can interrupt a lower one between any two accesses": "{n} 对 · 高优先级任务可以在低优先级任务的任意两次访问之间插进来",
   "shared, no finding": "共享，无发现",
-  "click to highlight, double-click to focus": "单击高亮，双击只看它",
   "Where you are": "当前位置",
   "filtered": "已筛选",
   "Legend": "图例",
   "writer → variable": "写方 → 变量",
   "variable → reader": "变量 → 读方",
   "{n} touch shared state": "{n} 个碰了共享状态",
-  "Highlight it and what it touches; the layout stays": "高亮它和它碰的变量，布局不动",
   "Back to the overview": "回全景",
   "Show only this unit's page": "只看这个单元的页",
   "Filter variables": "筛选变量",
@@ -570,5 +568,10 @@
   "both write": "双方都写",
   "shared": "共享",
   "no shared state": "没碰共享状态",
-  "installed by": "装入于"
+  "installed by": "装入于",
+  "only what": "只看",
+  "touches": "碰到的",
+  "Show everything again": "恢复全景",
+  "Show only it and what it touches; click again for everything": "只留它和它碰到的变量；再点一次恢复全景",
+  "click to show only what it touches, double-click for its page": "单击只看它碰到的，双击进它的页"
 }

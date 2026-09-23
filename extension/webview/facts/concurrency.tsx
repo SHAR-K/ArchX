@@ -58,7 +58,7 @@ function RunMap({ model, ui, patchConc, onPickVar, selectedVar }: { model: RunMa
   const host = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef(view);
   viewRef.current = view;
-  const layout = useMemo(() => layoutRunMap(model, { page, filter, expandIdle }), [model, page, filter, expandIdle]);
+  const layout = useMemo(() => layoutRunMap(model, { page, focus: focusUnit, filter, expandIdle }), [model, page, focusUnit, filter, expandIdle]);
 
   // 视口尺寸跟着容器走；布局按内容算，缩放到视口里
   useEffect(() => {
@@ -79,16 +79,7 @@ function RunMap({ model, ui, patchConc, onPickVar, selectedVar }: { model: RunMa
   }, [box, layout]);
   const current = view ?? fitView;
   // 换页或换筛选就回到适配：上一页的平移对新布局没有意义
-  useEffect(() => { setView(null); }, [page, filter, expandIdle]);
-  // 选中单元：水平方向把它挪到视口中间（缩放不变），宽图上这就是导航
-  useEffect(() => {
-    if (!focusUnit) return;
-    const node = [...layout.isrs, ...layout.threads].find((n) => n.id === focusUnit);
-    if (!node) return;
-    const cur = viewRef.current ?? fitView;
-    if (!fitView.wide && !viewRef.current) return;
-    setView({ k: cur.k, x: box.w / 2 - node.x * cur.k, y: cur.y });
-  }, [focusUnit]);
+  useEffect(() => { setView(null); }, [page, focusUnit, filter, expandIdle]);
 
   // 滚轮缩放：原生监听、非 passive，只在光标落在画布上时接管，页面不再跟着滚
   useEffect(() => {
@@ -114,7 +105,7 @@ function RunMap({ model, ui, patchConc, onPickVar, selectedVar }: { model: RunMa
   const litUnit = hoverUnit ?? focusUnit;
   const edgeOn = (e: RunMapLayout["edges"][number]) => (selectedVarId ? e.var === selectedVarId : litUnit ? e.unit === litUnit : true);
   const transform = `translate(${current.x},${current.y}) scale(${current.k})`;
-  const nodeTitle = (n: RunMapNode) => `${n.name} · ${t("touches {n} shared variables, writes {w}", { n: n.touches, w: n.writes })}${n.kind === "callback" ? (n.host ? ` · ${t("host")} ${n.host.split(":").pop()}` : n.hosts?.length ? ` · ${t("{n} possible hosts", { n: n.hosts.length })}` : ` · ${t("host unknown")}`) : ""} · ${t("click to highlight, double-click to focus")}`;
+  const nodeTitle = (n: RunMapNode) => `${n.name} · ${t("touches {n} shared variables, writes {w}", { n: n.touches, w: n.writes })}${n.kind === "callback" ? (n.host ? ` · ${t("host")} ${n.host.split(":").pop()}` : n.hosts?.length ? ` · ${t("{n} possible hosts", { n: n.hosts.length })}` : ` · ${t("host unknown")}`) : ""} · ${t("click to show only what it touches, double-click for its page")}`;
   const rhythm = (n: RunMapNode) => (n.kind === "isr" ? (n.kernel ? t("kernel exception") : n.preempt == null ? t("priority unknown") : `${t("preempt")} ${n.preempt}`) : n.kind === "task" ? (n.periodMs != null ? `${n.periodMs} ms` : t(RHYTHM[n.mode ?? "unknown"] ?? n.mode ?? "")) : n.kind === "callback" ? t("callback") : n.kind);
   const pageName = layout.page?.name ?? null;
 
@@ -125,6 +116,7 @@ function RunMap({ model, ui, patchConc, onPickVar, selectedVar }: { model: RunMa
         <nav className="rm-crumbs" aria-label={t("Where you are")}>
           <button className={`crumb ${page ? "" : "here"}`} disabled={!page} onClick={() => patchConc({ page: null })}>{t("Overview")}</button>
           {layout.page && <><span className="sub">›</span><span className="crumb here"><span className={`pill ${layout.page.kind}`}>{t(UNIT_LABEL[layout.page.kind] ?? layout.page.kind)}</span> <code>{pageName}</code></span></>}
+          {!layout.page && focusUnit && <><span className="sub">›</span><span className="sub">{t("only what")} <code>{focusUnit.split(":").slice(1).join(":")}</code> {t("touches")}</span><button className="crumb" onClick={() => patchConc({ unit: null })} title={t("Show everything again")}>×</button></>}
           {filter && <span className="sub"> · {t("filtered")}: {t(FLOW_LABEL[filter as keyof typeof FLOW_LABEL] ?? PROBLEM_LABEL[filter] ?? filter)}</span>}
         </nav>
         <span className="rm-spacer" />
@@ -223,7 +215,7 @@ function RunMapRail({ model, ui, patchConc }: { model: RunMapModel; ui: Ui["conc
       <div className="rm-units">
         {list.map((n) => (
           <div key={n.id} className={`rm-unit ${ui.unit === n.id ? "sel" : ""} ${ui.page === n.id ? "page" : ""}`}>
-            <button className="rm-unit-main" onClick={() => patchConc({ unit: ui.unit === n.id ? null : n.id })} title={t("Highlight it and what it touches; the layout stays")}>
+            <button className="rm-unit-main" onClick={() => patchConc({ unit: ui.unit === n.id ? null : n.id })} title={t("Show only it and what it touches; click again for everything")}>
               <i className={`dot w-${model.worst[n.id] ?? "idle"} ${n.kind}`} />
               <code>{n.name}</code>
               <span className="sub">{t(UNIT_LABEL[n.kind] ?? n.kind)} · {t(WORST_LABEL[model.worst[n.id] ?? "idle"])}</span>
