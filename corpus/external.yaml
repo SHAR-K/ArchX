@@ -191,7 +191,7 @@ projects:
       path: compile_commands.json
     baseline:
       observed_on: 2026-09-24
-      engine_commit: d59dc5d
+      engine_commit: 18d80af
       translationUnits: 195         # 95 个是框架源码（工程根之外），39 个 .ino / 自定义文件不在编译数据库
       filesAnalyzed: 100
       functions: 1383
