@@ -74,7 +74,7 @@ const DEFAULT_UI: Record<string, unknown> = {
   theme: "exec",
   exec: { rootId: null, reveal: [] },
   state: { machineId: null, stateName: null },
-  conc: { selected: null },
+  conc: { selected: null, unit: null, page: null, filter: null, showIdle: false },
   deps: { kind: "dir", open: null, search: "" },
   timing: { root: null, showIterations: false },
 };

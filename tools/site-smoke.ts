@@ -4,7 +4,7 @@
 // 检查的是「和插件一致」：主题导航、文件/函数数、每个工程的快照 ID 都要出现，不许出现加载失败。
 
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import { promisify } from "node:util";
 import fs from "node:fs";
 import http from "node:http";
@@ -21,9 +21,13 @@ const browser = [
   "/usr/bin/chromium",
   "/usr/bin/chromium-browser",
   "/usr/bin/google-chrome",
-].find((candidate) => fs.existsSync(candidate));
+].filter((candidate) => fs.existsSync(candidate)).find((candidate) => {
+  // 装着不等于能用：Edge 在某些状态下 --dump-dom 会静默返回空、退出码 0。先拿一个空页探一下
+  const probe = spawnSync(candidate, ["--headless=new", "--disable-gpu", "--no-first-run", "--dump-dom", "data:text/html,<p>probe</p>"], { encoding: "utf8", timeout: 30_000 });
+  return (probe.stdout ?? "").includes("probe");
+});
 if (!browser) {
-  console.log("site: 本机没有可用的 Chromium，跳过 DOM 检查");
+  console.log("site: 本机没有能输出 DOM 的 Chromium，跳过 DOM 检查");
   process.exit(0);
 }
 

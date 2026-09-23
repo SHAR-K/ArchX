@@ -449,7 +449,7 @@ function App() {
         if (message.id.startsWith("mem:") || message.id.startsWith("sym:")) setTheme("memory");
         if (message.id.startsWith("unit:")) setTheme("deps");
         if (message.id.startsWith("exec:")) patchUi({ theme: "exec", exec: { rootId: message.id.slice("exec:".length), reveal: [] } });
-        if (message.id.startsWith("res:")) patchUi({ theme: "conc", conc: { selected: message.id.split(":").pop() ?? null } });
+        if (message.id.startsWith("res:")) patchUi({ theme: "conc", conc: { ...DEFAULT_UI.conc, selected: message.id.split(":").pop() ?? null } });
         if (message.id.startsWith("loop:")) setTheme("timing");
         if (message.id.startsWith("fsm:")) patchUi({ theme: "state", state: { machineId: message.id, stateName: null } });
         if (message.id.startsWith("state:")) {

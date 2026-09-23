@@ -22,7 +22,7 @@ const DEFAULT_UI = {
   theme: "exec",
   exec: { rootId: null, reveal: [] },
   state: { machineId: null, stateName: null },
-  conc: { selected: null },
+  conc: { selected: null, unit: null, page: null, filter: null, showIdle: false },
   deps: { kind: "dir", open: null, search: "" },
   timing: { root: null, showIterations: false },
 };
@@ -93,7 +93,9 @@ async function main() {
     generatedAt: manifest.generatedAt,
     declarations: NO_DECLARATIONS,
   });
-  let ui: Record<string, unknown> = { ...DEFAULT_UI };
+  // ?theme=conc 之类的深链接：直接落到某个主题，截图和分享用
+  const wantedTheme = new URLSearchParams(location.search).get("theme");
+  let ui: Record<string, unknown> = { ...DEFAULT_UI, ...(wantedTheme && ["exec", "deps", "timing", "conc", "state", "memory"].includes(wantedTheme) ? { theme: wantedTheme } : {}) };
 
   const post = (message: unknown) => window.postMessage(message, "*");
   const openOnGitHub = (file: string, line?: number) => {

@@ -36,7 +36,7 @@ export interface Ui {
   theme: ThemeKey;
   exec: { rootId: string | null; reveal: string[] };
   state: { machineId: string | null; stateName: string | null };
-  conc: { selected: string | null };
+  conc: { selected: string | null; unit: string | null; page: string | null; filter: string | null; showIdle: boolean };
   deps: { kind: "dir" | "cluster"; open: string[] | null; search: string };
   timing: { root: string | null; showIterations: boolean };
 }
@@ -45,7 +45,7 @@ export const DEFAULT_UI: Ui = {
   theme: "exec",
   exec: { rootId: null, reveal: [] },
   state: { machineId: null, stateName: null },
-  conc: { selected: null },
+  conc: { selected: null, unit: null, page: null, filter: null, showIdle: false },
   deps: { kind: "dir", open: null, search: "" },
   timing: { root: null, showIterations: false },
 };

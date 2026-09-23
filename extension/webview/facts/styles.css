@@ -338,21 +338,53 @@ h4.bad { color: var(--back); }
 
 /* 运行图 */
 .runmap { margin: 8px 0 14px; }
-.runmap .rm-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
-.runmap .rm-chip { font-size: 11px; padding: 2px 8px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
-.runmap .rm-chip.bad { border-color: var(--neg); color: var(--neg); }
-.runmap .rm-chip.on { outline: 2px solid var(--vscode-focusBorder); outline-offset: -1px; }
-.runmap .rm-strip { display: flex; align-items: center; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+.runmap .rm-head { display: flex; align-items: center; gap: 10px; margin: 6px 0; flex-wrap: wrap; }
+.runmap .rm-crumbs { display: flex; align-items: center; gap: 6px; }
+.runmap .crumb { font: inherit; color: var(--vscode-textLink-foreground); background: none; border: 0; padding: 0; cursor: pointer; }
+.runmap .crumb:disabled, .runmap .crumb.here { color: inherit; cursor: default; font-weight: 600; }
 .runmap .rm-spacer { flex: 1 1 auto; }
-.runmap .rm-cells { display: flex; gap: 3px; flex-wrap: wrap; }
-.runmap .rm-cell { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--line); background: var(--line); padding: 0; cursor: pointer; }
-.runmap .rm-cell.isr { border-color: var(--neg); }
-.runmap .rm-cell.callback { border-style: dashed; }
-.runmap .rm-cell.w-conflict { background: var(--neg); }
-.runmap .rm-cell.w-pollution { background: var(--vscode-charts-orange, #d97706); }
-.runmap .rm-cell.on { outline: 2px solid var(--vscode-focusBorder); }
-.runmap .rm-wrap { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--vscode-editor-background); }
-.runmap svg { display: block; width: 100%; height: auto; max-height: 560px; user-select: none; }
+/* 固定高度的视口：布局按内容算，再缩放进来；高度不再随单元数变 */
+.runmap .rm-wrap { position: relative; height: 480px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--vscode-editor-background); cursor: grab; }
+.runmap .rm-wrap:active { cursor: grabbing; }
+.runmap svg { display: block; width: 100%; height: 100%; user-select: none; }
+.runmap .rm-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 6px; font-size: 10.5px; color: var(--dim); }
+.runmap .rm-legend span { display: flex; align-items: center; gap: 6px; }
+.runmap .rm-legend .sw { display: inline-block; width: 14px; height: 9px; border-radius: 2px; border: 1.5px solid var(--line); background: var(--vscode-editor-background); }
+.runmap .rm-legend .sw.conflict { border-color: var(--neg); }
+.runmap .rm-legend .sw.pollution { border-color: var(--vscode-charts-orange, #d97706); }
+.runmap .rm-legend .sw.wake { border-color: var(--vscode-charts-blue, #0284c7); }
+.runmap .rm-legend .sw.isr { border-color: var(--neg); height: 12px; border-radius: 3px; }
+.runmap .rm-legend .sw.callback { border-style: dashed; height: 12px; border-radius: 3px; }
+.runmap .rm-legend .sw.arrow { height: 0; border: 0; border-top: 1.6px solid var(--vscode-foreground); border-radius: 0; position: relative; }
+.runmap .rm-legend .sw.arrow::after { content: ""; position: absolute; right: -1px; top: -3.5px; border: 3px solid transparent; border-left: 5px solid var(--vscode-foreground); }
+.runmap .rm-legend .sw.line { height: 0; border: 0; border-top: 1px solid var(--dim); border-radius: 0; }
+.runmap .rm-node.faded { opacity: .25; }
+.runmap .rm-node.sel rect { stroke: var(--vscode-focusBorder); stroke-width: 2.2; }
+.runmap .rm-var.faded { opacity: .2; }
+/* 侧栏：单元列表与筛选 */
+.rm-rail { display: flex; flex-direction: column; gap: 6px; padding: 6px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.rm-rail-h { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+.rm-units { display: flex; flex-direction: column; gap: 1px; max-height: 40vh; overflow: auto; }
+.rm-unit { display: flex; align-items: stretch; border-radius: 4px; }
+.rm-unit:hover { background: var(--vscode-list-hoverBackground); }
+.rm-unit.sel { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+.rm-unit.page .rm-unit-focus { color: var(--vscode-focusBorder); }
+.rm-unit-main { flex: 1 1 auto; display: grid; grid-template-columns: 10px 1fr; column-gap: 8px; align-items: center; text-align: left; padding: 4px 6px; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; min-width: 0; }
+.rm-unit-main code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rm-unit-main .sub { grid-column: 2; font-size: 10.5px; }
+.rm-unit-main .dot { grid-row: 1 / span 2; width: 10px; height: 10px; border-radius: 2px; border: 1.5px solid var(--line); background: var(--line); }
+.rm-unit-main .dot.isr { border-color: var(--neg); }
+.rm-unit-main .dot.callback { border-style: dashed; }
+.rm-unit-main .dot.w-conflict { background: var(--neg); }
+.rm-unit-main .dot.w-pollution { background: var(--vscode-charts-orange, #d97706); }
+.rm-unit-main .dot.w-mismatch { background: var(--vscode-charts-purple, #b180d7); }
+.rm-unit-main .dot.w-idle { background: transparent; }
+.rm-unit-focus { flex: 0 0 26px; border: 0; background: none; color: var(--dim); font: inherit; cursor: pointer; }
+.rm-unit-focus:hover, .rm-unit-focus.on { color: var(--vscode-focusBorder); }
+.rm-rail .rm-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.rm-rail .rm-chip { font-size: 10.5px; padding: 1px 7px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+.rm-rail .rm-chip.bad { border-color: var(--neg); color: var(--neg); }
+.rm-rail .rm-chip.on { outline: 2px solid var(--vscode-focusBorder); outline-offset: -1px; }
 .runmap .rm-label { font-size: 10.5px; fill: var(--dim); }
 .runmap .rm-layer { fill: var(--vscode-editorWidget-background, transparent); stroke: var(--line); }
 .runmap .rm-node rect { fill: var(--vscode-editorWidget-background, transparent); stroke: var(--line); stroke-width: 1.2; }

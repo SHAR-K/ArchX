@@ -200,8 +200,11 @@ export function layoutRunMap(model, options = {}) {
   const idleTh = !page && idle.thread.length > 0 && !expandIdle;
   const rowWidth = (list, extra) => list.length * (NW + NGAP) + (extra ? 140 : 0);
   const W0 = Math.max(rowWidth(isrs, idleIsr), rowWidth(threads, idleTh), 700);
+  // 窄图两排居中好看；宽图（几十个单元）视口只能看到左边一段，两排都靠左对齐，
+  // 不然中断那排被居中到几千像素外，打开就是一片空
+  const centered = W0 <= 1400;
   const layoutRow = (list, y, extra, key) => {
-    let x = (W0 - rowWidth(list, extra)) / 2;
+    let x = centered ? (W0 - rowWidth(list, extra)) / 2 : PAD / 2;
     for (const n of list) { pos.set(n.id, { x: x + NW / 2, y }); x += NW + NGAP; }
     if (extra) pos.set(key, { x: x + 60, y });
   };
