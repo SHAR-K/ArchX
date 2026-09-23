@@ -66,3 +66,17 @@ export function readFactsPointer(root: string): FactsPointer | null {
     return null;
   }
 }
+
+/**
+ * 插件激活时登记 VSIX 自带引擎的位置。终端里的 MCP（Claude Code 从插件市场装的那份）拿不到扩展目录，
+ * 照这个找；写不了就算了，MCP 还有别的找法。
+ */
+export function publishEngineLocation(engine: { executable: string; prefixArgs?: string[]; env?: Record<string, string> }): void {
+  try {
+    const file = path.join(archxStateDirectory(), "engine.json");
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, `${JSON.stringify({ at: new Date().toISOString(), prefixArgs: [], env: {}, ...engine })}\n`, "utf8");
+  } catch {
+    /* 同上 */
+  }
+}

@@ -16,7 +16,7 @@ import os from "node:os";
 import path from "node:path";
 import * as vscode from "vscode";
 import type { ArchitecturePartition } from "../../packages/core/src/index.ts";
-import { publishFactsPointer } from "../../packages/core/src/facts-pointer.ts";
+import { publishEngineLocation, publishFactsPointer } from "../../packages/core/src/facts-pointer.ts";
 import type { Declarations } from "../../packages/facts-view/src/deps/model.d.mts";
 import { ArchCheckService } from "./archcheck-service.ts";
 import { ClaudePluginInstaller } from "./claude-plugin.ts";
@@ -27,6 +27,11 @@ import { PartitionProvider } from "./providers.ts";
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   // 对外文字的语言跟 VS Code 走；派生层的句子在宿主里算，所以要在任何派生之前定好
   setLocale(vscode.env.language);
+  // 登记自带引擎的位置：终端里的 MCP 不经过 VS Code 也能自己扫描
+  {
+    const engineFile = path.join(context.extensionPath, "engines", `${process.platform}-${process.arch}`, process.platform === "win32" ? "archcheck.exe" : "archcheck");
+    if (fs.existsSync(engineFile)) publishEngineLocation({ executable: engineFile });
+  }
   const folder = vscode.workspace.workspaceFolders?.[0];
   if (!folder) return;
   const root = folder.uri.fsPath;

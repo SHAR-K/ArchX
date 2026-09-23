@@ -66,8 +66,8 @@ try {
   const listed = await request("tools/list");
   assert.deepEqual(
     listed.result.tools.map((tool) => tool.name),
-    ["list_code_facts", "read_code_facts", "read_fact_object", "show_code_facts", "focus_code_fact"],
-    "表面只有代码事实这一套；旧的契约 / 提案 / 执行工具已经删了",
+    ["scan_project", "list_code_facts", "read_code_facts", "read_fact_object", "show_code_facts", "focus_code_fact"],
+    "表面只有代码事实这一套（扫描 + 读取）；旧的契约 / 提案 / 执行工具已经删了",
   );
 
   // ---- 入口：便宜，只说有什么，不返回事实内容 ----------------------------------------
@@ -129,7 +129,17 @@ try {
   const written = JSON.parse(fs.readFileSync(path.join(localAppData, "ArchX", "view-requests", `${projectKey}.json`), "utf8"));
   assert.equal(written.seq, focused.requested.seq, "请求要真的落盘，宿主是从文件读的");
 
-  console.log(`ArchX MCP smoke passed（5 个工具 · 6 个主题 · 快照 ${listing.snapshot}）`);
+  // scan_project：前提缺了就什么都不跑，只说缺什么、该跑哪条命令。一个只有 platformio.ini 的目录必然缺构建信息；
+  // CI 的工具作业没装 clangd，那就先报缺 clangd——两种都对，都不能跑引擎
+  const bare = fs.mkdtempSync(path.join(os.tmpdir(), "archx-mcp-bare-"));
+  fs.writeFileSync(path.join(bare, "platformio.ini"), "[env:x]\n", "utf8");
+  fs.writeFileSync(path.join(bare, "main.c"), "int main(void) { return 0; }\n", "utf8");
+  const needs = await call("scan_project", { folder: bare });
+  assert.ok(["needs-build-info", "needs-clangd", "needs-engine"].includes(needs.status), `缺前提时不能扫描，实得 ${needs.status}`);
+  if (needs.status === "needs-build-info") assert.equal(needs.runInProjectRoot[0].command, "pio run -t compiledb", "PlatformIO 工程要给出生成编译数据库的那条命令");
+  fs.rmSync(bare, { recursive: true, force: true });
+
+  console.log(`ArchX MCP smoke passed（6 个工具 · 6 个主题 · 快照 ${listing.snapshot} · scan_project 缺前提时报 ${needs.status}）`);
 } finally {
   child.stdin.end();
   child.kill();

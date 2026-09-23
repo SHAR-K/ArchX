@@ -18,6 +18,9 @@ import { buildConcurrency } from "../../packages/facts-view/src/concurrency/mode
 import { buildTiming } from "../../packages/facts-view/src/timing/model.mjs";
 import { buildRound } from "../../packages/facts-view/src/timing/sequence.mjs";
 import { indexById, overview, slice } from "../../packages/facts-view/src/slice.mjs";
+import { archxStateDirectory, projectKey as stateProjectKey, publishFactsPointer } from "../../packages/core/src/facts-pointer.ts";
+import { scanProject } from "./scan.mjs";
+import { createPartition, projectFactsToPartition } from "../../packages/core/src/index.ts";
 
 // Agent 面固定英文：派生层的 hint / basis 都经 t()，语言在这里定
 setLocale("en");
@@ -67,7 +70,7 @@ let factsCache = null;
 function facts() {
   let pointer;
   try { pointer = JSON.parse(fs.readFileSync(factsPointerFile(), "utf8")); } catch {
-    throw new Error("No code facts to read yet. Call show_code_facts first (optionally with folder pointing at a directory); there is nothing here until the extension has scanned and derived.");
+    throw new Error("No code facts to read yet. Call scan_project first (it works without VS Code); show_code_facts is the alternative when the extension is open.");
   }
   if (!fs.existsSync(pointer.factsFile)) {
     throw new Error(`The facts file the pointer refers to is gone: ${pointer.factsFile}. Call show_code_facts again.`);
@@ -145,6 +148,11 @@ const EXECUTION_DOMAINS = ["isr", "task", "host", "hw", "build"];
 
 const tools = [
   {
+    name: "scan_project",
+    description: "Scan a C/C++ firmware project with the ArchCheck engine — works from a terminal, no VS Code needed. Call this when the user asks to scan / analyze a project. folder defaults to the current project. If a prerequisite is missing (engine, clangd, or build information such as compile_commands.json) nothing is run: the result says what is missing and the exact command to run in the user's terminal; run it, then call again. On success the facts are ready for list_code_facts / read_code_facts, and the result carries a first overview",
+    inputSchema: { type: "object", properties: { folder: { type: "string", description: "absolute path; defaults to the current project root" }, sourceScanOnly: { type: "boolean", description: "only if the user accepts a scan without build information (files and include dependencies only)" } } },
+  },
+  {
     name: "list_code_facts",
     description: "Call this first: the snapshot ID of the current code facts, their scale, what question each of the six themes answers, whether it has data, and which fields in each theme can be drilled into. Returns no fact content itself; cheap",
     inputSchema: { type: "object", properties: {} },
@@ -171,7 +179,33 @@ const tools = [
   },
 ];
 
+function scanProjectTool(args) {
+  const folder = path.resolve(String(args?.folder || root));
+  const stateDir = archxStateDirectory();
+  const outDir = path.join(stateDir, "scans", stateProjectKey(folder));
+  const result = scanProject({ folder, stateDir, outDir, sourceScanOnly: Boolean(args?.sourceScanOnly) });
+  if (result.status !== "scanned") return result;
+  // 快照 ID 和插件同一口径：事实内容的 sha256 前 12 位。写指针之后 list / read 读的就是这一份
+  // 引擎给的是整次扫描；读取工具吃的是分区投影（和插件同一条规则）。整个目录就是一个分区
+  const raw = JSON.parse(fs.readFileSync(result.factsFile, "utf8"));
+  const scoped = projectFactsToPartition(raw, createPartition({ name: path.basename(folder), focusPaths: ["**"] }));
+  const partitionFile = path.join(outDir, "partition.json.gz");
+  fs.writeFileSync(partitionFile, zlib.gzipSync(JSON.stringify(scoped)));
+  const snapshot = crypto.createHash("sha256").update(JSON.stringify(scoped)).digest("hex").slice(0, 12);
+  publishFactsPointer(root, { factsFile: partitionFile, region: "", projectRoot: folder, snapshot, label: path.basename(folder) });
+  factsCache = null;
+  let firstLook = null;
+  try { firstLook = listCodeFacts(); } catch (error) { firstLook = { note: error instanceof Error ? error.message : String(error) }; }
+  return {
+    ...result,
+    snapshot,
+    next: "Read with list_code_facts / read_code_facts / read_fact_object. If the VS Code extension is installed, show_code_facts opens the same facts in its panel.",
+    overview: firstLook,
+  };
+}
+
 async function toolCall(name, args) {
+  if (name === "scan_project") return scanProjectTool(args);
   if (name === "list_code_facts") return listCodeFacts();
   if (name === "read_code_facts") return readCodeFacts(args);
   if (name === "read_fact_object") return readFactObject(args);

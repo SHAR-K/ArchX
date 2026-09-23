@@ -6,12 +6,15 @@ argument-hint: "[要分析的目录，留空则用当前分区]"
 
 # 扫描代码事实
 
-使用中文交流。这一步只读代码，不改任何文件。
+Reply in the user's language. This step only reads code; it changes no files.
 
 ## 做什么
 
-1. 调用 `show_code_facts`。用户给了目录就传 `folder`（绝对路径），没给就不传，用当前选中的分区。
-   需要重新扫描时传 `scan: true`。插件会打开代码事实面板并显示派生结果。
+1. Call `scan_project` (works in a plain terminal, no VS Code). Pass `folder` if the user named one.
+   If it returns `needs-build-info`, `needs-clangd` or `needs-engine`, nothing was run: tell the user what is
+   missing, run the command it gives in the user's terminal (ask first — it uses their build environment),
+   then call `scan_project` again. When VS Code with the ArchX extension is open, `show_code_facts` also
+   shows the same facts in the panel.
 2. 调用 `list_code_facts`。它便宜，不返回事实内容，只给快照 ID、规模、六个主题各答什么问题、
    有没有数据、每个主题里有哪些字段能往下钻。**先看这个再决定读什么**，不要上来就拉一整个主题。
 3. 用 `read_code_facts` 按需取。人在面板上看到的和你读到的是同一份派生结果，快照 ID 就是对齐的凭据。
