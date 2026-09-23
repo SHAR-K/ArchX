@@ -20,7 +20,7 @@ interface ManifestProject {
   hidden?: boolean;
   counts: { files: number; functions: number; units: Record<string, number>; sharedResources: number; conflictCandidates: number };
 }
-interface Manifest { generatedAt: string; engineCommit: string; projects: ManifestProject[] }
+interface Manifest { generatedAt: string; engineCommit: string; default?: string; projects: ManifestProject[] }
 
 const DEFAULT_UI = {
   theme: "exec",
@@ -69,7 +69,7 @@ async function main() {
     ? { generatedAt: embed.generatedAt, engineCommit: embed.engineCommit, projects: [embed.project] }
     : await (await fetch("data/manifest.json")).json();
   const wanted = location.hash.replace(/^#/, "");
-  const project = manifest.projects.find((p) => p.id === wanted) ?? manifest.projects[0];
+  const project = manifest.projects.find((p) => p.id === wanted) ?? manifest.projects.find((p) => p.id === manifest.default) ?? manifest.projects[0];
   if (!project) throw new Error("manifest has no projects");
 
   // 顶栏：换工程、换语言、出处

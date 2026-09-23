@@ -94,7 +94,9 @@ const engineCommit = (() => {
   try { return execSync("git log -1 --format=%h -- engine/src", { cwd: root, encoding: "utf8" }).trim(); } catch { return ""; }
 })();
 
-const manifest = { generatedAt: new Date().toISOString().slice(0, 10), engineCommit, projects: [] as Array<Record<string, unknown>> };
+// 打开演示页（不带 #工程）时默认看哪个：Grbl_Esp32——中断、任务、Arduino 大循环都有，一页能看全
+const DEFAULT_PROJECT = "grbl-esp32";
+const manifest = { generatedAt: new Date().toISOString().slice(0, 10), engineCommit, default: DEFAULT_PROJECT, projects: [] as Array<Record<string, unknown>> };
 for (const p of PROJECTS) {
   const file = path.join(scanDir, p.facts);
   if (!fs.existsSync(file)) { console.error(`缺事实文件：${file}（先按 corpus/external.yaml 的 compile_db 扫一遍，或设 ARCHX_SCAN_DIR）`); process.exit(1); }
