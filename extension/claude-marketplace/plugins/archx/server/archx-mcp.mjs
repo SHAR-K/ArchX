@@ -3760,6 +3760,7 @@ function overview(themes) {
 //#endregion
 //#region packages/core/src/facts-pointer.ts
 function archxStateDirectory() {
+	if (process.env.ARCHX_STATE_DIR) return path.resolve(process.env.ARCHX_STATE_DIR);
 	return process.platform === "win32" && process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "ArchX") : path.join(os.homedir(), ".local", "state", "archx");
 }
 function projectKey$1(root) {
@@ -4236,7 +4237,7 @@ function projectKey() {
 	return crypto$1.createHash("sha256").update(root.toLowerCase()).digest("hex").slice(0, 20);
 }
 function viewRequestFile() {
-	const base = process.platform === "win32" && process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "ArchX") : path.join(os.homedir(), ".local", "state", "archx");
+	const base = archxStateDirectory();
 	return path.join(base, "view-requests", `${projectKey()}.json`);
 }
 function requestView(request) {
@@ -4259,17 +4260,28 @@ function requestView(request) {
 	return payload;
 }
 function factsPointerFile() {
-	const base = process.platform === "win32" && process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "ArchX") : path.join(os.homedir(), ".local", "state", "archx");
+	const base = archxStateDirectory();
 	return path.join(base, "facts", `${projectKey()}.json`);
 }
 var factsCache = null;
+/** 还没有事实可读：和 needs-engine 那些一样回一个带 status 的结果，agent 按同一个口子处理 */
+var NoFacts = class extends Error {
+	constructor() {
+		super("No code facts to read yet.");
+	}
+};
+var NO_FACTS = {
+	status: "no-facts",
+	message: "No code facts to read yet.",
+	next: "Call scan_project first (it works without VS Code). show_code_facts is the alternative when the ArchX extension is open."
+};
 /** 当前这份事实的全部派生结果。同一个文件同一个 mtime 就复用，重扫之后自动失效。 */
 function facts() {
 	let pointer;
 	try {
 		pointer = JSON.parse(fs.readFileSync(factsPointerFile(), "utf8"));
 	} catch {
-		throw new Error("No code facts to read yet. Call scan_project first (it works without VS Code); show_code_facts is the alternative when the extension is open.");
+		throw new NoFacts();
 	}
 	if (!fs.existsSync(pointer.factsFile)) throw new Error(`The facts file the pointer refers to is gone: ${pointer.factsFile}. Call show_code_facts again.`);
 	const stamp = `${pointer.factsFile}:${fs.statSync(pointer.factsFile).mtimeMs}:${pointer.region}`;
@@ -4554,6 +4566,14 @@ function scanProjectTool(args) {
 	};
 }
 async function toolCall(name, args) {
+	try {
+		return await dispatchTool(name, args);
+	} catch (error) {
+		if (error instanceof NoFacts) return NO_FACTS;
+		throw error;
+	}
+}
+async function dispatchTool(name, args) {
 	if (name === "scan_project") return scanProjectTool(args);
 	if (name === "list_code_facts") return listCodeFacts();
 	if (name === "read_code_facts") return readCodeFacts(args);

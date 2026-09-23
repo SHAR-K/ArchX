@@ -29,6 +29,8 @@ export interface FactsPointer {
 }
 
 export function archxStateDirectory(): string {
+  // 显式指定优先：测试和想把状态放别处的用户用它；不然按平台惯例
+  if (process.env.ARCHX_STATE_DIR) return path.resolve(process.env.ARCHX_STATE_DIR);
   return process.platform === "win32" && process.env.LOCALAPPDATA
     ? path.join(process.env.LOCALAPPDATA, "ArchX")
     : path.join(os.homedir(), ".local", "state", "archx");

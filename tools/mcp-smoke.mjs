@@ -20,7 +20,7 @@ const projectKey = crypto.createHash("sha256").update(path.resolve(root).toLower
 
 // 事实指针：真实场景里宿主每次派生完写下，MCP 照着找。事实落在扩展的 globalStorage 里，
 // 那个路径由 VS Code 决定，MCP 自己推不出来。
-const pointerFile = path.join(localAppData, "ArchX", "facts", `${projectKey}.json`);
+const pointerFile = path.join(localAppData, "facts", `${projectKey}.json`);
 fs.mkdirSync(path.dirname(pointerFile), { recursive: true });
 fs.writeFileSync(pointerFile, `${JSON.stringify({
   seq: 1,
@@ -39,7 +39,7 @@ if (!fs.existsSync(server)) {
   process.exit(0);
 }
 const child = spawn(process.execPath, [server], {
-  env: { ...process.env, ARCHX_PROJECT_ROOT: root, LOCALAPPDATA: localAppData },
+  env: { ...process.env, ARCHX_PROJECT_ROOT: root, ARCHX_STATE_DIR: localAppData },
   stdio: ["pipe", "pipe", "inherit"],
 });
 const childClosed = new Promise((resolve) => child.once("close", resolve));
@@ -126,7 +126,7 @@ try {
   assert.equal(focused.requested.kind, "focus");
   assert.equal(focused.requested.id, "state:src/app/led.c:s_ctx/LED_ON");
   assert.equal(focused.requested.seq, shown.requested.seq + 1, "请求序号必须递增，宿主靠它判断是不是新的一条");
-  const written = JSON.parse(fs.readFileSync(path.join(localAppData, "ArchX", "view-requests", `${projectKey}.json`), "utf8"));
+  const written = JSON.parse(fs.readFileSync(path.join(localAppData, "view-requests", `${projectKey}.json`), "utf8"));
   assert.equal(written.seq, focused.requested.seq, "请求要真的落盘，宿主是从文件读的");
 
   // scan_project：前提缺了就什么都不跑，只说缺什么、该跑哪条命令。一个只有 platformio.ini 的目录必然缺构建信息；
