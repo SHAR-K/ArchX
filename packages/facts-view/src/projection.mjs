@@ -160,6 +160,11 @@ export function buildFactsView(facts, region, options = {}) {
     enabledAt: unit.enabledAt.map((site) => ({ id: site.functionId, line: site.line, priority: site.evidence?.priority ?? null })),
     priority: unit.enabledAt.map((site) => site.evidence?.priority).find(Boolean) ?? null,
     confidence: unit.confidence,
+    // 什么都不做的内核异常：不调任何函数、不读写任何变量（启动模板里的空处理 / while(1)）。
+    // SysTick 这种在干活的不算，哪怕它只是 s_ticks++。三个页面的左栏据此把它们折起来
+    idle: unit.vector < 0
+      && !(facts.semanticEdges ?? facts.semantic_edges ?? []).some((e) => e.source === unit.entrySymbolId && (e.relation === "calls" || e.relation === "references"))
+      && !(facts.resourceAccesses ?? []).some((a) => a.function === unit.entrySymbolId),
     // 经 API 注册的中断（context: isr 规则，ESP-IDF 那种）：没有向量号，有注册点和规则
     registeredAt: unit.registeredAt ? { id: unit.registeredAt.functionId, line: unit.registeredAt.line } : null,
     rule: unit.rule ?? null,

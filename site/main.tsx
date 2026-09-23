@@ -64,7 +64,7 @@ async function viewFromBase64(data: string): Promise<Record<string, unknown>> {
 async function main() {
   const embed = embedded();
   // 本地网页只看这一个工程：演示页顶栏里指向别的演示工程的入口藏掉
-  if (embed) document.getElementById("production-link")?.remove();
+  if (embed) { document.getElementById("production-link")?.remove(); document.querySelector(".site-note")?.remove(); }
   const manifest: Manifest = embed
     ? { generatedAt: embed.generatedAt, engineCommit: embed.engineCommit, projects: [embed.project] }
     : await (await fetch("data/manifest.json")).json();

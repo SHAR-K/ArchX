@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ArchCheck — code facts of public firmware repos</title>
   <meta name="description" content="What ArchCheck extracts from a C firmware repository: entries and reachability, dependencies, order and time, sharing and concurrency, state transitions. One snapshot per commit, every fact linked to its source line." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ArchCheck — the runtime structure of C/C++ firmware" />
+  <meta property="og:description" content="Interrupts, tasks, what one round of each does, and which state they share — recovered from the source of public firmware repositories. Every fact links to its line." />
+  <meta property="og:image" content="https://shar-k.github.io/ArchX/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="https://shar-k.github.io/ArchX/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://shar-k.github.io/ArchX/og.png" />
 </head>
 <body data-mode="stage">
   <script>
@@ -23,7 +32,7 @@
     <select id="project" class="site-select" title="Which repository's facts to show"></select>
     <span id="meta" class="site-meta"></span>
     <span class="site-spacer"></span>
-    <span class="site-note">One snapshot per commit · every fact links to its source line · to scan your own project, install the VS Code extension</span>
+    <span class="site-note">One snapshot per commit · every fact links to its source line · to scan your own project: pip install archcheck</span>
     <a id="production-link" class="site-ghost" href="production/" title="The same panel on a larger production codebase">Production codebase →</a>
     <button id="lang" class="site-ghost" title="Switch language">中文</button>
   </header>

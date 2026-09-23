@@ -22,7 +22,7 @@ from archcheck.semantic import enrich_with_global_variables
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="archcheck",
-        description="扫描 C/C++ 编译数据库并生成架构分析报告。",
+        description="Recover the runtime structure of a C/C++ firmware project from its compilation database and write the code facts.",
     )
     parser.add_argument("project", nargs="?", default=".", type=Path)
     parser.add_argument("--compile-commands", type=Path, dest="compile_commands")
@@ -30,28 +30,28 @@ def build_parser() -> argparse.ArgumentParser:
         "--jobs",
         type=int,
         default=None,
-        help="并行的 clangd 数量。不给就按机器核数和编译单元数自己定；1 表示串行。"
-             "每个编译单元的解析和取 AST 互不依赖，分片之后按原始次序合并，事实不变。",
+        help="Number of parallel clangd processes. Default: chosen from CPU count and the number of "
+             "translation units; 1 runs serially. Shards are merged in the original order, so the facts do not change.",
     )
-    parser.add_argument("--keil-project", type=Path, help="Keil .uvprojx 工程路径")
-    parser.add_argument("--keil-target", help="Keil Target 名称")
+    parser.add_argument("--keil-project", type=Path, help="Keil .uvprojx project file")
+    parser.add_argument("--keil-target", help="Keil target name")
     parser.add_argument(
         "--image-map",
         type=Path,
         dest="image_map",
-        help="链接产物的 map 文件（armlink / Keil）；不给则在 Keil 工程目录与工程根下自动找最新的一个",
+        help="Linker map file (armlink / Keil). Default: the newest one found next to the Keil project or in the project root",
     )
     parser.add_argument(
         "--no-image",
         action="store_true",
         dest="no_image",
-        help="不读链接产物，只出源码事实",
+        help="Do not read the linker output; source facts only",
     )
     parser.add_argument(
         "--keil-toolchain-include",
         type=Path,
         dest="keil_toolchain_include",
-        help="Keil ARM 编译器头文件目录（如 C:\\Keil_v5\\ARM\\ARMCLANG\\include），默认自动检测",
+        help="Keil ARM compiler include directory (e.g. C:\\Keil_v5\\ARM\\ARMCLANG\\include). Default: detected",
     )
     parser.add_argument(
         "--keil-define",
@@ -59,20 +59,20 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         dest="keil_defines",
         metavar="MACRO[=VALUE]",
-        help="额外的预处理宏，可重复；用于补充 .uvprojx 之外由 Keil 注入的宏",
+        help="Extra preprocessor macro, repeatable; for macros Keil injects outside the .uvprojx",
     )
-    parser.add_argument("--architecture", type=Path, help="architecture.yaml 路径")
-    parser.add_argument("--out", type=Path, help="报告目录，默认使用 <project>/.arch-report")
-    parser.add_argument("--json", action="store_true", help="以 JSON 输出结果")
+    parser.add_argument("--architecture", type=Path, help="Path to architecture.yaml")
+    parser.add_argument("--out", type=Path, help="Output directory. Default: <project>/.arch-report")
+    parser.add_argument("--json", action="store_true", help="Print the facts as JSON on stdout")
     parser.add_argument(
         "--source-scan",
         action="store_true",
-        help="不使用 compile_commands.json，仅扫描源码文件；不会生成语义依赖数据",
+        help="Ignore compile_commands.json and scan source files only; no semantic facts (calls, units, loops)",
     )
     parser.add_argument(
         "--no-globals",
         action="store_true",
-        help="跳过 clangd 全局变量及引用分析",
+        help="Skip the clangd global-variable and reference analysis",
     )
     return parser
 
@@ -165,11 +165,11 @@ def main(argv: list[str] | None = None) -> int:
                 if image_facts is not None:
                     result = replace(result, image_facts=image_facts)
                     print(
-                        f"archcheck: 读到链接产物 {image_map.name}"
-                        f"（ROM {image_facts.totals.get('romBytes', 0)} B，"
-                        f"RAM {image_facts.totals.get('ramBytes', 0)} B，"
-                        f"符号 {len(image_facts.symbols)}，"
-                        f"源码更新于产物之后 {image_facts.staleness['sourcesNewerThanImage']} 个文件）",
+                        f"archcheck: read linker output {image_map.name}"
+                        f" (ROM {image_facts.totals.get('romBytes', 0)} B, "
+                        f"RAM {image_facts.totals.get('ramBytes', 0)} B, "
+                        f"{len(image_facts.symbols)} symbols, "
+                        f"{image_facts.staleness['sourcesNewerThanImage']} source files newer than the image)",
                         file=sys.stderr,
                     )
         report_paths = write_reports(result, output_directory)
@@ -182,65 +182,65 @@ def main(argv: list[str] | None = None) -> int:
         # 的管道流量和额外的解析时间，没有任何人会用眼睛读它
         print(json.dumps(result.to_dict(), ensure_ascii=False))
     else:
-        mode_name = "编译数据库" if result.analysis_mode == "compilation-database" else "源码树扫描"
-        print(f"分析模式：{mode_name}")
-        print(f"编译单元：{result.metrics.translation_units}")
-        print(f"唯一源文件：{result.metrics.source_files}")
-        print(f"本地 include 依赖：{result.metrics.include_edges}")
-        print(f"循环依赖组：{result.metrics.dependency_cycle_groups}")
+        mode_name = "compilation database" if result.analysis_mode == "compilation-database" else "source-tree scan"
+        print(f"Mode: {mode_name}")
+        print(f"Translation units: {result.metrics.translation_units}")
+        print(f"Unique source files: {result.metrics.source_files}")
+        print(f"Local include edges: {result.metrics.include_edges}")
+        print(f"Include cycle groups: {result.metrics.dependency_cycle_groups}")
         print(
-            f"全局变量：{result.metrics.global_variables}，"
-            f"其中跨文件引用：{result.metrics.cross_file_global_variables}"
+            f"Global variables: {result.metrics.global_variables}, "
+            f"referenced across files: {result.metrics.cross_file_global_variables}"
         )
         print(
-            f"函数：{result.metrics.functions}，调用关系：{result.metrics.function_calls}，"
-            f"变量：{result.metrics.variables}"
+            f"Functions: {result.metrics.functions}, calls: {result.metrics.function_calls}, "
+            f"variables: {result.metrics.variables}"
         )
         if result.coverage is not None:
             print(
-                f"覆盖率：{result.coverage.files_analyzed}/{result.coverage.source_files_on_disk} "
-                f"个源文件进入分析（目标 {result.coverage.target}）"
+                f"Coverage: {result.coverage.files_analyzed}/{result.coverage.source_files_on_disk} "
+                f"source files analyzed (target {result.coverage.target})"
             )
         if result.functions:
             unit_counts: dict[str, int] = {}
             for unit in result.execution_units:
                 unit_counts[unit.kind] = unit_counts.get(unit.kind, 0) + 1
             print(
-                f"入口：{len(result.entries)}，运行单元："
+                f"Entries: {len(result.entries)}, execution units: "
                 + (
-                    "，".join(f"{kind} {count}" for kind, count in sorted(unit_counts.items()))
+                    ", ".join(f"{kind} {count}" for kind, count in sorted(unit_counts.items()))
                     or "0"
                 )
-                + f"，extern 声明：{len(result.extern_declarations)}，"
-                f"契约绕过：{len(result.contract_bypass)}，"
-                f"仅类型 include：{len(result.type_only_includes)}"
+                + f", extern declarations: {len(result.extern_declarations)}, "
+                f"contract bypasses: {len(result.contract_bypass)}, "
+                f"type-only includes: {len(result.type_only_includes)}"
             )
             if result.ast_facts is not None:
                 run_mode_counts: dict[str, int] = {}
                 for mode in result.run_modes:
                     run_mode_counts[mode.mode] = run_mode_counts.get(mode.mode, 0) + 1
                 print(
-                    f"AST 层：{result.ast_facts.functions_analyzed}/{result.ast_facts.functions_requested} 个函数"
-                    f"（{result.ast_facts.elapsed_seconds:.1f}s），循环 {len(result.loops)}，"
-                    f"状态机候选 {len(result.state_machines)}，变量访问 {len(result.resource_accesses)}，"
-                    f"临界区 {len(result.critical_sections)}，共享资源 {len(result.shared_resources)}，"
-                    f"冲突候选 {len(result.conflict_candidates)}；运行模式："
-                    + ("，".join(f"{mode} {count}" for mode, count in sorted(run_mode_counts.items())) or "0")
+                    f"AST layer: {result.ast_facts.functions_analyzed}/{result.ast_facts.functions_requested} functions"
+                    f" ({result.ast_facts.elapsed_seconds:.1f}s), loops {len(result.loops)}, "
+                    f"state-machine candidates {len(result.state_machines)}, variable accesses {len(result.resource_accesses)}, "
+                    f"critical sections {len(result.critical_sections)}, shared resources {len(result.shared_resources)}, "
+                    f"conflict candidates {len(result.conflict_candidates)}; run modes: "
+                    + (", ".join(f"{mode} {count}" for mode, count in sorted(run_mode_counts.items())) or "0")
                 )
             data_callbacks = sum(1 for unit in result.execution_units if unit.form is not None)
             unresolved_sites = sum(1 for site in result.enable_sites if not site.resolved_to)
             print(
-                f"间接层：经数据注册的回调 {data_callbacks}，非常量 IRQ 使能点 {len(result.enable_sites)}"
-                f"（未解析 {unresolved_sites}），外部符号 {len(result.external_symbols)}，"
-                f"未激活区域文件 {sum(1 for item in result.inactive_regions if item.regions)}，"
-                f"未激活函数 {len(result.inactive_functions)}"
+                f"Indirection: callbacks registered through data {data_callbacks}, non-constant IRQ enable sites {len(result.enable_sites)}"
+                f" ({unresolved_sites} unresolved), external symbols {len(result.external_symbols)}, "
+                f"files with inactive regions {sum(1 for item in result.inactive_regions if item.regions)}, "
+                f"inactive functions {len(result.inactive_functions)}"
             )
         if result.path_mapping is not None:
             print(
-                "路径映射："
+                "Path mapping: "
                 f"{result.path_mapping.source} -> {result.path_mapping.target}"
             )
-        print(f"报告目录：{report_paths[0].parent}")
+        print(f"Output: {report_paths[0].parent}")
     return 0
 
 
@@ -255,17 +255,17 @@ def _configure_standard_streams() -> None:
 def _initialize_architecture(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="archcheck init-architecture",
-        description="根据实际编译文件生成 architecture.yaml 草案。",
+        description="Draft an architecture.yaml from the files that actually compile.",
     )
     parser.add_argument("project", nargs="?", default=".", type=Path)
     parser.add_argument("--compile-commands", type=Path, dest="compile_commands")
-    parser.add_argument("--out", type=Path, help="配置输出路径，默认使用 <project>/architecture.yaml")
-    parser.add_argument("--force", action="store_true", help="覆盖已有配置")
+    parser.add_argument("--out", type=Path, help="Output path. Default: <project>/architecture.yaml")
+    parser.add_argument("--force", action="store_true", help="Overwrite an existing file")
     args = parser.parse_args(argv)
     project = args.project.expanduser().resolve()
     destination = (args.out or project / "architecture.yaml").expanduser().resolve()
     if destination.exists() and not args.force:
-        print(f"archcheck：配置已存在，未覆盖：{destination}", file=sys.stderr)
+        print(f"archcheck: {destination} already exists; not overwritten (use --force)", file=sys.stderr)
         return 2
 
     try:
@@ -275,11 +275,11 @@ def _initialize_architecture(argv: list[str]) -> int:
             tuple(item.path for item in result.file_metrics),
         )
     except (ArchitectureConfigError, CompileCommandsError, OSError) as exc:
-        print(f"archcheck：{exc}", file=sys.stderr)
+        print(f"archcheck: {exc}", file=sys.stderr)
         return 2
 
-    print(f"架构草案已生成：{path}")
-    print("状态：draft。请确认节点职责和 may_depend_on 后再启用架构门禁。")
+    print(f"Architecture draft written: {path}")
+    print("Status: draft. Review node responsibilities and may_depend_on before turning on the architecture gate.")
     return 0
 
 

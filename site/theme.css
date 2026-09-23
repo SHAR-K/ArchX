@@ -53,7 +53,7 @@
 
 /* 顶栏：换工程、出处、语言。面板占掉剩下的高度 */
 .site-bar {
-  display: flex; align-items: center; gap: 12px; height: var(--site-bar-h); padding: 0 14px;
+  display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; gap: 6px 12px; min-height: var(--site-bar-h); padding: 6px 14px;
   border-bottom: 1px solid var(--vscode-panel-border); background: var(--vscode-editorWidget-background);
   font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-foreground);
 }
@@ -73,9 +73,23 @@
 }
 .site-ghost:hover { background: var(--vscode-list-hoverBackground); }
 
-body { overflow: hidden; }
-#root .app { height: calc(100vh - var(--site-bar-h)); }
+/* 顶栏在窄屏上会折成两三行：页面是上下两段的 flex，面板占掉剩下的全部高度，不再按固定 40px 算 */
+body { overflow: hidden; display: flex; flex-direction: column; height: 100vh; margin: 0; }
+#root { flex: 1 1 auto; min-height: 0; }
+#root .app { height: 100%; }
+.site-meta { min-width: 0; overflow-wrap: anywhere; }
 
 @media (max-width: 900px) {
   .site-note { display: none; }
+  .site-spacer { display: none; }
+  .site-select { max-width: 100%; }
+  .site-meta { flex: 1 1 100%; font-size: 0.9em; }
+}
+
+/* 手机宽度：导航和对象列表在上，舞台在下，整页滚动；侧栏不再固定 300px 把舞台挤成一条 */
+@media (max-width: 700px) {
+  body { overflow: auto; height: auto; min-height: 100vh; }
+  #root .app.side-layout { flex-direction: column; height: auto; }
+  #root .side { width: auto; flex: 0 0 auto; max-height: 55vh; border-right: 0; border-bottom: 1px solid var(--vscode-panel-border); }
+  #root .stage { min-height: 80vh; }
 }

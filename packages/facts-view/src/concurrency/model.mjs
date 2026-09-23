@@ -96,6 +96,8 @@ export function buildConcurrency(view, options = {}) {
       rule: i.rule ?? null,
       // 内核异常不走 NVIC，没有使能点是正常的，不该显示成「未见使能」
       enabled: Boolean(i.kernel) || (i.enabledAt ?? []).length > 0 || Boolean(i.registeredAt),
+      // 什么都不做的内核异常（启动模板里的空处理 / while(1)）：左栏默认折起来
+      idle: Boolean(i.idle),
     }))
     .sort((a, b) => (a.preempt ?? 99) - (b.preempt ?? 99) || (a.vector ?? 0) - (b.vector ?? 0));
 

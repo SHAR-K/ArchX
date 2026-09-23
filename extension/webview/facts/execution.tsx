@@ -342,12 +342,28 @@ export function Execution(props: ExecutionProps) {
     <div className="theme">
       <Rail><aside className="machines">
         <Search props={props} />
-        {theme.roots.map((r) => (
-          <button key={r.id} className={`machine ${r.symbol === root?.symbol ? "sel" : ""}`} onClick={() => setRootId(r.symbol)}>
-            <code>{r.name}</code>
-            <span className="sub">{t(KIND_LABEL[r.kind] ?? r.kind)} · {t("reaches")} {r.reaches}{r.vector != null ? ` · ${t("vector")} ${r.vector}` : ""}</span>
-          </button>
-        ))}
+        {(() => {
+          // 内核异常（向量号 < 0）多是启动模板里的空处理：默认折起来，不占首屏
+          const rootButton = (r: typeof theme.roots[number]) => (
+            <button key={r.id} className={`machine ${r.symbol === root?.symbol ? "sel" : ""}`} onClick={() => setRootId(r.symbol)}>
+              <code>{r.name}</code>
+              <span className="sub">{t(KIND_LABEL[r.kind] ?? r.kind)} · {t("reaches")} {r.reaches}{r.vector != null ? ` · ${t("vector")} ${r.vector}` : ""}</span>
+            </button>
+          );
+          const isKernel = (r: typeof theme.roots[number]) => Boolean((r as { idle?: boolean }).idle);
+          const kernel = theme.roots.filter(isKernel);
+          return (
+            <>
+              {theme.roots.filter((r) => !isKernel(r)).map(rootButton)}
+              {kernel.length > 0 && (
+                <details className="ol-group" open={kernel.some((r) => r.symbol === root?.symbol)}>
+                  <summary className="sub">{t("Core exceptions")} · {kernel.length}</summary>
+                  {kernel.map(rootButton)}
+                </details>
+              )}
+            </>
+          );
+        })()}
         {theme.unreached.length > 0 && (
           <details className="tables">
             <summary className="sub">{t("Reached by no entry")} {theme.unreached.length}</summary>

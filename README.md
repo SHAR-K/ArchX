@@ -93,8 +93,28 @@ node tools/corpus-prepare.mjs      # writes the sample's compile_commands.json a
 archcheck corpus/blinky --out out/
 ```
 
+```text
+Mode: compilation database
+Translation units: 6
+Unique source files: 6
+Local include edges: 10
+Include cycle groups: 0
+Global variables: 6, referenced across files: 2
+Functions: 13, calls: 10, variables: 6
+Coverage: 6/6 source files analyzed (target compile-commands:compile_commands.json)
+Entries: 2, execution units: isr 2, task 2, extern declarations: 3, contract bypasses: 0, type-only includes: 0
+AST layer: 13/13 functions (0.1s), loops 3, state-machine candidates 1, variable accesses 27, critical sections 0, shared resources 5, conflict candidates 4; run modes: one-shot 4, periodic 1, unknown 1
+Indirection: callbacks registered through data 0, non-constant IRQ enable sites 0 (0 unresolved), external symbols 3, files with inactive regions 0, inactive functions 0
+Output: out
+```
+
 `out/architecture.json` is the machine-readable form — see the
 [field contract](docs/SCHEMA.md).
+
+On a real project the same command on [Grbl_Esp32](https://github.com/bdring/Grbl_Esp32) (Arduino core, C++,
+195 translation units) reads 1 383 functions, 3 interrupts, 7 tasks and 36 conflict candidates; the AST layer
+takes 18 s. Readings for every sample project, with the engine commit they came from, are in
+[corpus/external.yaml](corpus/external.yaml).
 
 ## Where it stands
 
@@ -102,7 +122,7 @@ archcheck corpus/blinky --out out/
 reachability from real entry points; AST-level loops, state-machine candidates, variable
 access, critical sections, shared resources and conflict candidates; run-mode classification;
 callbacks registered through data; profiles for FreeRTOS, Zephyr, CMSIS-RTOS2, POSIX,
-protothreads, ESP-IDF, STM32 HAL, GD32 and Cortex-M CMSIS.
+protothreads, ESP-IDF, Arduino (ESP32), STM32 HAL, GD32 and Cortex-M CMSIS.
 
 **Not there yet.** The extension panel is a display and review surface, not a workbench — the
 agent-facing workflow described in [ARCHX_DIRECTION.md](docs/ARCHX_DIRECTION.md) is at its

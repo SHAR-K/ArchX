@@ -253,6 +253,8 @@ export function Concurrency(props: ConcurrencyProps) {
   const { ui, patch } = useContext(UiContext);
   const selected = ui.conc.selected;
   const setSelected = (name: string | null) => patch({ conc: { ...ui.conc, selected: name } });
+  // 内核异常（NMI、HardFault…）默认不占中断梯子
+  const [showKernel, setShowKernel] = useState(false);
   // 运行图的页、高亮、筛选、显隐都在共享的 ui.conc 里：侧栏和舞台按同一份画
   const patchConc = (next: Partial<Ui["conc"]>) => patch({ conc: { ...ui.conc, ...next } });
   if (!theme.available) return <p className="empty">{theme.hint ?? t("This scan has no concurrency facts.")}</p>;
@@ -279,8 +281,13 @@ export function Concurrency(props: ConcurrencyProps) {
 
       {theme.isrs && theme.isrs.length > 0 && (
         <Rail><div className="ladder">
+          {theme.isrs.some((i) => i.idle) && (
+            <label className="sub rail-toggle"><input type="checkbox" checked={showKernel} onChange={(e) => setShowKernel(e.target.checked)} /> {t("Show core exceptions")}</label>
+          )}
           <span className="sub">{t("Interrupt priority: a smaller number preempts a larger one; unknown stays unknown — no guessing")}</span>
-          {theme.isrs.map((i) => (
+          {[...theme.isrs.filter((i) => !i.idle), ...(theme.isrs.some((i) => i.idle) ? [null] : []), ...theme.isrs.filter((i) => i.idle)].map((i) => i === null ? (
+            <span key="kernel-sep" className="sub ol-group-h">{t("Core exceptions")} · {theme.isrs!.filter((x) => x.idle).length}</span>
+          ) : i.idle && !showKernel ? null : (
             <button key={i.id} className="rung" onClick={() => props.onOpenFile(i.file)}>
               <b>{i.name}</b>
               <span className="sub">{i.kernel ? t("kernel exception") : i.preempt == null ? t("priority unknown") : `${t("preempt")} ${i.preempt}${i.sub == null ? "" : `.${i.sub}`}`}{i.vector != null ? ` · ${t("vector")} ${i.vector}` : ""}{i.registeredAt ? ` · ${t("installed by")} ${i.registeredAt.name}:${i.registeredAt.line}${i.rule ? ` (${i.rule})` : ""}` : i.enabled ? "" : ` · ${t("no enable seen")}`}</span>

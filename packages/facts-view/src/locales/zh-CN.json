@@ -617,5 +617,7 @@
   "double-click to open the source": "双击打开源码",
   "Canvas": "画布",
   "List": "列表",
-  "{n} functions run below it": "它下面跑着 {n} 个函数"
+  "{n} functions run below it": "它下面跑着 {n} 个函数",
+  "Core exceptions": "内核异常",
+  "Show core exceptions": "显示内核异常"
 }

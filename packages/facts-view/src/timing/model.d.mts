@@ -14,7 +14,7 @@ export interface TimingLoop {
 export interface TimingUnit {
   id: string; unit: string; kind: string; entry: string | null; name: string; file: string | null;
   mode: string | null; modeLabel: string | null; confidence: string | null; periodMs: number | null;
-  busyLoops: number; waitLoops: number; basis: Record<string, unknown> | null; outline: OutlineSummary | null;
+  busyLoops: number; waitLoops: number; basis: Record<string, unknown> | null; outline: OutlineSummary | null; kernel?: boolean;
 }
 
 import type { BeatModel } from "./beat.d.mts";

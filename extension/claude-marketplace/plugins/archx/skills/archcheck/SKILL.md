@@ -1,7 +1,7 @@
 ---
 name: archcheck
-description: Scans a repository or folder with the ArchCheck engine, shows the derived code facts in the ArchX panel, and reads them back by theme with on-demand slicing. Use when the user asks to scan, analyse, or look at the facts of a codebase, or asks about its execution units, dependencies, timing, shared state, state machines, or memory.
-argument-hint: "[要分析的目录，留空则用当前分区]"
+description: Scans a C/C++ firmware repository or folder with the ArchCheck engine (no VS Code needed), reads the derived code facts back by theme with on-demand slicing, and gives the user a local page that shows them as pictures; the ArchX panel in VS Code is optional. Use when the user asks to scan, analyse, or look at the facts of a codebase, or asks about its execution units, dependencies, timing, shared state, state machines, or memory.
+argument-hint: "[folder to scan; defaults to the current project]"
 ---
 
 # 扫描代码事实

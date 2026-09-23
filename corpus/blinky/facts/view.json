@@ -125,6 +125,7 @@
         "enabledAt": [],
         "priority": null,
         "confidence": "high",
+        "idle": false,
         "registeredAt": null,
         "rule": null
       },
@@ -141,6 +142,7 @@
         "enabledAt": [],
         "priority": null,
         "confidence": "high",
+        "idle": false,
         "registeredAt": null,
         "rule": null
       }

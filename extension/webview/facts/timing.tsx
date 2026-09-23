@@ -26,7 +26,8 @@ export interface TimingProps {
 
 const UNIT_LABEL: Record<string, string> = { isr: "interrupt", task: "task", callback: "callback", timer: "timer", main: "main" };
 const GROUPS = [
-  { key: "isr", label: "Interrupts", kinds: ["isr"], collapsed: false },
+  { key: "isr", label: "Interrupts", kinds: ["isr"], collapsed: false, kernel: false },
+  { key: "kernel", label: "Core exceptions", kinds: ["isr"], collapsed: true, kernel: true },
   { key: "task", label: "Tasks", kinds: ["task", "timer"], collapsed: false },
   { key: "main", label: "Main loop", kinds: ["main"], collapsed: false },
   { key: "callback", label: "Callbacks", kinds: ["callback"], collapsed: true },
@@ -78,7 +79,7 @@ export function Timing(props: TimingProps) {
         <aside className="machines">
           {/* 按原型「中断」页的样子：分组列出执行单元，每行直接带一轮的摘要，点一个看它一轮里依次做什么 */}
           {GROUPS.map((g) => {
-            const list = theme.units.filter((u) => g.kinds.includes(u.kind));
+            const list = theme.units.filter((u) => g.kinds.includes(u.kind) && (!("kernel" in g) || Boolean(u.kernel) === g.kernel));
             if (!list.length) return null;
             const rows = list.map((u) => (
               <button key={u.id} className={`machine ${props.roundRoot === u.entry ? "sel" : ""}`} disabled={!u.entry} onClick={() => u.entry && props.onRequestRound(u.entry, props.showIterations)} title={props.roundRoot === u.entry ? t("Click again to collapse") : t("See what one round of it does, in order")}>

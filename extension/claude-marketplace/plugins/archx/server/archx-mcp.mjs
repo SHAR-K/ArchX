@@ -627,7 +627,9 @@ var catalogs = { "zh-CN": {
 	"double-click to open the source": "双击打开源码",
 	Canvas: "画布",
 	List: "列表",
-	"{n} functions run below it": "它下面跑着 {n} 个函数"
+	"{n} functions run below it": "它下面跑着 {n} 个函数",
+	"Core exceptions": "内核异常",
+	"Show core exceptions": "显示内核异常"
 } };
 var current = "en";
 /** "zh-cn" / "zh-CN" / "zh-hans" 都算简体中文；其余一律英文 */
@@ -886,6 +888,7 @@ function buildFactsView(facts, region, options = {}) {
 		})),
 		priority: unit.enabledAt.map((site) => site.evidence?.priority).find(Boolean) ?? null,
 		confidence: unit.confidence,
+		idle: unit.vector < 0 && !(facts.semanticEdges ?? facts.semantic_edges ?? []).some((e) => e.source === unit.entrySymbolId && (e.relation === "calls" || e.relation === "references")) && !(facts.resourceAccesses ?? []).some((a) => a.function === unit.entrySymbolId),
 		registeredAt: unit.registeredAt ? {
 			id: unit.registeredAt.functionId,
 			line: unit.registeredAt.line
@@ -1906,6 +1909,7 @@ function buildExecution(view, options = {}) {
 		file: index.fileOf(isr.id),
 		vector: isr.vector ?? null,
 		kernel: Boolean(isr.kernel),
+		idle: Boolean(isr.idle),
 		enabledAt: isr.enabledAt ?? []
 	});
 	for (const reg of entries.registrations ?? []) roots.push({
@@ -2262,7 +2266,8 @@ function buildConcurrency(view, options = {}) {
 			line: i.registeredAt.line
 		} : null,
 		rule: i.rule ?? null,
-		enabled: Boolean(i.kernel) || (i.enabledAt ?? []).length > 0 || Boolean(i.registeredAt)
+		enabled: Boolean(i.kernel) || (i.enabledAt ?? []).length > 0 || Boolean(i.registeredAt),
+		idle: Boolean(i.idle)
 	})).sort((a, b) => (a.preempt ?? 99) - (b.preempt ?? 99) || (a.vector ?? 0) - (b.vector ?? 0));
 	return {
 		theme: "concurrency",
@@ -3551,6 +3556,7 @@ function buildTiming(view, options = {}) {
 			confidence: mode?.confidence ?? null,
 			periodMs: mode?.periodMs ?? null,
 			busyLoops: rootLoops.filter((l) => LOOP_CLASSES[l.class]?.tone === "busy").length,
+			kernel: u.kind === "isr" && Boolean((entries.isrs ?? []).find((i) => i.unitId === u.id)?.idle),
 			outline: (u.kind === "isr" || u.kind === "task" || u.kind === "main") && (u.entry ?? u.entrySymbolId) ? unitOutline(view, u.entry ?? u.entrySymbolId, { index }).summary : null,
 			waitLoops: rootLoops.filter((l) => l.class === "wait").length,
 			basis: mode?.evidence ?? null

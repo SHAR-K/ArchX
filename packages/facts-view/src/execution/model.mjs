@@ -33,7 +33,7 @@ export function buildExecution(view, options = {}) {
   // 内核异常（SysTick、PendSV 这些，向量号为负）也是中断，而且时基常常就来自它，
   // 所以照样是根，只是标出来，不像外设中断那样需要 NVIC 使能
   for (const isr of entries.isrs ?? []) {
-    roots.push({ id: `exec:${isr.id}`, symbol: isr.id, kind: "isr", name: nameOf(isr.id), file: index.fileOf(isr.id), vector: isr.vector ?? null, kernel: Boolean(isr.kernel), enabledAt: isr.enabledAt ?? [] });
+    roots.push({ id: `exec:${isr.id}`, symbol: isr.id, kind: "isr", name: nameOf(isr.id), file: index.fileOf(isr.id), vector: isr.vector ?? null, kernel: Boolean(isr.kernel), idle: Boolean(isr.idle), enabledAt: isr.enabledAt ?? [] });
   }
   for (const reg of entries.registrations ?? []) {
     roots.push({ id: `exec:${reg.id}`, symbol: reg.id, kind: reg.kind, name: nameOf(reg.id), file: index.fileOf(reg.id), rule: reg.rule ?? null, registrars: reg.registrars ?? [] });

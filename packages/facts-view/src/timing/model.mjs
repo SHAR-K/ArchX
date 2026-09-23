@@ -133,6 +133,8 @@ export function buildTiming(view, options = {}) {
       periodMs: mode?.periodMs ?? null,
       // 一轮里能碰到的忙等：真正会卡住调度的那些
       busyLoops: rootLoops.filter((l) => LOOP_CLASSES[l.class]?.tone === "busy").length,
+      // 内核异常（Cortex-M 向量号 < 0：NMI、HardFault、SVC…）：多数是启动模板里的空处理，左栏默认折起来
+      kernel: u.kind === "isr" && Boolean((entries.isrs ?? []).find((i) => i.unitId === u.id)?.idle),
       // 一轮的摘要：几步、几处让出、几处忙等、写了几个共享变量、其中几个是冲突候选。侧栏每行的标记就是它
       outline: (u.kind === "isr" || u.kind === "task" || u.kind === "main") && (u.entry ?? u.entrySymbolId) ? unitOutline(view, u.entry ?? u.entrySymbolId, { index }).summary : null,
       waitLoops: rootLoops.filter((l) => l.class === "wait").length,

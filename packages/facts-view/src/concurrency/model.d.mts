@@ -24,7 +24,7 @@ export interface ConcurrencyTheme {
   basis?: string;
   resources: ConcurrencyResource[];
   units: Array<{ unit: string; kind: string; label: string }>;
-  isrs?: Array<{ id: string; kernel: boolean; name: string; file: string | null; vector: number | null; preempt: number | null; sub: number | null; enabled: boolean; registeredAt?: { id: string; name: string; line: number } | null; rule?: string | null }>;
+  isrs?: Array<{ id: string; kernel: boolean; name: string; file: string | null; vector: number | null; preempt: number | null; sub: number | null; enabled: boolean; registeredAt?: { id: string; name: string; line: number } | null; rule?: string | null; idle?: boolean }>;
   criticalSections?: Array<{ function: string; name: string; file: string | null; begin: { path: string; line: number } | null; end: { path: string; line: number } | null; api: string; endApi: string | null; kind: string; accesses: number }>;
   counts?: { high: number; medium: number; shared: number; wake: number; criticalSections: number; criticalSectionsTotal?: number; accesses: number };
 }
