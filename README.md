@@ -8,6 +8,7 @@
 [![Discord](https://img.shields.io/badge/chat-Discord-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/sCtshjP6N9)
 
 **[▶ Live demo](https://shar-k.github.io/ArchX/)** — the panel on four public firmware repositories. No install, nothing to scan.
+· **[✨ Original viewer](https://shar-k.github.io/ArchX/preview/)** — an anonymized production codebase, in the viewer this panel grew out of.
 
 Two halves that share one snapshot of facts:
 
