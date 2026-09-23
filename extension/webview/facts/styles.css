@@ -535,3 +535,27 @@ table.grid tr.pick { cursor: pointer; }
 .beat-key i.band.poll { background: color-mix(in srgb, var(--neg) 25%, transparent); border: 1px solid var(--neg); }
 .beat .beat-prio { font-size: 9.5px; fill: var(--vscode-textLink-foreground); font-variant-numeric: tabular-nums; cursor: pointer; }
 .beat .beat-prio.unresolved { fill: var(--neg); }
+
+/* 一轮的编号步骤（原型「中断」页点开一行的样子） */
+.outline { margin: 6px 0 12px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--vscode-editorWidget-background, transparent); }
+.outline header { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ol-sum { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--dim); margin: 4px 0 6px; }
+.ol-sum .bad, .ol-marks .bad { color: var(--neg); }
+.ol-sum .wait, .ol-marks .wait { color: var(--vscode-charts-orange, #d97706); }
+.ol-list { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+.ol-list li { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 2px 0; border-bottom: 1px dashed color-mix(in srgb, var(--line) 50%, transparent); }
+.ol-n { display: inline-block; min-width: 22px; text-align: right; color: var(--dim); font-variant-numeric: tabular-nums; }
+.ol-frame .kw { color: var(--guard); font-weight: 600; }
+.ol-frame.bad .kw { color: var(--neg); }
+.ol-wait { color: var(--vscode-charts-orange, #d97706); }
+.ol-step.hot { background: color-mix(in srgb, var(--neg) 7%, transparent); }
+.ol-chip { font: inherit; font-size: 10.5px; padding: 0 6px; border-radius: 10px; border: 1px solid var(--line); background: none; color: inherit; cursor: pointer; }
+.ol-chip.bad { border-color: var(--neg); color: var(--neg); }
+.ol-chip.wait { border-color: var(--vscode-charts-orange, #d97706); color: var(--vscode-charts-orange, #d97706); }
+.ol-var { font-size: 10.5px; font-family: var(--vscode-editor-font-family, monospace); color: var(--dim); }
+.ol-var.bad { color: var(--neg); }
+.ol-line { margin-left: auto; }
+.ol-hint { margin: 6px 0 10px; }
+.ol-group { margin-bottom: 6px; }
+.ol-group-h, .ol-group summary { margin: 4px 0 2px; }
+.ol-marks { display: flex; gap: 8px; font-size: 10.5px; color: var(--dim); margin-top: 1px; }

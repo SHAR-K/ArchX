@@ -96,6 +96,10 @@ async function main() {
   // ?theme=conc 之类的深链接：直接落到某个主题，截图和分享用
   const wantedTheme = new URLSearchParams(location.search).get("theme");
   let ui: Record<string, unknown> = { ...DEFAULT_UI, ...(wantedTheme && ["exec", "deps", "timing", "conc", "state", "memory"].includes(wantedTheme) ? { theme: wantedTheme } : {}) };
+  // ?unit=<名字>：直接选中「顺序与时间」里的一个执行单元，它一轮的步骤会展开
+  const wantedUnit = new URLSearchParams(location.search).get("unit");
+  const unitHit = wantedUnit ? (payload.themes.timing.units ?? []).find((u: { name: string; entry: string | null }) => u.name === wantedUnit && u.entry) : null;
+  if (unitHit) ui = { ...ui, timing: { root: unitHit.entry, showIterations: false } };
 
   const post = (message: unknown) => window.postMessage(message, "*");
   const openOnGitHub = (file: string, line?: number) => {

@@ -10,6 +10,7 @@
 
 import { t } from "../i18n.mjs";
 import { buildBeat } from "./beat.mjs";
+import { unitOutline } from "./sequence.mjs";
 import { buildPreemptive } from "./preemptive.mjs";
 import { buildIndex } from "../graph.mjs";
 
@@ -132,6 +133,8 @@ export function buildTiming(view, options = {}) {
       periodMs: mode?.periodMs ?? null,
       // 一轮里能碰到的忙等：真正会卡住调度的那些
       busyLoops: rootLoops.filter((l) => LOOP_CLASSES[l.class]?.tone === "busy").length,
+      // 一轮的摘要：几步、几处让出、几处忙等、写了几个共享变量、其中几个是冲突候选。侧栏每行的标记就是它
+      outline: (u.kind === "isr" || u.kind === "task" || u.kind === "main") && (u.entry ?? u.entrySymbolId) ? unitOutline(view, u.entry ?? u.entrySymbolId, { index }).summary : null,
       waitLoops: rootLoops.filter((l) => l.class === "wait").length,
       basis: mode?.evidence ?? null,
     };

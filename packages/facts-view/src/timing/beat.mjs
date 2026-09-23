@@ -237,7 +237,7 @@ export function layoutBeat(model, options = {}) {
     };
     const band = (from, title) => { out.band = { x: from, y: y + 3, w: Math.max(2, right - from), h: ROW - 7, title }; };
     if (row.always) { band(LBL + dx, t("Runs every round; no timer")); round(LBL + dx, CELL, null, null); return out; }
-    if (row.period == null) { out.note = { x: LBL + 4, y: y + 12, text: t("period unknown"), inPlot: true }; return out; }
+    if (row.period == null) { out.note = { x: LBL + 4, y: y + 12, text: t("period unknown · click the row for the order of one round"), inPlot: true }; return out; }
     const first = Math.ceil(t0 / row.period) * row.period;
     if (row.period * pxPerMs < 3) { band(Math.max(LBL, mx(first) + dx), t("{period} ms · at this scale due times are denser than one cell", { period: row.period })); return out; }
     // 段挤不进一个周期时把格压窄，宁可窄也不让相邻两轮叠在一起

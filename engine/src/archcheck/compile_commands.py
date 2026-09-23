@@ -68,20 +68,6 @@ def infer_path_mapping(path: Path, project: Path) -> PathMapping | None:
     for entry in raw:
         if not isinstance(entry, dict):
             continue
-        # 映射只为「数据库是在别的机器 / 别的目录生成的」那种情况存在：条目里的文件在本机原样就在，
-        # 就不该改写它。PlatformIO 的数据库会列出 ~/.platformio 里的框架源码，那个目录下恰好也有
-        # libraries/ 之类和工程同名的子目录；不加这一条，框架根会被当成「旧工程根」映射到本工程，
-        # 所有 -I 都指向不存在的位置，IRAM_ATTR 这类宏找不到定义，带它的函数整个解析失败。
-        raw_file = entry.get("file")
-        if isinstance(raw_file, str):
-            file_path = Path(raw_file)
-            if not file_path.is_absolute() and isinstance(entry.get("directory"), str):
-                file_path = Path(entry["directory"]) / file_path
-            try:
-                if file_path.is_file():
-                    continue
-            except OSError:
-                pass
         for key in ("file", "directory"):
             value = entry.get(key)
             if not isinstance(value, str):
@@ -91,11 +77,7 @@ def infer_path_mapping(path: Path, project: Path) -> PathMapping | None:
                 marker = f"/{directory_name}/"
                 marker_index = normalized.find(marker)
                 if marker_index > 0:
-                    prefix = normalized[:marker_index]
-                    # 候选前缀本身在本机存在，它就不是「别处的旧根」
-                    if Path(prefix).is_dir():
-                        continue
-                    candidates[prefix] += 1
+                    candidates[normalized[:marker_index]] += 1
 
     if not candidates:
         return None
@@ -119,7 +101,17 @@ def map_compilation_path(
         source = path_mapping.source.replace("\\", "/").rstrip("/")
         if normalized_value == source or normalized_value.startswith(source + "/"):
             suffix = normalized_value[len(source) :].lstrip("/")
-            return resolved(path_mapping.target.joinpath(*suffix.split("/")))
+            mapped = resolved(path_mapping.target.joinpath(*suffix.split("/")))
+            # 映射逐条判断。数据库来自别的机器时原路径不存在，映射过去就对；PlatformIO 的数据库
+            # 列出 ~/.platformio 里的框架文件，仓库若自带同一份（hoverboard 自带 HAL 与启动文件），
+            # 映射到自带副本也对；但框架里仓库没有的目录（Grbl_Esp32 的 SDK 头文件目录）映射过去
+            # 就指向虚空，IRAM_ATTR 这类宏没了定义，带它的函数整个解析失败——那种情况保留原路径
+            try:
+                original_exists = Path(value).expanduser().exists()
+            except OSError:
+                original_exists = False
+            if mapped.exists() or not original_exists:
+                return mapped
 
     path_value = Path(value).expanduser()
     if not path_value.is_absolute():

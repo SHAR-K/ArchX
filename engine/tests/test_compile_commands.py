@@ -69,22 +69,27 @@ class LoadCompileCommandsTests(unittest.TestCase):
             self.assertEqual(mapping.source, "/root/workspace")
             self.assertEqual(mapping.target, project.resolve())
 
-    def test_no_mapping_when_the_listed_files_exist_on_this_machine(self) -> None:
-        # PlatformIO 列出 ~/.platformio 里的框架源码，那边也有 libraries/ 这种和工程同名的目录；
-        # 文件在本机原样就在，就不许把框架根当成「旧工程根」映射过来
+    def test_mapping_is_per_path_when_the_listed_files_exist_on_this_machine(self) -> None:
+        # PlatformIO 列出 ~/.platformio 里的框架源码。仓库自带同一份的（hoverboard 的 HAL）映射到副本；
+        # 框架里仓库没有的目录（SDK 头文件）保留原路径，不许映射到虚空
         with isolated_work_directory() as root:
             project = root / "project"
-            (project / "libraries").mkdir(parents=True)
-            framework = root / "framework" / "libraries" / "SPI"
-            framework.mkdir(parents=True)
-            (framework / "SPI.cpp").write_text("void f(void) {}", encoding="utf-8")
-            (project / "main.cpp").write_text("int main() { return 0; }", encoding="utf-8")
+            (project / "libraries" / "SPI").mkdir(parents=True)
+            (project / "libraries" / "SPI" / "SPI.cpp").write_text("void f(void) {}", encoding="utf-8")
+            framework = root / "framework"
+            (framework / "libraries" / "SPI").mkdir(parents=True)
+            (framework / "libraries" / "SPI" / "SPI.cpp").write_text("void f(void) {}", encoding="utf-8")
+            (framework / "sdk" / "include").mkdir(parents=True)
             database = project / "compile_commands.json"
+            spi = str(framework / "libraries" / "SPI" / "SPI.cpp")
             database.write_text(json.dumps([
-                {"directory": str(project), "file": str(framework / "SPI.cpp"), "arguments": ["g++", "-c", str(framework / "SPI.cpp")]},
-                {"directory": str(project), "file": str(project / "main.cpp"), "arguments": ["g++", "-c", str(project / "main.cpp")]},
+                {"directory": str(project), "file": spi, "arguments": ["g++", "-I" + str(framework / "sdk" / "include"), "-c", spi]},
             ]), encoding="utf-8")
-            self.assertIsNone(infer_path_mapping(database, project))
+            mapping = infer_path_mapping(database, project)
+            commands = load_compile_commands(database, mapping)
+            self.assertEqual(commands[0].file, (project / "libraries" / "SPI" / "SPI.cpp").resolve())
+            local = json.loads(write_local_compilation_database(commands, mapping, project / "local").read_text(encoding="utf-8"))[0]
+            self.assertIn("-I" + str(framework / "sdk" / "include"), local["arguments"])
 
     def test_writes_clangd_database_with_local_paths_and_inferred_target(self) -> None:
         with isolated_work_directory() as project:

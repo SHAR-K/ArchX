@@ -63,8 +63,8 @@ projects:
     baseline:
       observed_on: 2026-09-24
       engine_commit: b9d6376        # 2026-09-24：callback_register 的 context: isr，ESP-IDF 中断注册规则
-      translationUnits: 1368        # pio 原始编译数据库；其中 913 个是 ~/.platformio 里的 ESP-IDF 框架源码（工程根之外，按设计不进分析）、
-      filesAnalyzed: 153            # 241 个不在磁盘上、30 个不在编译数据库里。应用自身 153 个编译单元全部进了分析
+      translationUnits: 1368        # pio 原始编译数据库；1151 个是 ~/.platformio 里的 ESP-IDF 框架源码（工程根之外，按设计不进分析）、
+      filesAnalyzed: 153            # 3 个不在磁盘上、30 个不在编译数据库里。应用自身 153 个编译单元全部进了分析
       functions: 1530
       dependencyEdges: 822
       calls: 2339
@@ -171,6 +171,34 @@ projects:
       sharedResources: 35
       conflictCandidates: 16        # 1 high / 15 medium
       criticalSections: 8
+
+  - id: grbl-esp32
+    repo: https://github.com/bdring/Grbl_Esp32.git
+    commit: 3dbc39841e56ff56127a8f1de81ab6df16fc672f
+    committed: 2023-02-01
+    license: GPL-3.0
+    covers:
+      toolchain: platformio + arduino-esp32
+      arch: xtensa
+      scheduling: freertos
+    why: >
+      唯一的 Arduino 核心 + C++ 样本：setup/loop 由框架调用（entry_functions），中断经 attachInterrupt /
+      timer_isr_register 装入，任务入口有类静态成员。它抓出过两个引擎缺陷：PlatformIO 数据库把框架根误映射到
+      工程上（IRAM_ATTR 函数全丢），类作用域的任务入口解析不到。上游已归档（后继 FluidNC），作为固定快照用。
+    compile_db:
+      kind: platformio
+      command: pio run -e release -t compiledb
+      path: compile_commands.json
+    baseline:
+      observed_on: 2026-09-24
+      engine_commit: d59dc5d
+      translationUnits: 195         # 95 个是框架源码（工程根之外），39 个 .ino / 自定义文件不在编译数据库
+      filesAnalyzed: 100
+      functions: 1383
+      entries: 2                    # loop（superloop）与 setup，来自 arduino-esp32 profile
+      executionUnits: { isr: 3, task: 7 }
+      conflictCandidates: 36        # 16 high / 20 medium
+      criticalSections: 0
 
   # ------------------------------------------------- 覆盖独有路径，但尚未验证
   - id: vesc-bldc

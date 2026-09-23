@@ -22,7 +22,7 @@ interface SiteProject {
   repo: string;
   commit: string;
   license: string;
-  kind: "bare-metal" | "freertos" | "esp-idf";
+  kind: "bare-metal" | "freertos" | "esp-idf" | "arduino";
   blurb: string;
   facts: string;
   focus: string[];
@@ -69,6 +69,19 @@ const PROJECTS: SiteProject[] = [
     focus: ["**"],
     region: "",
     build: "pio run -e esp32doit-devkit-v1 -t compiledb",
+  },
+  {
+    id: "grbl-esp32",
+    title: "Grbl_Esp32",
+    repo: "https://github.com/bdring/Grbl_Esp32",
+    commit: "3dbc39841e56ff56127a8f1de81ab6df16fc672f",
+    license: "GPL-3.0",
+    kind: "arduino",
+    blurb: "Grbl CNC controller on ESP32 through the Arduino core (C++). setup()/loop() come from the framework; seven FreeRTOS tasks, three interrupts installed with timer_isr_register and attachInterrupt. Archived upstream (succeeded by FluidNC) — shown as a fixed snapshot.",
+    facts: "grbl-esp32/architecture.json",
+    focus: ["Grbl_Esp32/**"],
+    region: "",
+    build: "pio run -e release -t compiledb",
   },
 ];
 

@@ -47,7 +47,18 @@ export interface RoundBox {
   rows: RoundRow[];
 }
 
+export interface OutlineLoop { class: string; infinite: boolean; busy: boolean; iterations: number | null; line: number | null; file: string | null; exits: number; fromMacro: boolean }
+export type OutlineStep =
+  | { type: "frame"; kind: string; label: string; depth: number; line: number; file: string | null; loop: OutlineLoop | null }
+  | { type: "end"; depth: number }
+  | { type: "wait"; depth: number; callee: string; kind: string; line: number; file: string | null }
+  | { type: "call" | "self"; n: number; depth: number; target: string | null; name: string; targetFile: string | null; targetLine: number | null; line: number; file: string | null; kind: string | null; inCritical: boolean; deepYield: boolean; loops: OutlineLoop[]; vars: Array<{ name: string; write: boolean; conflict: boolean; wake: boolean; inCritical: boolean; isrWriters: string[] }> };
+export interface OutlineSummary { calls: number; waits: number; busy: number; writes: number; conflicts: number }
+export interface UnitOutline { root: string; available: boolean; name?: string; file?: string | null; range?: { from: number; to: number; kind: string; label: string }; steps: OutlineStep[]; summary: OutlineSummary }
+export declare function unitOutline(view: FactsView, rootId: string, options?: { index?: FactsIndex }): UnitOutline;
+
 export interface Round {
+  outline?: UnitOutline;
   id: string;
   available: boolean;
   reason?: string;

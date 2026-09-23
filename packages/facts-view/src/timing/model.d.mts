@@ -14,11 +14,12 @@ export interface TimingLoop {
 export interface TimingUnit {
   id: string; unit: string; kind: string; entry: string | null; name: string; file: string | null;
   mode: string | null; modeLabel: string | null; confidence: string | null; periodMs: number | null;
-  busyLoops: number; waitLoops: number; basis: Record<string, unknown> | null;
+  busyLoops: number; waitLoops: number; basis: Record<string, unknown> | null; outline: OutlineSummary | null;
 }
 
 import type { BeatModel } from "./beat.d.mts";
 import type { PreemptiveModel } from "./preemptive.d.mts";
+import type { OutlineSummary } from "./sequence.d.mts";
 
 export interface TimingTheme {
   beat: BeatModel;

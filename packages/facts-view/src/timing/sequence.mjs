@@ -253,6 +253,69 @@ function chainOf(index, cls, target, chain, budget, showIter) {
 }
 
 /**
+ * 一轮的范围。有无限循环就是它的循环体，一轮 = 转一圈；框架代为无限调用的入口（Arduino loop）
+ * 是整个函数体；都没有就是整个函数体，跑一遍返回。buildRound 和 unitOutline 同一个口径。
+ */
+export function roundRange(index, rootId) {
+  const fn = index.fnById.get(rootId);
+  if (!fn) return null;
+  const mainLoop = (index.loopsByFn.get(rootId) ?? []).filter((l) => l.infinite).sort((a, b) => a.depth - b.depth || a.location.line - b.location.line)[0] ?? null;
+  const superloop = rootId === index.entries?.main && index.entries?.mainSuperloop;
+  if (superloop) return { from: fn.line, to: fn.endLine ?? Infinity, kind: "loop", label: t("called forever by the framework; one round = one pass of the body {from}–{to}", { from: fn.line, to: fn.endLine ?? "?" }) };
+  if (mainLoop) return { from: mainLoop.location.line, to: mainLoop.endLine, kind: "loop", label: t("{kind} infinite loop {from}–{to}; one round = one turn", { kind: mainLoop.kind, from: mainLoop.location.line, to: mainLoop.endLine }) };
+  return { from: fn.line, to: fn.endLine ?? Infinity, kind: "body", label: t("function body {from}–{to}; no loop, runs once and returns", { from: fn.line, to: fn.endLine ?? "?" }) };
+}
+
+const BUSY_CLASSES = new Set(["busy-var", "busy-hw", "busy-poll", "inner-infinite"]);
+
+/**
+ * 一轮里依次做什么：编号的步骤，按源码顺序。分支 / 循环是缩进的框，让出点、被调函数里的循环、
+ * 碰到的共享变量都挂在所在的那一步上。这是原型「中断」页点开一行看到的东西，也是裸机大循环
+ * 「先做什么后做什么」的答案——周期不知道不影响顺序是事实。
+ */
+export function unitOutline(view, rootId, options = {}) {
+  const index = options.index ?? buildIndex(view);
+  const cls = options.classifier ?? loopClassifier(view, { index });
+  const fn = index.fnById.get(rootId);
+  if (!fn) return { root: rootId, available: false, steps: [], summary: { calls: 0, waits: 0, busy: 0, writes: 0, conflicts: 0 } };
+  const range = roundRange(index, rootId);
+  const raw = roundSteps(view, rootId, range.from, range.to, { index, classifier: cls });
+  const loopView = (l) => ({ class: l.class, infinite: Boolean(l.infinite), busy: BUSY_CLASSES.has(l.class) || Boolean(l.infinite), iterations: l.iterations?.max ?? null, line: l.location?.line ?? null, file: index.fileOf(l.function), exits: (l.exits ?? []).length, fromMacro: Boolean(l.fromMacro) });
+  let n = 0;
+  const writes = new Set(), conflicts = new Set();
+  let waits = 0, busy = 0;
+  const steps = raw.map((st) => {
+    if (st.type === "frame-open") {
+      const loop = st.loop ? loopView(st.loop) : null;
+      if (loop?.busy) busy += 1;
+      return { type: "frame", kind: st.kind, label: st.label, depth: st.depth, line: st.line, file: index.fileOf(st.fn), loop };
+    }
+    if (st.type === "frame-close") return { type: "end", depth: st.depth };
+    if (st.type === "wait") {
+      waits += 1;
+      return { type: "wait", depth: st.depth, callee: st.callee, kind: st.kind, line: st.line, file: index.fileOf(st.fn) };
+    }
+    const vars = stepVariables(st, index);
+    for (const v of vars) { if (v.write) writes.add(v.name); if (v.conflict) conflicts.add(v.name); }
+    const loops = (st.loops ?? []).filter((l) => !l.fromMacro).map(loopView);
+    busy += loops.filter((l) => l.busy).length;
+    n += 1;
+    return {
+      type: st.type === "self" ? "self" : "call", n, depth: st.depth,
+      target: st.target ?? null, name: st.target ? index.nameOf(st.target) : index.nameOf(rootId),
+      targetFile: st.target ? index.fileOf(st.target) : null, targetLine: st.target ? index.fnById.get(st.target)?.line ?? null : null,
+      line: st.line, file: index.fileOf(st.fn), kind: st.kind ?? null,
+      inCritical: Boolean(st.inCritical), deepYield: Boolean(st.summary?.deepYield), loops,
+      vars: vars.map((v) => ({ name: v.name, write: v.write, conflict: v.conflict, wake: v.wake, inCritical: v.inCritical, isrWriters: v.isrWriters })),
+    };
+  });
+  return {
+    root: rootId, available: true, name: index.nameOf(rootId), file: index.fileOf(rootId), range, steps,
+    summary: { calls: n, waits, busy, writes: writes.size, conflicts: conflicts.size },
+  };
+}
+
+/**
  * 一个执行单元的一轮，摊成一列一列的框。
  * rootId 是单元的入口函数；range 不给就自己找：有无限循环就取那个循环体，没有就整个函数体。
  */
@@ -265,16 +328,7 @@ export function buildRound(view, rootId, options = {}) {
   const fn = index.fnById.get(rootId);
   if (!fn) return { id: `round:${rootId}`, available: false, reason: "no-such-function", levels: [] };
 
-  // 一轮的范围。有无限循环就是它的循环体，一轮 = 转一圈；没有就是整个函数体，跑一遍返回
-  const mainLoop = (index.loopsByFn.get(rootId) ?? []).filter((l) => l.infinite).sort((a, b) => a.depth - b.depth || a.location.line - b.location.line)[0] ?? null;
-  const explicit = options.range ?? null;
-  // 框架代为无限调用的入口（Arduino loop）：整个函数体就是一轮
-  const superloop = rootId === index.entries?.main && index.entries?.mainSuperloop;
-  const range = explicit
-    ?? (superloop ? { from: fn.line, to: fn.endLine ?? Infinity, kind: "loop", label: t("called forever by the framework; one round = one pass of the body {from}–{to}", { from: fn.line, to: fn.endLine ?? "?" }) } : null)
-    ?? (mainLoop
-      ? { from: mainLoop.location.line, to: mainLoop.endLine, kind: "loop", label: t("{kind} infinite loop {from}–{to}; one round = one turn", { kind: mainLoop.kind, from: mainLoop.location.line, to: mainLoop.endLine }) }
-      : { from: fn.line, to: fn.endLine ?? Infinity, kind: "body", label: t("function body {from}–{to}; no loop, runs once and returns", { from: fn.line, to: fn.endLine ?? "?" }) });
+  const range = options.range ?? roundRange(index, rootId);
 
   const levels = [];
   let badgeSeq = 0;
@@ -352,8 +406,10 @@ export function buildRound(view, rootId, options = {}) {
 
   const allRows = levels.flat().flatMap((b) => b.rows);
   const truncated = queue.length > 0; // 还有没画完的层：说出来，别让人以为就这么深
+  const outline = unitOutline(view, rootId, { index, classifier: cls });
   return {
     id: `round:${rootId}`,
+    outline,
     available: levels.some((boxes) => boxes.length > 0),
     root: rootId,
     name: index.nameOf(rootId),

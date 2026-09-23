@@ -7,6 +7,7 @@ import { t } from "../../../packages/facts-view/src/i18n.mjs";
 import type { TimingLoop, TimingTheme } from "../../../packages/facts-view/src/timing/model.d.mts";
 import type { Round } from "../../../packages/facts-view/src/timing/sequence.d.mts";
 import { RoundView } from "./round.tsx";
+import { Outline } from "./outline.tsx";
 import { Beat } from "./beat.tsx";
 import { Preemptive } from "./preemptive.tsx";
 import { Rail } from "./slots.tsx";
@@ -24,6 +25,12 @@ export interface TimingProps {
 }
 
 const UNIT_LABEL: Record<string, string> = { isr: "interrupt", task: "task", callback: "callback", timer: "timer", main: "main" };
+const GROUPS = [
+  { key: "isr", label: "Interrupts", kinds: ["isr"], collapsed: false },
+  { key: "task", label: "Tasks", kinds: ["task", "timer"], collapsed: false },
+  { key: "main", label: "Main loop", kinds: ["main"], collapsed: false },
+  { key: "callback", label: "Callbacks", kinds: ["callback"], collapsed: true },
+];
 const SCHEDULING_LABEL: Record<string, string> = { cooperative: "Cooperative: a task runs until it yields; tasks do not preempt each other, only interrupts cut in", preemptive: "Preemptive: tasks can interrupt each other", unknown: "Scheduling model unknown" };
 
 /** 跑多少次：引擎只读 for 头部，体内若改动计数器或上界，这个数就不成立——所以措辞说「最多」，不说「恰好」 */
@@ -69,12 +76,29 @@ export function Timing(props: TimingProps) {
     <div className="board wide">
       <Rail>
         <aside className="machines">
-          {theme.units.map((u) => (
-            <button key={u.id} className={`machine ${props.roundRoot === u.entry ? "sel" : ""}`} disabled={!u.entry} onClick={() => u.entry && props.onRequestRound(u.entry, props.showIterations)} title={props.roundRoot === u.entry ? t("Click again to collapse") : t("See what one round of it passes through")}>
-              <code>{u.name}</code>
-              <span className="sub">{t(UNIT_LABEL[u.kind] ?? u.kind)} · {t(u.modeLabel ?? "unknown")}{u.periodMs != null ? ` · ${u.periodMs} ms` : ""}{u.busyLoops ? ` · ${t("busy-wait")} ${u.busyLoops}` : ""}</span>
-            </button>
-          ))}
+          {/* 按原型「中断」页的样子：分组列出执行单元，每行直接带一轮的摘要，点一个看它一轮里依次做什么 */}
+          {GROUPS.map((g) => {
+            const list = theme.units.filter((u) => g.kinds.includes(u.kind));
+            if (!list.length) return null;
+            const rows = list.map((u) => (
+              <button key={u.id} className={`machine ${props.roundRoot === u.entry ? "sel" : ""}`} disabled={!u.entry} onClick={() => u.entry && props.onRequestRound(u.entry, props.showIterations)} title={props.roundRoot === u.entry ? t("Click again to collapse") : t("See what one round of it does, in order")}>
+                <code>{u.name}</code>
+                <span className="sub">{t(u.modeLabel ?? "unknown")}{u.periodMs != null ? ` · ${u.periodMs} ms` : ""}</span>
+                {u.outline && (
+                  <span className="ol-marks">
+                    <span title={t("steps in one round")}>{t("{n} steps", { n: u.outline.calls })}</span>
+                    {u.outline.busy > 0 && <span className="bad" title={t("busy-waits reached in one round")}>⛔{u.outline.busy}</span>}
+                    {u.outline.waits > 0 && <span className="wait" title={t("yield points in one round")}>⏸{u.outline.waits}</span>}
+                    {u.outline.writes > 0 && <span title={t("shared variables it writes")}>✎{u.outline.writes}</span>}
+                    {u.outline.conflicts > 0 && <span className="bad" title={t("of them conflict candidates")}>⚠{u.outline.conflicts}</span>}
+                  </span>
+                )}
+              </button>
+            ));
+            return g.collapsed
+              ? <details key={g.key} className="ol-group"><summary className="sub">{t(g.label)} · {list.length}</summary>{rows}</details>
+              : <div key={g.key} className="ol-group"><div className="sub ol-group-h">{t(g.label)} · {list.length}</div>{rows}</div>;
+          })}
           <label className="sub rail-toggle">
             <input type="checkbox" checked={props.showIterations} onChange={(e) => props.roundRoot && props.onRequestRound(props.roundRoot, e.target.checked)} disabled={!props.roundRoot} />
             {" "}{t("Also unfold iteration loops")}
@@ -96,6 +120,21 @@ export function Timing(props: TimingProps) {
           {t("Polling order (depth-first from main, registrations in call-line order)")}:
           {theme.pollingOrder.map((p) => <span key={p.unit}> #{p.position} <code>{p.name}</code></span>)}
         </p>
+      )}
+
+      {/* 选中一个单元：它一轮里依次做什么（编号步骤）和它的时序图放在最上面，节拍和表往下让 */}
+      {props.round?.outline?.available
+        ? <Outline outline={props.round.outline} onOpenFile={props.onOpenFile} />
+        : !props.roundRoot && <p className="sub ol-hint">{t("Pick an interrupt, task or the main loop on the left to see what one round of it does, in order.")}</p>}
+      {props.roundRoot && (
+        <RoundView
+          round={props.round}
+          loading={props.roundLoading}
+          showIterations={props.showIterations}
+          onShowIterations={(next) => props.roundRoot && props.onRequestRound(props.roundRoot, next)}
+          onOpenFile={props.onOpenFile}
+          onCopyId={props.onCopyId}
+        />
       )}
 
       {theme.preemptive?.available
@@ -122,15 +161,6 @@ export function Timing(props: TimingProps) {
         </tbody>
       </table>
 
-      {/* 一轮：表格能说「这里有三个循环」，说不了「先走到哪、在哪停下」。这一段就是为了说后者 */}
-      <RoundView
-        round={props.round}
-        loading={props.roundLoading}
-        showIterations={props.showIterations}
-        onShowIterations={(next) => props.roundRoot && props.onRequestRound(props.roundRoot, next)}
-        onOpenFile={props.onOpenFile}
-        onCopyId={props.onCopyId}
-      />
 
       {busy.length > 0 && (
         <>
