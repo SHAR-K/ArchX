@@ -92,6 +92,27 @@ straight from disk with no server. The facts stay on your machine.
 **In VS Code** (optional): the extension shows the same facts in a panel and jumps from every
 finding to its line.
 
+### For firmware engineers
+
+| | Read today |
+| --- | --- |
+| **Build information** | `compile_commands.json` from CMake, PlatformIO, ESP-IDF, Zephyr or Makefile + bear; Keil MDK `.uvprojx` read directly (no export step) |
+| **Targets** | ARM Cortex-M; ESP32 (Xtensa) |
+| **Scheduling** | bare-metal super-loops, FreeRTOS, CMSIS-RTOS2, Zephyr, protothreads, Arduino on ESP32 |
+| **SDKs** | STM32 HAL, GD32, Cortex-M CMSIS, ESP-IDF |
+| **Interrupts** | from the vector table, and from runtime installs such as `esp_intr_alloc` or `attachInterrupt` |
+
+What it tells you, in the terms you would use at the bench:
+
+- which ISR writes a variable that `main()` or a task reads, and whether either side is inside a critical section;
+- whether that variable is `volatile`, and whether it is wider than one word (a torn read waiting to happen);
+- each task's period and priority as written in the code — a lower bound from the delay argument, never a measurement;
+- which `switch` is actually a state machine, its states, transitions and the conditions guarding them;
+- which functions nothing reaches from any entry — dead code, or a function-pointer call the rules don't know yet.
+
+Not recognised yet: other RTOSes and chip SDKs (IAR projects need a `compile_commands.json`
+first). Each one is a YAML profile, not an engine change — see [profiles](engine/src/archcheck/profiles/).
+
 ### Without an agent
 
 The engine is a plain CLI. The repository ships a small sample project:
