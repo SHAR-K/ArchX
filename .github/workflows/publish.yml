@@ -1,0 +1,49 @@
+name: publish
+
+# 引擎发布到 PyPI（pip install archcheck）。打 v* tag 触发，也可以手动触发。
+# 用 PyPI 的 Trusted Publishing：PyPI 上登记了 SHAR-K/ArchX · publish.yml · environment pypi，
+# 仓库里不存任何密钥。引擎是纯 Python，一个 wheel 三个平台通用。
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade build
+      - run: python -m build engine --outdir dist
+      # 规则文件必须在 wheel 里：exe 那次就漏过，没有规则文件的引擎一个 RTOS 都认不出
+      - name: Wheel carries the profile rules and templates
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          wheel = glob.glob("dist/*.whl")[0]
+          names = zipfile.ZipFile(wheel).namelist()
+          assert any(n.startswith("archcheck/profiles/rtos/") and n.endswith(".yaml") for n in names), "profiles missing"
+          assert any(n.startswith("archcheck/templates/") for n in names), "templates missing"
+          print(wheel, len(names), "files")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

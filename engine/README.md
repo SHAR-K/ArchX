@@ -1,13 +1,18 @@
 # ArchCheck
 
-Static analysis that recovers the **runtime structure** of C/C++ firmware — entry
+Architecture recovery for C/C++ firmware: ArchCheck reads the source and recovers its **runtime structure** — entry
 points, tasks, ISRs, callbacks, loops, state machines, shared state and concurrency
 boundaries — without running the program, attaching a probe, or calling an LLM.
 
 Every finding carries a file, a line and a confidence level. Anything that cannot be
 derived from the source and a rule is reported as unknown, never guessed.
 
-[Field contract](docs/SCHEMA.md) · [Usage](docs/USAGE.md) · [Status & known limits](docs/ARCHCHECK_STATUS.md)
+```bash
+pip install archcheck
+archcheck path/to/project --out report/        # or let an agent run it: see the repository README
+```
+
+[Repository](https://github.com/SHAR-K/ArchX) · [Field contract](https://github.com/SHAR-K/ArchX/blob/main/docs/SCHEMA.md) · [Usage](https://github.com/SHAR-K/ArchX/blob/main/docs/USAGE.md) · [Status & known limits](https://github.com/SHAR-K/ArchX/blob/main/docs/ARCHCHECK_STATUS.md) · [Live demo](https://shar-k.github.io/ArchX/)
 
 ## Why
 
