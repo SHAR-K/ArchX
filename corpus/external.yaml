@@ -62,7 +62,7 @@ projects:
       path: .pio/build/esp32doit-devkit-v1/compile_commands.json
     baseline:
       observed_on: 2026-09-24
-      engine_commit: 194c8a7        # 2026-09-24：callback_register 的 context: isr，ESP-IDF 中断注册规则
+      engine_commit: b9d6376        # 2026-09-24：callback_register 的 context: isr，ESP-IDF 中断注册规则
       translationUnits: 1368        # pio 原始编译数据库；其中 913 个是 ~/.platformio 里的 ESP-IDF 框架源码（工程根之外，按设计不进分析）、
       filesAnalyzed: 153            # 241 个不在磁盘上、30 个不在编译数据库里。应用自身 153 个编译单元全部进了分析
       functions: 1530
