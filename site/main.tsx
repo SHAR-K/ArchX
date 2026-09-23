@@ -14,6 +14,8 @@ import { getLocale } from "../packages/facts-view/src/i18n.mjs";
 interface ManifestProject {
   id: string; title: string; repo: string; commit: string; license: string; kind: string; blurb: string; build: string;
   focus: string[]; region: string; snapshot: string;
+  /** 不进下拉框，只能从链接进来；repo 为空表示没有公开源码，出处不链、打开文件不跳 */
+  hidden?: boolean;
   counts: { files: number; functions: number; units: Record<string, number>; sharedResources: number; conflictCandidates: number };
 }
 interface Manifest { generatedAt: string; engineCommit: string; projects: ManifestProject[] }
@@ -51,6 +53,7 @@ async function main() {
   // 顶栏：换工程、换语言、出处
   const select = $<HTMLSelectElement>("project");
   for (const p of manifest.projects) {
+    if (p.hidden && p.id !== project.id) continue;
     const opt = document.createElement("option");
     opt.value = p.id;
     opt.textContent = `${p.title} · ${p.kind}`;
@@ -58,6 +61,8 @@ async function main() {
     select.appendChild(opt);
   }
   select.addEventListener("change", () => { location.hash = select.value; location.reload(); });
+  // 已经在隐藏工程里就不再显示去它的入口
+  if (project.hidden) document.getElementById("production-link")?.remove();
   const lang = $<HTMLButtonElement>("lang");
   const zh = getLocale() === "zh-CN";
   lang.textContent = zh ? "English" : "中文";
@@ -68,15 +73,22 @@ async function main() {
   });
   const meta = $<HTMLSpanElement>("meta");
   meta.replaceChildren();
-  const link = document.createElement("a");
-  link.href = `${project.repo}/tree/${project.commit}`;
-  link.target = "_blank"; link.rel = "noopener";
-  link.textContent = `${project.repo.replace("https://github.com/", "")} @ ${project.commit.slice(0, 7)}`;
-  link.title = project.blurb;
-  meta.appendChild(link);
+  if (project.repo) {
+    const link = document.createElement("a");
+    link.href = `${project.repo}/tree/${project.commit}`;
+    link.target = "_blank"; link.rel = "noopener";
+    link.textContent = `${project.repo.replace("https://github.com/", "")} @ ${project.commit.slice(0, 7)}`;
+    link.title = project.blurb;
+    meta.appendChild(link);
+  } else {
+    const label = document.createElement("span");
+    label.textContent = project.title;
+    label.title = project.blurb;
+    meta.appendChild(label);
+  }
   const snap = document.createElement("span");
   snap.className = "site-dim";
-  snap.textContent = ` · snapshot ${project.snapshot} · ${project.license}${manifest.engineCommit ? ` · engine ${manifest.engineCommit}` : ""}`;
+  snap.textContent = ` · snapshot ${project.snapshot}${project.license ? ` · ${project.license}` : ""}${manifest.engineCommit ? ` · engine ${manifest.engineCommit}` : ""}`;
   meta.appendChild(snap);
   document.title = `ArchCheck — ${project.title}`;
 
@@ -103,6 +115,7 @@ async function main() {
 
   const post = (message: unknown) => window.postMessage(message, "*");
   const openOnGitHub = (file: string, line?: number) => {
+    if (!project.repo) return;
     const url = `${project.repo}/blob/${project.commit}/${file.replace(/^\/+/, "")}${line ? `#L${line}` : ""}`;
     window.open(url, "_blank", "noopener");
   };

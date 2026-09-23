@@ -7,7 +7,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](engine/pyproject.toml)
 [![Discord](https://img.shields.io/badge/chat-Discord-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/sCtshjP6N9)
 
-**[▶ Live demo](https://shar-k.github.io/ArchX/)** — the panel on three public firmware repositories. No install, nothing to scan.
+**[▶ Live demo](https://shar-k.github.io/ArchX/)** — the panel on four public firmware repositories. No install, nothing to scan.
 
 Two halves that share one snapshot of facts:
 
@@ -21,12 +21,15 @@ from the source and a rule is reported as unknown, never guessed.
 
 ## See it before installing anything
 
-**[shar-k.github.io/ArchX](https://shar-k.github.io/ArchX/)** shows the panel on three public
-firmware repositories — bare-metal STM32, FreeRTOS on STM32H7, and FreeRTOS on ESP32 — at a fixed
-commit each. It is the same
+**[shar-k.github.io/ArchX](https://shar-k.github.io/ArchX/)** shows the panel on four public
+firmware repositories — bare-metal STM32, FreeRTOS on STM32H7, and two CNC controllers on ESP32 —
+at a fixed commit each. It is the same
 panel code the extension ships, fed with the facts of that one snapshot; every entry, loop,
 shared variable and state links to its line on GitHub. Nothing there is live: change the
 code, scan again. To see your own project, install the extension and scan it.
+
+The same panel on a larger production codebase, with identifiers and paths replaced:
+**[shar-k.github.io/ArchX/production](https://shar-k.github.io/ArchX/production/)**.
 
 ## Why
 

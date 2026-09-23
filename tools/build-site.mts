@@ -119,5 +119,13 @@ for (const p of PROJECTS) {
   });
   console.log(`${p.id}: view ${(json.length / 1e6).toFixed(2)} MB → ${(gz.length / 1e6).toFixed(2)} MB gz · ${view.files.length} files · ${view.functions.length} functions · snapshot ${snapshot}`);
 }
-fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
+// hidden 条目（不进下拉框、没有公开源码的那份）不由这里生成，重建时原样带过去，数据文件还在才留
+const manifestPath = path.join(outDir, "manifest.json");
+if (fs.existsSync(manifestPath)) {
+  const previous = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  for (const p of previous.projects ?? []) {
+    if (p.hidden && fs.existsSync(path.join(outDir, `${p.id}.json.gz`))) manifest.projects.push(p);
+  }
+}
+fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
 console.log(`manifest: ${manifest.projects.length} projects · engine ${engineCommit}`);

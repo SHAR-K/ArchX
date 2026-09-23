@@ -108,6 +108,33 @@
         "sharedResources": 121,
         "conflictCandidates": 36
       }
+    },
+    {
+      "id": "production",
+      "title": "Production firmware",
+      "repo": "",
+      "commit": "",
+      "license": "",
+      "kind": "production",
+      "blurb": "A mid-size production firmware codebase. Identifiers, paths and comments are replaced; the structure is as scanned.",
+      "build": "",
+      "focus": [
+        "**"
+      ],
+      "region": "",
+      "snapshot": "d3ab8c1654d4",
+      "hidden": true,
+      "counts": {
+        "files": 222,
+        "functions": 873,
+        "units": {
+          "isr": 30,
+          "callback": 44,
+          "task": 13
+        },
+        "sharedResources": 147,
+        "conflictCandidates": 32
+      }
     }
   ]
 }
