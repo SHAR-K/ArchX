@@ -1,0 +1,11 @@
+{
+  "id": "rtos-mini",
+  "name": "rtos-mini",
+  "partitions": [
+    {
+      "id": "application",
+      "name": "application",
+      "focusPaths": ["src/**"]
+    }
+  ]
+}

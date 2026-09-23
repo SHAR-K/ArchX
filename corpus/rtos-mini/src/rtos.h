@@ -16,6 +16,9 @@ void vTaskDelay(unsigned ticks);
 int xQueueReceive(QueueHandle_t queue, void *out, unsigned ticks_to_wait);
 int xQueueSendFromISR(QueueHandle_t queue, const void *item, void *woken);
 
+/* ESP-IDF 形状的中断注册：没有向量表，处理函数经 API 装进去 */
+int gpio_isr_handler_add(int gpio, void (*handler)(void *), void *arg);
+
 #define tskIDLE_PRIORITY 0
 #define portMAX_DELAY 0xffffffffu
 

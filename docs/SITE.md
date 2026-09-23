@@ -17,6 +17,7 @@
 | 工程 | 分区 | 体积 |
 | --- | --- | --- |
 | hoverboard-foc（裸机） | 整仓库 | 3.7 MB → 0.23 MB gz |
+| grblhal-esp32（ESP-IDF + FreeRTOS，Xtensa） | 整仓库（ESP-IDF 框架在工程根之外，本来就不进事实） | 见 manifest |
 | stm32h743（FreeRTOS） | `Core/** Applications/** Libraries/FreeRTOS-Plus-CLI/** Middlewares/Third_Party/**` | 17 MB → 0.58 MB gz |
 
 `tools/build-site.mts` 读 `work/corpus-scan/<id>/architecture.json`（本机扫描产物，gitignore），切分区、投影，

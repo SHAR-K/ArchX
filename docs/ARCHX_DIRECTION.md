@@ -256,6 +256,14 @@ VSIX、文档或测试夹具，改名脱敏也不算数。验收发现问题记�
 
 ### 途中发现、顺手修掉的
 
+- 2026-09-24 ESP-IDF 工程恒零冲突的根因：经 `esp_intr_alloc` / `timer_isr_register` / `gpio_isr_register` 装的中断没有
+  向量表，规则只能归成 callback，冲突检测取不到中断侧。`callback_register` 规则现在可声明 `context: isr`，命中的
+  单元 kind 为 `isr`、带 `registeredAt` 与 `rule`、没有 `vector`。grblhal-esp32：0 → 162 个候选（24 medium）。
+  `corpus/rtos-mini` 里加了一个 `gpio_isr_handler_add` 装的中断守着这条。
+- 同日踩的坑：`python -m archcheck` 在本仓库 `engine/` 目录下跑，导入的是 pip -e 装的**另一个仓库**的引擎，
+  两次「重扫」用的都是旧规则，读数一模一样还以为规则没命中。`tools/facts-scan.mjs` 早就显式设了
+  `PYTHONPATH=engine/src`，手工跑引擎也必须这么做（或 `pip install -e ./engine` 指到本仓库）。
+
 - 2026-09-23 打包的引擎没有规则文件。pyinstaller 构建脚本只带了 `templates/`，`profiles/*.yaml` 一直没进 exe，
   所以 VSIX 里的引擎从 09-09 起就认不出任何 RTOS——插件里所有「调度模型未知」都是它，而源码跑引擎的人永远
   看不到。教训写进了 `tools/build-archcheck-engine.ps1` 的注释和 `archcheck-engine-smoke.mjs` 的断言：

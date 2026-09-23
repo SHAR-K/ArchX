@@ -2,6 +2,8 @@
    - control：CMSIS-RTOS2 风格，优先级在属性结构体的 .priority 里（枚举常量，经 C 风格转换）
    - logger：FreeRTOS 风格，优先级是 tskIDLE_PRIORITY + 1（宏 + 字面量）
    - worker：事件驱动，阻塞在队列上；TIM_IRQHandler 往队列里发，是它的唤醒方
+   - button_isr：不在向量表里，经 gpio_isr_handler_add 装进去（ESP-IDF 形状）；它写 g_setpoint，
+     和 control 的写撞在一起——这是「API 注册的中断也算中断」的最小样本
    共享变量 g_setpoint 由 control 写、logger 读；g_ticks 由中断写、control 读。 */
 #include "rtos.h"
 
@@ -48,7 +50,15 @@ void TIM_IRQHandler(void) {
   xQueueSendFromISR(s_events, &event, 0);
 }
 
+void button_isr(void *arg) {
+  int event = -1;
+  (void)arg;
+  g_setpoint = 0;
+  xQueueSendFromISR(s_events, &event, 0);
+}
+
 int main(void) {
+  gpio_isr_handler_add(4, button_isr, 0);
   osThreadNew(control_task, 0, &control_attributes);
   xTaskCreate(logger_task, "logger", 128, 0, tskIDLE_PRIORITY + 1, 0);
   xTaskCreate(worker_task, "worker", 128, 0, tskIDLE_PRIORITY + 2, 0);

@@ -160,6 +160,9 @@ export function buildFactsView(facts, region, options = {}) {
     enabledAt: unit.enabledAt.map((site) => ({ id: site.functionId, line: site.line, priority: site.evidence?.priority ?? null })),
     priority: unit.enabledAt.map((site) => site.evidence?.priority).find(Boolean) ?? null,
     confidence: unit.confidence,
+    // 经 API 注册的中断（context: isr 规则，ESP-IDF 那种）：没有向量号，有注册点和规则
+    registeredAt: unit.registeredAt ? { id: unit.registeredAt.functionId, line: unit.registeredAt.line } : null,
+    rule: unit.rule ?? null,
   }));
 
   // 任务与回调（处理器）的注册点：registeredAt 是取函数地址的那一行；注册者自身若不在 main 启动路径上，就是运行期注册
@@ -292,7 +295,11 @@ export function buildFactsView(facts, region, options = {}) {
       def: item.definedIn ? { path: norm(item.definedIn.path), line: item.definedIn.line } : null,
     })),
     // 数据依赖：写共享变量的单元 -> 读它的单元，带同轮 / 跨轮 / 异步分类；pollingOrder 是分类依据（从 main 深搜、按调用行序的注册）
-    dataDependencies: facts.dataDependencies ?? [],
+    // 执行单元之间的数据依赖是单元对的全集：几百个回调两两成对就是几万条、几十 MB，而消费方（节拍 / 抢占图）
+    // 只看有任务、中断或 main 参与的对，也只用变量名。回调 × 回调的对丢掉，每对只留名字
+    dataDependencies: (facts.dataDependencies ?? [])
+      .filter((d) => d.fromKind !== "callback" || d.toKind !== "callback")
+      .map((d) => ({ from: d.from, to: d.to, fromKind: d.fromKind, toKind: d.toKind, order: d.order, fromPosition: d.fromPosition ?? null, toPosition: d.toPosition ?? null, resourceCount: d.resourceCount ?? (d.resources ?? []).length, resources: (d.resources ?? []).map((r) => ({ name: r.name, variable: r.variable ?? null })) })),
     // 依据字符串从每一行提到了顶层：140 个字符乘以二十万行，光它自己就是 30 MB。
     // 每行都一样的东西不该每行都写一遍
     dataDependenciesBasis: facts.dataDependenciesBasis ?? null,

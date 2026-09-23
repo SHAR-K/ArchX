@@ -61,22 +61,24 @@ projects:
       command: pio run -e esp32doit-devkit-v1
       path: .pio/build/esp32doit-devkit-v1/compile_commands.json
     baseline:
-      observed_on: 2026-09-08
-      translationUnits: 160
-      filesAnalyzed: 156     # 4 个单元没进分析，原因未查清
+      observed_on: 2026-09-24
+      engine_commit: isr-context    # 提交后换成 commit：callback_register 的 context: isr、timer_isr_register / gpio_isr_register 规则
+      translationUnits: 1368        # pio 原始编译数据库；其中 913 个是 ~/.platformio 里的 ESP-IDF 框架源码（工程根之外，按设计不进分析）、
+      filesAnalyzed: 153            # 241 个不在磁盘上、30 个不在编译数据库里。应用自身 153 个编译单元全部进了分析
       functions: 1530
       dependencyEdges: 822
+      calls: 2339
       entries: 1
-      executionUnits: { callback: 572, task: 1, timer: 1 }
+      executionUnits: { isr: 2, callback: 573, task: 1, timer: 1 }   # isr 2 = timer_isr_register / gpio_isr_register 装的两个；蓝牙、I2S、I2C 的任务在这个 env 里没编译
       loops: 540
-      stateMachines: 84
+      stateMachines: 88
       sharedResources: 244
-      conflictCandidates: 0
-      caveat: >
-        这组读数出自一份本地整理过的编译数据库（db-own/），不是上面 command 直接产出的
-        .pio/build/... 那份。两者是否等价没有验证过。重跑前先确认，对不上以 pio 原始产物为准。
-        另：conflictCandidates 为 0 是已知缺陷——ESP-IDF 的中断处理函数被归类为 callback，
-        没有任何 profile 字段能表达「运行在中断上下文」，于是冲突检测两侧取不到 isr。
+      conflictCandidates: 162       # 24 medium / 138 low；low 多是经 hal 函数指针表「谁都能到」的可达性噪声，看点在 medium
+      criticalSections: 0           # portENTER_CRITICAL 在这份代码里没出现在同一语句块成对形态
+      note: >
+        之前 conflictCandidates 为 0 的根因已修：ESP-IDF 经 API 装的中断没有向量表，规则只能把它归成 callback；
+        现在 callback_register 规则可声明 context: isr，命中的单元 kind 为 isr。任务只有 vGrblTask 一个是事实，
+        不是识别缺陷——grblHAL 在 ESP32 上就是一个任务加中断。
 
   - id: gd32f30x
     repo: https://github.com/Jerry-yl/gd32f30x.git

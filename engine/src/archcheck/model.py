@@ -775,7 +775,16 @@ class SharedResource:
     atomicity: str = "unknown"
 
     def to_dict(self) -> dict[str, Any]:
-        shown = self.units[:MAX_UNITS_PER_RESOURCE]
+        # When the list has to be cut, interrupts, tasks, main and timers go first: a variable
+        # reached by 100 callbacks through a function-pointer table must not lose the one ISR
+        # that writes it, or the panel says "no interrupt touches this" while conflictCandidates
+        # says otherwise (grblHAL-ESP32: 244 resources, every ISR side cut off).  Below the cap
+        # the engine's own order is kept, so small projects' facts do not move around.
+        if len(self.units) > MAX_UNITS_PER_RESOURCE:
+            rank = {"isr": 0, "task": 1, "main": 2, "timer": 3}
+            shown = sorted(self.units, key=lambda item: (rank.get(item.unit_kind, 9), item.unit_id))[:MAX_UNITS_PER_RESOURCE]
+        else:
+            shown = self.units
         out: dict[str, Any] = {
             "resource": self.resource,
             "name": self.name,
@@ -980,6 +989,12 @@ class ExecutionUnit:
                 self.vector_table.to_dict() if self.vector_table is not None else None
             )
             payload["enabledAt"] = [site.to_dict() for site in self.enabled_at]
+            # Registered through an API (context: isr rule) rather than named in a vector table
+            if self.registered_at is not None:
+                payload["registeredAt"] = self.registered_at.to_dict()
+                if self.also_registered_at:
+                    payload["alsoRegisteredAt"] = [site.to_dict() for site in self.also_registered_at]
+                payload["rule"] = self.rule
         else:
             payload["registeredAt"] = (
                 self.registered_at.to_dict() if self.registered_at is not None else None

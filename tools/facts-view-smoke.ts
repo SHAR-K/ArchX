@@ -385,7 +385,7 @@ console.log(`facts-view: 投影 ${view.files.length} 文件 / ${view.functions.l
   const worker = pre.rows.find((r) => r.name === "worker_task")!;
   assert.equal(worker.mode, "event-driven");
   assert.deepEqual(worker.waits.map((w) => w.callee), ["xQueueReceive"], "事件驱动任务记下它等的调用");
-  assert.equal(pre.isrs.length, 1, "TIM_IRQHandler 有函数体，进中断带");
+  assert.equal(pre.isrs.length, 2, "TIM_IRQHandler 与 API 注册的 button_isr 都有函数体，都进中断带");
   assert.equal(pre.lcm, 50, "超周期是 10 与 50 的最小公倍数");
   const layout = layoutPreemptive(pre, { width: 1000 });
   assert.deepEqual(layout.rows.map((r) => r.cells.length), [6, 0, 2], "10 ms 的在 0–50 里到期 6 次，50 ms 的 2 次，事件驱动没有到期点");

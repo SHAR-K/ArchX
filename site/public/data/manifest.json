@@ -56,6 +56,33 @@
         "sharedResources": 66,
         "conflictCandidates": 28
       }
+    },
+    {
+      "id": "grblhal-esp32",
+      "title": "grblHAL ESP32",
+      "repo": "https://github.com/grblHAL/ESP32",
+      "commit": "91c0e0c53c3929ac7ec2f3b6ad90d985a990a793",
+      "license": "GPL-3.0",
+      "kind": "esp-idf",
+      "blurb": "grblHAL CNC controller on ESP32 (Xtensa, ESP-IDF + FreeRTOS). One application task plus interrupts installed through esp_intr_alloc / timer_isr_register / gpio_isr_register — no vector table. The ESP-IDF framework itself is outside the project root and stays out of the facts.",
+      "build": "pio run -e esp32doit-devkit-v1 -t compiledb",
+      "focus": [
+        "**"
+      ],
+      "region": "",
+      "snapshot": "2e1fa92be5e1",
+      "counts": {
+        "files": 314,
+        "functions": 1530,
+        "units": {
+          "callback": 573,
+          "isr": 2,
+          "task": 1,
+          "timer": 1
+        },
+        "sharedResources": 244,
+        "conflictCandidates": 162
+      }
     }
   ]
 }

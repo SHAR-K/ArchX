@@ -62,6 +62,16 @@ class RegistrationRule:
     priority_argument: int | None = None
     attr_argument: int | None = None
     priority_field: str | None = None
+    # ``context: isr`` on a ``callback_register`` rule: the API installs an interrupt handler
+    # (ESP-IDF ``esp_intr_alloc`` / ``gpio_isr_handler_add``, no vector table involved).  The
+    # unit it produces is kind ``isr``, so conflict detection sees an interrupt side.  Without
+    # this every ESP-IDF handler is a plain callback and a project reports zero conflicts, which
+    # reads as "clean" when it means "unmodelled".
+    context: str | None = None
+
+    @property
+    def unit_kind(self) -> str:
+        return "isr" if self.context == "isr" else self.kind
     # Task priority, for ``task_create`` rules only.  ``priority_argument``: the priority is
     # a plain call argument (``xTaskCreate(fn, name, stack, arg, PRIORITY, handle)`` -> 4).
     # ``attr_argument`` + ``priority_field``: the priority sits in an attribute struct passed
@@ -469,6 +479,11 @@ def parse_framework_rules(
                 raise FrameworkRulesError(f"{origin}.{section_name}[{index}].priority_field 必须是字符串或省略")
             if (attr_argument is None) != (priority_field is None):
                 raise FrameworkRulesError(f"{origin}.{section_name}[{index}]: attr_argument 与 priority_field 要一起给")
+            context = item.get("context")
+            if context is not None and context != "isr":
+                raise FrameworkRulesError(f"{origin}.{section_name}[{index}].context 只能是 isr 或省略，收到 {context!r}")
+            if context == "isr" and kind != "callback":
+                raise FrameworkRulesError(f"{origin}.{section_name}[{index}]: context: isr 只用于 callback_register")
             registrations.append(
                 RegistrationRule(
                     rule_id=str(item.get("rule") or f"project.{function}"),
@@ -479,6 +494,7 @@ def parse_framework_rules(
                     priority_argument=priority_argument,
                     attr_argument=attr_argument,
                     priority_field=priority_field,
+                    context=context,
                 )
             )
     for index, item in enumerate(_list(section.get("isr_enable"), f"{origin}.isr_enable")):

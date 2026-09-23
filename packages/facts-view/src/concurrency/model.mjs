@@ -91,8 +91,11 @@ export function buildConcurrency(view, options = {}) {
       vector: i.vector ?? null,
       preempt: i.priority?.preempt ?? null,
       sub: i.priority?.sub ?? null,
+      // 经 API 注册的中断（ESP-IDF 那种，没有向量表）：注册点和规则
+      registeredAt: i.registeredAt ? { id: i.registeredAt.id, name: index.nameOf(i.registeredAt.id), line: i.registeredAt.line } : null,
+      rule: i.rule ?? null,
       // 内核异常不走 NVIC，没有使能点是正常的，不该显示成「未见使能」
-      enabled: Boolean(i.kernel) || (i.enabledAt ?? []).length > 0,
+      enabled: Boolean(i.kernel) || (i.enabledAt ?? []).length > 0 || Boolean(i.registeredAt),
     }))
     .sort((a, b) => (a.preempt ?? 99) - (b.preempt ?? 99) || (a.vector ?? 0) - (b.vector ?? 0));
 

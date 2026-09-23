@@ -122,7 +122,9 @@
         "enablers": [],
         "enabledAt": [],
         "priority": null,
-        "confidence": "high"
+        "confidence": "high",
+        "registeredAt": null,
+        "rule": null
       },
       {
         "id": "function:src/app/events.c:BUTTON_IRQHandler",
@@ -136,7 +138,9 @@
         "enablers": [],
         "enabledAt": [],
         "priority": null,
-        "confidence": "high"
+        "confidence": "high",
+        "registeredAt": null,
+        "rule": null
       }
     ],
     "duplicates": [],
@@ -3252,14 +3256,8 @@
       "resourceCount": 1,
       "resources": [
         {
-          "resource": "variable:src/app/events.c:g_button_pressed",
           "name": "g_button_pressed",
-          "variable": "variable:src/app/events.c:g_button_pressed",
-          "writes": 1,
-          "reads": 1,
-          "volatile": true,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/app/events.c:g_button_pressed"
         }
       ]
     },
@@ -3274,24 +3272,12 @@
       "resourceCount": 2,
       "resources": [
         {
-          "resource": "variable:src/app/events.c:g_button_pressed",
           "name": "g_button_pressed",
-          "variable": "variable:src/app/events.c:g_button_pressed",
-          "writes": 1,
-          "reads": 1,
-          "volatile": true,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/app/events.c:g_button_pressed"
         },
         {
-          "resource": "variable:src/hal/gpio.c:s_ticks",
           "name": "s_ticks",
-          "variable": "variable:src/hal/gpio.c:s_ticks",
-          "writes": 1,
-          "reads": 1,
-          "volatile": false,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/hal/gpio.c:s_ticks"
         }
       ]
     },
@@ -3306,14 +3292,8 @@
       "resourceCount": 1,
       "resources": [
         {
-          "resource": "variable:src/app/events.c:g_tick_ms",
           "name": "g_tick_ms",
-          "variable": "variable:src/app/events.c:g_tick_ms",
-          "writes": 1,
-          "reads": 1,
-          "volatile": true,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/app/events.c:g_tick_ms"
         }
       ]
     },
@@ -3328,14 +3308,8 @@
       "resourceCount": 1,
       "resources": [
         {
-          "resource": "variable:src/hal/gpio.c:s_ticks",
           "name": "s_ticks",
-          "variable": "variable:src/hal/gpio.c:s_ticks",
-          "writes": 1,
-          "reads": 1,
-          "volatile": false,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/hal/gpio.c:s_ticks"
         }
       ]
     },
@@ -3350,24 +3324,12 @@
       "resourceCount": 2,
       "resources": [
         {
-          "resource": "variable:src/app/led.c:s_ctx",
           "name": "s_ctx",
-          "variable": "variable:src/app/led.c:s_ctx",
-          "writes": 2,
-          "reads": 4,
-          "volatile": false,
-          "atomicity": "unknown",
-          "derived": false
+          "variable": "variable:src/app/led.c:s_ctx"
         },
         {
-          "resource": "variable:src/hal/gpio.c:s_ticks",
           "name": "s_ticks",
-          "variable": "variable:src/hal/gpio.c:s_ticks",
-          "writes": 1,
-          "reads": 1,
-          "volatile": false,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/hal/gpio.c:s_ticks"
         }
       ]
     },
@@ -3382,14 +3344,8 @@
       "resourceCount": 1,
       "resources": [
         {
-          "resource": "variable:src/hal/gpio.c:s_ticks",
           "name": "s_ticks",
-          "variable": "variable:src/hal/gpio.c:s_ticks",
-          "writes": 1,
-          "reads": 1,
-          "volatile": false,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/hal/gpio.c:s_ticks"
         }
       ]
     },
@@ -3404,24 +3360,12 @@
       "resourceCount": 2,
       "resources": [
         {
-          "resource": "variable:src/app/events.c:g_button_pressed",
           "name": "g_button_pressed",
-          "variable": "variable:src/app/events.c:g_button_pressed",
-          "writes": 1,
-          "reads": 1,
-          "volatile": true,
-          "atomicity": "single-word",
-          "derived": false
+          "variable": "variable:src/app/events.c:g_button_pressed"
         },
         {
-          "resource": "variable:src/app/led.c:s_ctx",
           "name": "s_ctx",
-          "variable": "variable:src/app/led.c:s_ctx",
-          "writes": 6,
-          "reads": 1,
-          "volatile": false,
-          "atomicity": "unknown",
-          "derived": false
+          "variable": "variable:src/app/led.c:s_ctx"
         }
       ]
     }

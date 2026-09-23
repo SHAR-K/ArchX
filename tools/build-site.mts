@@ -22,7 +22,7 @@ interface SiteProject {
   repo: string;
   commit: string;
   license: string;
-  kind: "bare-metal" | "freertos";
+  kind: "bare-metal" | "freertos" | "esp-idf";
   blurb: string;
   facts: string;
   focus: string[];
@@ -56,6 +56,19 @@ const PROJECTS: SiteProject[] = [
     focus: ["Core/**", "Applications/**", "Libraries/FreeRTOS-Plus-CLI/**", "Middlewares/Third_Party/**"],
     region: "",
     build: "cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+  },
+  {
+    id: "grblhal-esp32",
+    title: "grblHAL ESP32",
+    repo: "https://github.com/grblHAL/ESP32",
+    commit: "91c0e0c53c3929ac7ec2f3b6ad90d985a990a793",
+    license: "GPL-3.0",
+    kind: "esp-idf",
+    blurb: "grblHAL CNC controller on ESP32 (Xtensa, ESP-IDF + FreeRTOS). One application task plus interrupts installed through esp_intr_alloc / timer_isr_register / gpio_isr_register — no vector table. The ESP-IDF framework itself is outside the project root and stays out of the facts.",
+    facts: "grblhal-esp32/architecture.json",
+    focus: ["**"],
+    region: "",
+    build: "pio run -e esp32doit-devkit-v1 -t compiledb",
   },
 ];
 

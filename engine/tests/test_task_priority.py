@@ -96,3 +96,26 @@ class PriorityPlumbingTest(unittest.TestCase):
             self.assertEqual({"tskIDLE_PRIORITY": "( ( UBaseType_t ) 0U )", "ALIAS": "tskIDLE_PRIORITY"}, values)
             # 折叠：去 cast、去括号、去 U 后缀，别名再跳一层
             self.assertEqual((3, "ALIAS", "expression"), resolve_priority_text("ALIAS + 3", values))
+
+
+class RegisteredInterruptTest(unittest.TestCase):
+    def test_context_isr_parses_and_changes_the_unit_kind(self) -> None:
+        rules = parse_framework_rules({"callback_register": [
+            {"rule": "e.gpio", "function": "gpio_isr_handler_add", "entry_argument": 1, "context": "isr"},
+            {"rule": "e.evt", "function": "esp_event_handler_register", "entry_argument": 2},
+        ]})
+        by_id = {rule.rule_id: rule for rule in rules.registrations}
+        self.assertEqual(("isr", "registers_callback"), (by_id["e.gpio"].unit_kind, by_id["e.gpio"].relation))
+        self.assertEqual("callback", by_id["e.evt"].unit_kind)
+        with self.assertRaises(FrameworkRulesError):
+            parse_framework_rules({"callback_register": [{"function": "f", "context": "thread"}]})
+        with self.assertRaises(FrameworkRulesError):
+            parse_framework_rules({"task_create": [{"function": "f", "context": "isr"}]})
+
+    def test_registered_interrupt_serialises_with_its_registration_site(self) -> None:
+        unit = ExecutionUnit(unit_id="isr:button_isr", kind="isr", entry_symbol_id="function:app/app.c:button_isr", confidence="high",
+                             registered_at=CodeSite(function_id="function:app/app.c:main", path="app/app.c", line=40), rule="esp_idf.gpio_isr_handler_add")
+        payload = unit.to_dict()
+        self.assertIsNone(payload["vector"])
+        self.assertEqual(40, payload["registeredAt"]["line"])
+        self.assertEqual("esp_idf.gpio_isr_handler_add", payload["rule"])

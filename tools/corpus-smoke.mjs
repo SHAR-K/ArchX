@@ -48,6 +48,11 @@ assert.equal(task("control_task").runMode.periodMs, 10, "osDelay(10) 是 10 个 
 assert.equal(task("logger_task").runMode.periodMs, 50, "vTaskDelay(50) 同理");
 assert.equal(task("worker_task").runMode.mode, "event-driven", "阻塞在 xQueueReceive 上的是事件驱动");
 assert.ok(rtos.executionUnits.some((unit) => unit.id === "isr:TIM_IRQHandler"), "向量表里的 TIM_IRQHandler 要认成中断");
+const registered = rtos.executionUnits.find((unit) => unit.id === "isr:button_isr");
+assert.ok(registered, "gpio_isr_handler_add 装进去的处理函数要认成中断（context: isr），不是回调");
+assert.equal(registered.rule, "esp_idf.gpio_isr_handler_add");
+assert.ok(registered.registeredAt && registered.vector == null, "注册型中断带注册点、没有向量号");
+assert.ok(rtos.conflictCandidates.some((c) => c.name === "g_setpoint"), "button_isr 与 control_task 都写 g_setpoint，要出冲突候选——ESP-IDF 工程恒零冲突就是这条缺的");
 fs.rmSync(out2, { recursive: true, force: true });
 
 fs.rmSync(out, { recursive: true, force: true });

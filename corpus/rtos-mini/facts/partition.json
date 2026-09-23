@@ -13,8 +13,8 @@
     {
       "path": "src/main.c",
       "architecture_node": "src/main.c",
-      "total_lines": 56,
-      "code_lines": 44,
+      "total_lines": 66,
+      "code_lines": 51,
       "fan_in": 0,
       "fan_out": 1,
       "global_variables": 4,
@@ -25,8 +25,8 @@
     {
       "path": "src/rtos.c",
       "architecture_node": "src/rtos.c",
-      "total_lines": 9,
-      "code_lines": 7,
+      "total_lines": 10,
+      "code_lines": 8,
       "fan_in": 0,
       "fan_out": 1,
       "global_variables": 0,
@@ -37,8 +37,8 @@
     {
       "path": "src/rtos.h",
       "architecture_node": "src/rtos.h",
-      "total_lines": 22,
-      "code_lines": 15,
+      "total_lines": 25,
+      "code_lines": 16,
       "fan_in": 2,
       "fan_out": 0,
       "global_variables": 0,
@@ -77,10 +77,25 @@
       "detail": "void (void)",
       "location": {
         "path": "src/main.c",
-        "line": 45,
+        "line": 47,
         "column": 6
       },
-      "end_line": 49,
+      "end_line": 51,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/main.c:button_isr",
+      "name": "button_isr",
+      "detail": "void (void *)",
+      "location": {
+        "path": "src/main.c",
+        "line": 53,
+        "column": 6
+      },
+      "end_line": 58,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -92,10 +107,10 @@
       "detail": "void (void *)",
       "location": {
         "path": "src/main.c",
-        "line": 18,
+        "line": 20,
         "column": 6
       },
-      "end_line": 24,
+      "end_line": 26,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -107,10 +122,10 @@
       "detail": "void (void *)",
       "location": {
         "path": "src/main.c",
-        "line": 26,
+        "line": 28,
         "column": 6
       },
-      "end_line": 33,
+      "end_line": 35,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -122,10 +137,10 @@
       "detail": "int (void)",
       "location": {
         "path": "src/main.c",
-        "line": 51,
+        "line": 60,
         "column": 5
       },
-      "end_line": 56,
+      "end_line": 66,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -137,10 +152,25 @@
       "detail": "void (void *)",
       "location": {
         "path": "src/main.c",
-        "line": 35,
+        "line": 37,
         "column": 6
       },
-      "end_line": 43,
+      "end_line": 45,
+      "documentation": null,
+      "isDefinition": true,
+      "compileBranch": null,
+      "definedInHeader": false
+    },
+    {
+      "symbol_id": "function:src/rtos.c:gpio_isr_handler_add",
+      "name": "gpio_isr_handler_add",
+      "detail": "int (int, void (*)(void *), void *)",
+      "location": {
+        "path": "src/rtos.c",
+        "line": 9,
+        "column": 5
+      },
+      "end_line": 9,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -212,10 +242,10 @@
       "detail": "int (QueueHandle_t, const void *, void *)",
       "location": {
         "path": "src/rtos.c",
-        "line": 9,
+        "line": 10,
         "column": 5
       },
-      "end_line": 9,
+      "end_line": 10,
       "documentation": null,
       "isDefinition": true,
       "compileBranch": null,
@@ -245,7 +275,7 @@
       "scope": "global",
       "location": {
         "path": "src/main.c",
-        "line": 8,
+        "line": 10,
         "column": 22
       },
       "parent_function": null
@@ -257,7 +287,7 @@
       "scope": "global",
       "location": {
         "path": "src/main.c",
-        "line": 15,
+        "line": 17,
         "column": 14
       },
       "parent_function": null
@@ -269,7 +299,7 @@
       "scope": "global",
       "location": {
         "path": "src/main.c",
-        "line": 14,
+        "line": 16,
         "column": 19
       },
       "parent_function": null
@@ -281,7 +311,7 @@
       "scope": "static",
       "location": {
         "path": "src/main.c",
-        "line": 16,
+        "line": 18,
         "column": 22
       },
       "parent_function": null
@@ -295,7 +325,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 48,
+          "line": 50,
           "column": 3
         }
       ]
@@ -307,7 +337,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 47,
+          "line": 49,
           "column": 3
         }
       ]
@@ -319,7 +349,43 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 48,
+          "line": 50,
+          "column": 21
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:button_isr",
+      "target": "function:src/rtos.c:xQueueSendFromISR",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 57,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:button_isr",
+      "target": "variable:src/main.c:g_setpoint",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 56,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:button_isr",
+      "target": "variable:src/main.c:s_events",
+      "relation": "references",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 57,
           "column": 21
         }
       ]
@@ -331,7 +397,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 22,
+          "line": 24,
           "column": 5
         }
       ]
@@ -343,7 +409,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 21,
+          "line": 23,
           "column": 5
         }
       ]
@@ -355,7 +421,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 21,
+          "line": 23,
           "column": 24
         }
       ]
@@ -367,7 +433,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 31,
+          "line": 33,
           "column": 5
         }
       ]
@@ -379,10 +445,37 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 29,
+          "line": 31,
           "column": 20
         }
       ]
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:button_isr",
+      "relation": "address_of",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 61,
+          "column": 27
+        }
+      ],
+      "argumentIndex": 1,
+      "callee": "gpio_isr_handler_add"
+    },
+    {
+      "source": "function:src/main.c:main",
+      "target": "function:src/main.c:button_isr",
+      "relation": "registers_callback",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 61,
+          "column": 27
+        }
+      ],
+      "rule": "esp_idf.gpio_isr_handler_add"
     },
     {
       "source": "function:src/main.c:main",
@@ -391,7 +484,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 52,
+          "line": 62,
           "column": 15
         }
       ],
@@ -405,7 +498,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 52,
+          "line": 62,
           "column": 15
         }
       ],
@@ -425,7 +518,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 53,
+          "line": 63,
           "column": 15
         }
       ],
@@ -439,7 +532,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 53,
+          "line": 63,
           "column": 15
         }
       ],
@@ -457,7 +550,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 54,
+          "line": 64,
           "column": 15
         }
       ],
@@ -471,7 +564,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 54,
+          "line": 64,
           "column": 15
         }
       ],
@@ -484,12 +577,24 @@
     },
     {
       "source": "function:src/main.c:main",
+      "target": "function:src/rtos.c:gpio_isr_handler_add",
+      "relation": "calls",
+      "locations": [
+        {
+          "path": "src/main.c",
+          "line": 61,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "source": "function:src/main.c:main",
       "target": "function:src/rtos.c:osThreadNew",
       "relation": "calls",
       "locations": [
         {
           "path": "src/main.c",
-          "line": 52,
+          "line": 62,
           "column": 3
         }
       ]
@@ -501,12 +606,12 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 53,
+          "line": 63,
           "column": 3
         },
         {
           "path": "src/main.c",
-          "line": 54,
+          "line": 64,
           "column": 3
         }
       ]
@@ -518,7 +623,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 52,
+          "line": 62,
           "column": 33
         }
       ]
@@ -530,7 +635,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 39,
+          "line": 41,
           "column": 9
         }
       ]
@@ -542,7 +647,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 40,
+          "line": 42,
           "column": 7
         }
       ]
@@ -554,7 +659,7 @@
       "locations": [
         {
           "path": "src/main.c",
-          "line": 39,
+          "line": 41,
           "column": 23
         }
       ]
@@ -567,47 +672,28 @@
       "storage": "global",
       "definition": {
         "path": "src/main.c",
-        "line": 15,
+        "line": 17,
         "column": 14
       },
       "references": [
         {
           "path": "src/main.c",
-          "line": 21,
+          "line": 23,
           "column": 5
         },
         {
           "path": "src/main.c",
-          "line": 29,
+          "line": 31,
           "column": 20
         },
         {
           "path": "src/main.c",
-          "line": 40,
+          "line": 42,
           "column": 7
-        }
-      ],
-      "referenced_files": 1,
-      "cross_file": false
-    },
-    {
-      "name": "g_ticks",
-      "type_name": "volatile unsigned int",
-      "storage": "global",
-      "definition": {
-        "path": "src/main.c",
-        "line": 14,
-        "column": 19
-      },
-      "references": [
-        {
-          "path": "src/main.c",
-          "line": 21,
-          "column": 24
         },
         {
           "path": "src/main.c",
-          "line": 47,
+          "line": 56,
           "column": 3
         }
       ],
@@ -620,19 +706,48 @@
       "storage": "static",
       "definition": {
         "path": "src/main.c",
-        "line": 16,
+        "line": 18,
         "column": 22
       },
       "references": [
         {
           "path": "src/main.c",
-          "line": 39,
+          "line": 41,
           "column": 23
         },
         {
           "path": "src/main.c",
-          "line": 48,
+          "line": 50,
           "column": 21
+        },
+        {
+          "path": "src/main.c",
+          "line": 57,
+          "column": 21
+        }
+      ],
+      "referenced_files": 1,
+      "cross_file": false
+    },
+    {
+      "name": "g_ticks",
+      "type_name": "volatile unsigned int",
+      "storage": "global",
+      "definition": {
+        "path": "src/main.c",
+        "line": 16,
+        "column": 19
+      },
+      "references": [
+        {
+          "path": "src/main.c",
+          "line": 23,
+          "column": 24
+        },
+        {
+          "path": "src/main.c",
+          "line": 49,
+          "column": 3
         }
       ],
       "referenced_files": 1,
@@ -644,13 +759,13 @@
       "storage": "global",
       "definition": {
         "path": "src/main.c",
-        "line": 8,
+        "line": 10,
         "column": 22
       },
       "references": [
         {
           "path": "src/main.c",
-          "line": 52,
+          "line": 62,
           "column": 33
         }
       ],
@@ -668,12 +783,12 @@
     "dependency_cycle_groups": 0,
     "global_variables": 4,
     "cross_file_global_variables": 0,
-    "functions": 11,
+    "functions": 13,
     "variables": 4,
-    "function_calls": 6,
-    "variable_references": 8,
-    "total_lines": 109,
-    "code_lines": 88,
+    "function_calls": 8,
+    "variable_references": 10,
+    "total_lines": 123,
+    "code_lines": 97,
     "high_risk_files": 0,
     "unassigned_files": 0,
     "files_by_extension": {
@@ -744,13 +859,36 @@
       }
     },
     {
+      "id": "isr:button_isr",
+      "kind": "isr",
+      "entrySymbolId": "function:src/main.c:button_isr",
+      "vector": null,
+      "vectorTable": null,
+      "enabledAt": [],
+      "registeredAt": {
+        "functionId": "function:src/main.c:main",
+        "path": "src/main.c",
+        "line": 61
+      },
+      "rule": "esp_idf.gpio_isr_handler_add",
+      "confidence": "high",
+      "runMode": {
+        "mode": "one-shot",
+        "confidence": "high",
+        "periodMs": null,
+        "evidence": {
+          "reason": "no loop in the entry function"
+        }
+      }
+    },
+    {
       "id": "task:control_task",
       "kind": "task",
       "entrySymbolId": "function:src/main.c:control_task",
       "registeredAt": {
         "functionId": "function:src/main.c:main",
         "path": "src/main.c",
-        "line": 52
+        "line": 62
       },
       "rule": "cmsis-rtos2.osThreadNew",
       "priority": {
@@ -760,7 +898,7 @@
         "basis": "attr-initializer",
         "at": {
           "path": "src/main.c",
-          "line": 11
+          "line": 13
         },
         "attr": "control_attributes",
         "field": "priority"
@@ -776,7 +914,7 @@
             "kind": "for",
             "location": {
               "path": "src/main.c",
-              "line": 20,
+              "line": 22,
               "column": 3
             },
             "infinite": true
@@ -788,7 +926,7 @@
               "kind": "delay",
               "location": {
                 "path": "src/main.c",
-                "line": 22,
+                "line": 24,
                 "column": 5
               },
               "via": "ast",
@@ -815,7 +953,7 @@
       "registeredAt": {
         "functionId": "function:src/main.c:main",
         "path": "src/main.c",
-        "line": 53
+        "line": 63
       },
       "rule": "freertos.xTaskCreate",
       "priority": {
@@ -825,7 +963,7 @@
         "basis": "expression",
         "at": {
           "path": "src/main.c",
-          "line": 53
+          "line": 63
         }
       },
       "confidence": "high",
@@ -839,7 +977,7 @@
             "kind": "for",
             "location": {
               "path": "src/main.c",
-              "line": 28,
+              "line": 30,
               "column": 3
             },
             "infinite": true
@@ -851,7 +989,7 @@
               "kind": "delay",
               "location": {
                 "path": "src/main.c",
-                "line": 31,
+                "line": 33,
                 "column": 5
               },
               "via": "ast",
@@ -878,7 +1016,7 @@
       "registeredAt": {
         "functionId": "function:src/main.c:main",
         "path": "src/main.c",
-        "line": 54
+        "line": 64
       },
       "rule": "freertos.xTaskCreate",
       "priority": {
@@ -888,7 +1026,7 @@
         "basis": "expression",
         "at": {
           "path": "src/main.c",
-          "line": 54
+          "line": 64
         }
       },
       "confidence": "high",
@@ -902,7 +1040,7 @@
             "kind": "for",
             "location": {
               "path": "src/main.c",
-              "line": 38,
+              "line": 40,
               "column": 3
             },
             "infinite": true
@@ -914,7 +1052,7 @@
               "kind": "wait",
               "location": {
                 "path": "src/main.c",
-                "line": 39,
+                "line": 41,
                 "column": 9
               },
               "via": "ast"
@@ -931,8 +1069,13 @@
         "function:src/main.c:TIM_IRQHandler",
         "function:src/rtos.c:xQueueSendFromISR"
       ],
+      "isr:button_isr": [
+        "function:src/main.c:button_isr",
+        "function:src/rtos.c:xQueueSendFromISR"
+      ],
       "main:main": [
         "function:src/main.c:main",
+        "function:src/rtos.c:gpio_isr_handler_add",
         "function:src/rtos.c:osThreadNew",
         "function:src/rtos.c:xTaskCreate"
       ],
@@ -953,6 +1096,9 @@
       "function:src/main.c:TIM_IRQHandler": [
         "isr"
       ],
+      "function:src/main.c:button_isr": [
+        "isr"
+      ],
       "function:src/main.c:control_task": [
         "task"
       ],
@@ -964,6 +1110,9 @@
       ],
       "function:src/main.c:worker_task": [
         "task"
+      ],
+      "function:src/rtos.c:gpio_isr_handler_add": [
+        "main"
       ],
       "function:src/rtos.c:osDelay": [
         "task"
@@ -994,10 +1143,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 20,
+        "line": 22,
         "column": 3
       },
-      "endLine": 23,
+      "endLine": 25,
       "infinite": true,
       "depth": 0,
       "callsInBody": [
@@ -1010,7 +1159,7 @@
           "kind": "delay",
           "location": {
             "path": "src/main.c",
-            "line": 22,
+            "line": 24,
             "column": 5
           },
           "via": "ast",
@@ -1028,10 +1177,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 28,
+        "line": 30,
         "column": 3
       },
-      "endLine": 32,
+      "endLine": 34,
       "infinite": true,
       "depth": 0,
       "callsInBody": [
@@ -1044,7 +1193,7 @@
           "kind": "delay",
           "location": {
             "path": "src/main.c",
-            "line": 31,
+            "line": 33,
             "column": 5
           },
           "via": "ast",
@@ -1062,10 +1211,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 38,
+        "line": 40,
         "column": 3
       },
-      "endLine": 42,
+      "endLine": 44,
       "infinite": true,
       "depth": 0,
       "callsInBody": [
@@ -1078,7 +1227,7 @@
           "kind": "wait",
           "location": {
             "path": "src/main.c",
-            "line": 39,
+            "line": 41,
             "column": 9
           },
           "via": "ast"
@@ -1091,10 +1240,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 55,
+        "line": 65,
         "column": 3
       },
-      "endLine": 55,
+      "endLine": 65,
       "infinite": true,
       "depth": 0,
       "callsInBody": [],
@@ -1111,7 +1260,7 @@
       "kind": "write",
       "location": {
         "path": "src/main.c",
-        "line": 21,
+        "line": 23,
         "column": 5
       }
     },
@@ -1122,7 +1271,7 @@
       "kind": "read",
       "location": {
         "path": "src/main.c",
-        "line": 21,
+        "line": 23,
         "column": 24
       }
     },
@@ -1133,7 +1282,7 @@
       "kind": "read",
       "location": {
         "path": "src/main.c",
-        "line": 29,
+        "line": 31,
         "column": 20
       }
     },
@@ -1144,7 +1293,7 @@
       "kind": "read",
       "location": {
         "path": "src/main.c",
-        "line": 39,
+        "line": 41,
         "column": 23
       }
     },
@@ -1155,7 +1304,7 @@
       "kind": "read_write",
       "location": {
         "path": "src/main.c",
-        "line": 40,
+        "line": 42,
         "column": 7
       }
     },
@@ -1166,7 +1315,7 @@
       "kind": "read_write",
       "location": {
         "path": "src/main.c",
-        "line": 47,
+        "line": 49,
         "column": 3
       }
     },
@@ -1177,7 +1326,29 @@
       "kind": "read",
       "location": {
         "path": "src/main.c",
-        "line": 48,
+        "line": 50,
+        "column": 21
+      }
+    },
+    {
+      "function": "function:src/main.c:button_isr",
+      "variable": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "kind": "write",
+      "location": {
+        "path": "src/main.c",
+        "line": 56,
+        "column": 3
+      }
+    },
+    {
+      "function": "function:src/main.c:button_isr",
+      "variable": "variable:src/main.c:s_events",
+      "name": "s_events",
+      "kind": "read",
+      "location": {
+        "path": "src/main.c",
+        "line": 57,
         "column": 21
       }
     },
@@ -1188,7 +1359,7 @@
       "kind": "address_taken",
       "location": {
         "path": "src/main.c",
-        "line": 52,
+        "line": 62,
         "column": 33
       }
     }
@@ -1197,11 +1368,11 @@
   "scanTotals": {
     "loops": 4,
     "stateMachines": 0,
-    "resourceAccesses": 8,
+    "resourceAccesses": 10,
     "criticalSections": 0,
     "sharedResources": 3,
-    "conflictCandidates": 1,
-    "dataDependencies": 4
+    "conflictCandidates": 2,
+    "dataDependencies": 6
   },
   "dataDependencies": [
     {
@@ -1218,6 +1389,50 @@
           "resource": "variable:src/main.c:g_ticks",
           "name": "g_ticks",
           "variable": "variable:src/main.c:g_ticks",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    },
+    {
+      "from": "isr:button_isr",
+      "to": "task:logger_task",
+      "fromKind": "isr",
+      "toKind": "task",
+      "order": "async",
+      "fromPosition": null,
+      "toPosition": 1,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_setpoint",
+          "name": "g_setpoint",
+          "variable": "variable:src/main.c:g_setpoint",
+          "writes": 1,
+          "reads": 1,
+          "volatile": true,
+          "atomicity": "single-word",
+          "derived": false
+        }
+      ]
+    },
+    {
+      "from": "isr:button_isr",
+      "to": "task:worker_task",
+      "fromKind": "isr",
+      "toKind": "task",
+      "order": "async",
+      "fromPosition": null,
+      "toPosition": 2,
+      "resourceCount": 1,
+      "resources": [
+        {
+          "resource": "variable:src/main.c:g_setpoint",
+          "name": "g_setpoint",
+          "variable": "variable:src/main.c:g_setpoint",
           "writes": 1,
           "reads": 1,
           "volatile": true,
@@ -1306,7 +1521,7 @@
           "kind": "for",
           "location": {
             "path": "src/main.c",
-            "line": 55,
+            "line": 65,
             "column": 3
           },
           "infinite": true
@@ -1336,6 +1551,16 @@
       }
     },
     {
+      "unitId": "isr:button_isr",
+      "function": "function:src/main.c:button_isr",
+      "mode": "one-shot",
+      "confidence": "high",
+      "periodMs": null,
+      "evidence": {
+        "reason": "no loop in the entry function"
+      }
+    },
+    {
       "unitId": "task:control_task",
       "function": "function:src/main.c:control_task",
       "mode": "periodic",
@@ -1347,7 +1572,7 @@
           "kind": "for",
           "location": {
             "path": "src/main.c",
-            "line": 20,
+            "line": 22,
             "column": 3
           },
           "infinite": true
@@ -1359,7 +1584,7 @@
             "kind": "delay",
             "location": {
               "path": "src/main.c",
-              "line": 22,
+              "line": 24,
               "column": 5
             },
             "via": "ast",
@@ -1390,7 +1615,7 @@
           "kind": "for",
           "location": {
             "path": "src/main.c",
-            "line": 28,
+            "line": 30,
             "column": 3
           },
           "infinite": true
@@ -1402,7 +1627,7 @@
             "kind": "delay",
             "location": {
               "path": "src/main.c",
-              "line": 31,
+              "line": 33,
               "column": 5
             },
             "via": "ast",
@@ -1433,7 +1658,7 @@
           "kind": "for",
           "location": {
             "path": "src/main.c",
-            "line": 38,
+            "line": 40,
             "column": 3
           },
           "infinite": true
@@ -1445,7 +1670,7 @@
             "kind": "wait",
             "location": {
               "path": "src/main.c",
-              "line": 39,
+              "line": 41,
               "column": 9
             },
             "via": "ast"
@@ -1463,9 +1688,31 @@
       "typeName": "volatile int",
       "widthBytes": 4,
       "atomicity": "single-word",
-      "unitCount": 3,
-      "accessCount": 3,
+      "unitCount": 4,
+      "accessCount": 4,
       "units": [
+        {
+          "unit": "isr:button_isr",
+          "unitKind": "isr",
+          "kinds": [
+            "write"
+          ],
+          "unprotectedKinds": [
+            "write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:button_isr",
+              "kind": "write",
+              "location": {
+                "path": "src/main.c",
+                "line": 56,
+                "column": 3
+              }
+            }
+          ]
+        },
         {
           "unit": "task:control_task",
           "unitKind": "task",
@@ -1482,7 +1729,7 @@
               "kind": "write",
               "location": {
                 "path": "src/main.c",
-                "line": 21,
+                "line": 23,
                 "column": 5
               }
             }
@@ -1504,7 +1751,7 @@
               "kind": "read",
               "location": {
                 "path": "src/main.c",
-                "line": 29,
+                "line": 31,
                 "column": 20
               }
             }
@@ -1526,7 +1773,7 @@
               "kind": "read_write",
               "location": {
                 "path": "src/main.c",
-                "line": 40,
+                "line": 42,
                 "column": 7
               }
             }
@@ -1561,7 +1808,7 @@
               "kind": "read_write",
               "location": {
                 "path": "src/main.c",
-                "line": 47,
+                "line": 49,
                 "column": 3
               }
             }
@@ -1583,7 +1830,7 @@
               "kind": "read",
               "location": {
                 "path": "src/main.c",
-                "line": 21,
+                "line": 23,
                 "column": 24
               }
             }
@@ -1599,8 +1846,8 @@
       "typeName": "QueueHandle_t",
       "widthBytes": null,
       "atomicity": "unknown",
-      "unitCount": 2,
-      "accessCount": 2,
+      "unitCount": 3,
+      "accessCount": 3,
       "units": [
         {
           "unit": "isr:TIM_IRQHandler",
@@ -1618,7 +1865,29 @@
               "kind": "read",
               "location": {
                 "path": "src/main.c",
-                "line": 48,
+                "line": 50,
+                "column": 21
+              }
+            }
+          ]
+        },
+        {
+          "unit": "isr:button_isr",
+          "unitKind": "isr",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:button_isr",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 57,
                 "column": 21
               }
             }
@@ -1640,7 +1909,7 @@
               "kind": "read",
               "location": {
                 "path": "src/main.c",
-                "line": 39,
+                "line": 41,
                 "column": 23
               }
             }
@@ -1650,6 +1919,108 @@
     }
   ],
   "conflictCandidates": [
+    {
+      "resource": "variable:src/main.c:g_setpoint",
+      "name": "g_setpoint",
+      "variable": "variable:src/main.c:g_setpoint",
+      "volatile": true,
+      "isrSide": [
+        {
+          "unit": "isr:button_isr",
+          "unitKind": "isr",
+          "kinds": [
+            "write"
+          ],
+          "unprotectedKinds": [
+            "write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:button_isr",
+              "kind": "write",
+              "location": {
+                "path": "src/main.c",
+                "line": 56,
+                "column": 3
+              }
+            }
+          ]
+        }
+      ],
+      "otherSide": [
+        {
+          "unit": "task:control_task",
+          "unitKind": "task",
+          "kinds": [
+            "write"
+          ],
+          "unprotectedKinds": [
+            "write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:control_task",
+              "kind": "write",
+              "location": {
+                "path": "src/main.c",
+                "line": 23,
+                "column": 5
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:logger_task",
+          "unitKind": "task",
+          "kinds": [
+            "read"
+          ],
+          "unprotectedKinds": [
+            "read"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:logger_task",
+              "kind": "read",
+              "location": {
+                "path": "src/main.c",
+                "line": 31,
+                "column": 20
+              }
+            }
+          ]
+        },
+        {
+          "unit": "task:worker_task",
+          "unitKind": "task",
+          "kinds": [
+            "read_write"
+          ],
+          "unprotectedKinds": [
+            "read_write"
+          ],
+          "accessCount": 1,
+          "accesses": [
+            {
+              "function": "function:src/main.c:worker_task",
+              "kind": "read_write",
+              "location": {
+                "path": "src/main.c",
+                "line": 42,
+                "column": 7
+              }
+            }
+          ]
+        }
+      ],
+      "pattern": "isr-write/other-access",
+      "confidence": "high",
+      "reason": "both the interrupt side and the thread side write outside any recognised critical section",
+      "approximation": "reachability-and-same-block-critical-sections; not a path proof"
+    },
     {
       "resource": "variable:src/main.c:g_ticks",
       "name": "g_ticks",
@@ -1672,7 +2043,7 @@
               "kind": "read_write",
               "location": {
                 "path": "src/main.c",
-                "line": 47,
+                "line": 49,
                 "column": 3
               }
             }
@@ -1696,7 +2067,7 @@
               "kind": "read",
               "location": {
                 "path": "src/main.c",
-                "line": 21,
+                "line": 23,
                 "column": 24
               }
             }
@@ -1710,10 +2081,10 @@
     }
   ],
   "astFacts": {
-    "functionsRequested": 11,
-    "functionsAnalyzed": 11,
+    "functionsRequested": 13,
+    "functionsAnalyzed": 13,
     "functionsFailed": 0,
-    "elapsedSeconds": 0.018,
+    "elapsedSeconds": 0.017,
     "doWhileZeroSkipped": 0,
     "switchesSkipped": 0,
     "enumValuesResolved": 1,
@@ -1760,10 +2131,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 20,
+        "line": 22,
         "column": 3
       },
-      "endLine": 23,
+      "endLine": 25,
       "condition": "for (;;) {",
       "depth": 0,
       "parent": null
@@ -1773,10 +2144,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 28,
+        "line": 30,
         "column": 3
       },
-      "endLine": 32,
+      "endLine": 34,
       "condition": "for (;;) {",
       "depth": 0,
       "parent": null
@@ -1786,10 +2157,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 38,
+        "line": 40,
         "column": 3
       },
-      "endLine": 42,
+      "endLine": 44,
       "condition": "for (;;) {",
       "depth": 0,
       "parent": null
@@ -1799,23 +2170,23 @@
       "kind": "if",
       "location": {
         "path": "src/main.c",
-        "line": 39,
+        "line": 41,
         "column": 5
       },
-      "endLine": 41,
+      "endLine": 43,
       "condition": "xQueueReceive(s_events, &event, portMAX_DELAY)",
       "depth": 1,
       "parent": 0,
       "parts": [
         {
           "text": "xQueueReceive(s_events, &event, portMAX_DELAY)",
-          "line": 39
+          "line": 41
         }
       ],
       "partsNegated": [
         {
           "text": "xQueueReceive(s_events, &event, portMAX_DELAY)",
-          "line": 39
+          "line": 41
         }
       ]
     },
@@ -1824,10 +2195,10 @@
       "kind": "for",
       "location": {
         "path": "src/main.c",
-        "line": 55,
+        "line": 65,
         "column": 3
       },
-      "endLine": 55,
+      "endLine": 65,
       "condition": "for (;;) { }",
       "depth": 0,
       "parent": null
@@ -1859,7 +2230,7 @@
       "expression": "g_ticks++",
       "location": {
         "path": "src/main.c",
-        "line": 47,
+        "line": 49,
         "column": 3
       },
       "function": "function:src/main.c:TIM_IRQHandler",
@@ -1887,7 +2258,7 @@
       "kind": "translation-unit",
       "regions": [],
       "inactiveLines": 0,
-      "totalLines": 56,
+      "totalLines": 66,
       "ratio": 0
     },
     {
@@ -1895,7 +2266,7 @@
       "kind": "translation-unit",
       "regions": [],
       "inactiveLines": 0,
-      "totalLines": 9,
+      "totalLines": 10,
       "ratio": 0
     }
   ],
@@ -1913,7 +2284,7 @@
       "count": 1,
       "location": {
         "path": "src/main.c",
-        "line": 39,
+        "line": 41,
         "column": 23
       },
       "definedIn": {
@@ -1932,7 +2303,26 @@
       "count": 1,
       "location": {
         "path": "src/main.c",
-        "line": 48,
+        "line": 50,
+        "column": 21
+      },
+      "definedIn": {
+        "path": "src/rtos.h",
+        "line": 9,
+        "column": 1
+      },
+      "resolution": "project"
+    },
+    {
+      "function": "function:src/main.c:button_isr",
+      "type": "QueueHandle_t",
+      "role": "global",
+      "pointer": false,
+      "asWritten": "QueueHandle_t",
+      "count": 1,
+      "location": {
+        "path": "src/main.c",
+        "line": 57,
         "column": 21
       },
       "definedIn": {
@@ -1951,7 +2341,7 @@
       "count": 1,
       "location": {
         "path": "src/main.c",
-        "line": 52,
+        "line": 62,
         "column": 33
       },
       "definedIn": {
@@ -2027,7 +2417,7 @@
       "count": 1,
       "location": {
         "path": "src/rtos.c",
-        "line": 9,
+        "line": 10,
         "column": 37
       },
       "definedIn": {
@@ -2045,12 +2435,12 @@
       "count": 1,
       "location": {
         "path": "src/main.c",
-        "line": 39,
+        "line": 41,
         "column": 41
       },
       "definedIn": {
         "path": "src/rtos.h",
-        "line": 20,
+        "line": 23,
         "column": 1
       },
       "resolution": "project",
@@ -2062,12 +2452,12 @@
       "count": 2,
       "location": {
         "path": "src/main.c",
-        "line": 53,
+        "line": 63,
         "column": 46
       },
       "definedIn": {
         "path": "src/rtos.h",
-        "line": 19,
+        "line": 22,
         "column": 1
       },
       "resolution": "project",
@@ -2142,7 +2532,7 @@
           "source": "src/main.c",
           "target": "src/rtos.c",
           "includes": 0,
-          "calls": 6,
+          "calls": 8,
           "bypassCalls": 0,
           "typeOnlyIncludes": 0,
           "types": 0,
@@ -2157,7 +2547,7 @@
           "calls": 0,
           "bypassCalls": 0,
           "typeOnlyIncludes": 0,
-          "types": 3,
+          "types": 4,
           "macros": 2,
           "reads": 0,
           "writes": 0
@@ -2256,10 +2646,10 @@
           "source": "src/main.c",
           "target": "src/rtos",
           "includes": 1,
-          "calls": 6,
+          "calls": 8,
           "bypassCalls": 0,
           "typeOnlyIncludes": 0,
-          "types": 3,
+          "types": 4,
           "macros": 2,
           "reads": 0,
           "writes": 0
@@ -2294,8 +2684,8 @@
           "src/rtos.h"
         ]
       ],
-      "cost": 18,
-      "initialCost": 24,
+      "cost": 22,
+      "initialCost": 30,
       "iterations": 45,
       "steps": [
         {
@@ -2303,9 +2693,9 @@
           "node": "src/main.c",
           "from": 0,
           "to": 1,
-          "bid": 1296,
+          "bid": 4096,
           "second": 1,
-          "cost": 18,
+          "cost": 22,
           "worse": false
         },
         {
@@ -2315,7 +2705,7 @@
           "to": 2,
           "bid": 1,
           "second": 0,
-          "cost": 23,
+          "cost": 29,
           "worse": true
         },
         {
@@ -2323,9 +2713,9 @@
           "node": "src/rtos.c",
           "from": 2,
           "to": 1,
-          "bid": 1296,
+          "bid": 4096,
           "second": 0,
-          "cost": 18,
+          "cost": 22,
           "worse": false
         },
         {
@@ -2335,7 +2725,7 @@
           "to": 2,
           "bid": 1,
           "second": 0,
-          "cost": 23,
+          "cost": 29,
           "worse": true
         },
         {
@@ -2343,9 +2733,9 @@
           "node": "src/rtos.c",
           "from": 2,
           "to": 1,
-          "bid": 1296,
+          "bid": 4096,
           "second": 0,
-          "cost": 18,
+          "cost": 22,
           "worse": false
         },
         {
@@ -2355,7 +2745,7 @@
           "to": null,
           "bid": 0,
           "second": 0,
-          "cost": 18,
+          "cost": 22,
           "worse": false,
           "bestAt": 1
         }
@@ -2364,27 +2754,27 @@
         {
           "seed": 1,
           "clusters": 2,
-          "cost": 18
+          "cost": 22
         },
         {
           "seed": 2,
           "clusters": 2,
-          "cost": 18
+          "cost": 22
         },
         {
           "seed": 3,
           "clusters": 2,
-          "cost": 18
+          "cost": 22
         },
         {
           "seed": 4,
           "clusters": 2,
-          "cost": 18
+          "cost": 22
         },
         {
           "seed": 5,
           "clusters": 2,
-          "cost": 18
+          "cost": 22
         }
       ],
       "stability": {

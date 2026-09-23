@@ -291,7 +291,7 @@ export function Concurrency(props: ConcurrencyProps) {
           {theme.isrs.map((i) => (
             <button key={i.id} className="rung" onClick={() => props.onOpenFile(i.file)}>
               <b>{i.name}</b>
-              <span className="sub">{i.kernel ? t("kernel exception") : i.preempt == null ? t("priority unknown") : `${t("preempt")} ${i.preempt}${i.sub == null ? "" : `.${i.sub}`}`}{i.vector != null ? ` · ${t("vector")} ${i.vector}` : ""}{i.enabled ? "" : ` · ${t("no enable seen")}`}</span>
+              <span className="sub">{i.kernel ? t("kernel exception") : i.preempt == null ? t("priority unknown") : `${t("preempt")} ${i.preempt}${i.sub == null ? "" : `.${i.sub}`}`}{i.vector != null ? ` · ${t("vector")} ${i.vector}` : ""}{i.registeredAt ? ` · ${t("installed by")} ${i.registeredAt.name}:${i.registeredAt.line}${i.rule ? ` (${i.rule})` : ""}` : i.enabled ? "" : ` · ${t("no enable seen")}`}</span>
             </button>
           ))}
         </div></Rail>

@@ -569,5 +569,6 @@
   "conflict": "冲突",
   "both write": "双方都写",
   "shared": "共享",
-  "no shared state": "没碰共享状态"
+  "no shared state": "没碰共享状态",
+  "installed by": "装入于"
 }

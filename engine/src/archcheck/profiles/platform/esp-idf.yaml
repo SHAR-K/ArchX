@@ -14,15 +14,38 @@ callback_register:
 - rule: esp_idf.esp_event_handler_instance_register
   function: esp_event_handler_instance_register
   entry_argument: 2
+# 下面三条注册的是中断上下文（context: isr）：没有向量表，处理函数经 API 装进去，但它在中断里跑。
+# 不标的话它们全是 callback，冲突检测取不到中断侧，整个工程恒零冲突
 - rule: esp_idf.gpio_isr_handler_add
   function: gpio_isr_handler_add
   entry_argument: 1
+  context: isr
 - rule: esp_idf.esp_intr_alloc
   function: esp_intr_alloc
   entry_argument: 2
+  context: isr
 - rule: esp_idf.esp_intr_alloc_intrstatus
   function: esp_intr_alloc_intrstatus
   entry_argument: 4
+  context: isr
+- rule: esp_idf.gpio_isr_register
+  function: gpio_isr_register
+  entry_argument: 0
+  context: isr
+# timer_isr_register(group, idx, fn, arg, flags, handle) / timer_isr_callback_add(group, idx, fn, arg, flags)
+- rule: esp_idf.timer_isr_register
+  function: timer_isr_register
+  entry_argument: 2
+  context: isr
+- rule: esp_idf.timer_isr_callback_add
+  function: timer_isr_callback_add
+  entry_argument: 2
+  context: isr
+# uart_isr_register(uart, fn, arg, flags, handle)
+- rule: esp_idf.uart_isr_register
+  function: uart_isr_register
+  entry_argument: 1
+  context: isr
 critical_section:
 - rule: esp_idf.portENTER_CRITICAL
   begin: portENTER_CRITICAL*

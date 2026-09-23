@@ -300,7 +300,7 @@ def build_execution_units(
         kind = "task" if edge.relation == "registers_task" else "callback"
         rule = rules.registration_rule(edge.rule) if edge.rule else None
         if rule is not None:
-            kind = rule.kind
+            kind = rule.unit_kind  # context: isr 的注册规则产出中断单元
         for location in edge_sites(edge):
             registrations.setdefault((kind, edge.target), []).append(
                 (edge, CodeSite(function_id=edge.source, path=location.path, line=location.line))
